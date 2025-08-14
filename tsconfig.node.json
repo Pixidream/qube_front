@@ -4,7 +4,19 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@machines/*": ["./src/machines/*"],
+      "@core/*": ["./src/core/*"],
+      "@composables/*": ["./src/composables/*"],
+      "@components/*": ["./src/components/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@router/*": ["./src/router/*"]
+    }
   },
   "include": ["vite.config.ts"]
 }
