@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { Button } from './components/atoms/button';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+onMounted(() => {
+  router.push({ name: 'login' });
+});
 </script>
 
 <template>
-<Button>Hello World !</Button>
+  <RouterView />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
