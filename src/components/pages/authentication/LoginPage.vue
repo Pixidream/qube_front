@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import LoginCard from '@/components/organisms/authentication/LoginCard.vue';
+</script>
 <template>
-  <div class="flex min-h-dvh flex-col justify-center px-6 py-12 lg:px-6"></div>
+  <LoginCard />
 </template>

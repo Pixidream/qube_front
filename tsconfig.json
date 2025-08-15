@@ -29,7 +29,8 @@
       "@composables/*": ["./src/composables/*"],
       "@components/*": ["./src/components/*"],
       "@assets/*": ["./src/assets/*"],
-      "@router/*": ["./src/router/*"]
+      "@router/*": ["./src/router/*"],
+      "@i18n/*": ["src/i18n/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

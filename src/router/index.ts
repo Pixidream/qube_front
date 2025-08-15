@@ -6,10 +6,30 @@ import {
 
 const routes: readonly RouteRecordRaw[] = [
   {
-    path: '/auth/login',
-    name: 'login',
-    component: () => import('@components/pages/authentication/LoginPage.vue'),
-    meta: { requiresAuth: false, displayName: 'Login' },
+    path: '/',
+    name: 'home',
+    component: () => import('@components/pages/HomePage.vue'),
+    meta: { requiresAuth: false, displayName: 'Home' },
+  },
+  {
+    path: '/auth',
+    component: () => import('@components/templates/AuthTemplate.vue'),
+    children: [
+      {
+        path: 'login',
+        name: 'login',
+        component: () =>
+          import('@components/pages/authentication/LoginPage.vue'),
+        meta: { requiresAuth: false, displayName: 'Login' },
+      },
+      {
+        path: 'signup',
+        name: 'signup',
+        component: () =>
+          import('@components/pages/authentication/SignupPage.vue'),
+        meta: { requiresAuth: false, displayName: 'Signup' },
+      },
+    ],
   },
 ];
 
