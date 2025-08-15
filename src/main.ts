@@ -1,7 +1,6 @@
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
-import { MotionPlugin } from '@vueuse/motion';
 
 import '@assets/css/index.css';
 import App from './App.vue';
@@ -14,5 +13,4 @@ createApp(App)
   .use(pinia)
   .use(router)
   .use(autoAnimatePlugin)
-  .use(MotionPlugin)
   .mount('#app');
