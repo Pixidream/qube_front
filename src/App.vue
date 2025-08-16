@@ -5,7 +5,9 @@ useColorMode();
 </script>
 
 <template>
-  <RouterView />
+  <div class="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    <RouterView />
+  </div>
 </template>
 
 <style scoped></style>

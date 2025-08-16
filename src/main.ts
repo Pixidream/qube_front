@@ -6,7 +6,9 @@ import '@assets/css/index.css';
 import App from './App.vue';
 import { router } from '@router/index';
 import { i18n } from './i18n';
+import { createZxcvbn } from '@/plugins/zxcvbn';
 
+createZxcvbn();
 const pinia = createPinia();
 createApp(App)
   .use(i18n)

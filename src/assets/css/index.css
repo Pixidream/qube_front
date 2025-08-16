@@ -128,3 +128,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.safe-height {
+  min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}

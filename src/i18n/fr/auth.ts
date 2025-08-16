@@ -18,4 +18,25 @@ export default {
       },
     },
   },
+  signup: {
+    form: {
+      title: 'Créez votre compte',
+      subtitle: 'Prenez le contrôle de votre inventaire en quelques minutes',
+      emailLabel: 'Email',
+      passwordLabel: 'Mot de passe',
+      confirmPasswordLabel: 'Confirmez votre mot de passe',
+      signupButton: 'Créer mon compte',
+      haveAccountLink: 'Vous avez un compte ? Vous connecter !',
+      validation: {
+        email: 'Un email valide est requis.',
+        emailMinLength: "L'addresse est trop courte",
+        emailMaxLength: "L'addresse est trop longue.",
+        password: 'Un mot de passe valide est requis.',
+        passwordMinLength: 'Le mot de passe est trop court',
+        passwordMaxLength: 'Le mot de passe est trop long.',
+        passwordMatch: 'Les mots de passe sont différents',
+        passwordStrength: 'Le mot de passe est trop faible',
+      },
+    },
+  },
 };

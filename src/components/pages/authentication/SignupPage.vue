@@ -1,6 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import SignupCard from '@components/organisms/authentication/SignupCard.vue';
+</script>
 <template>
   <div>
-    Signup page ! <RouterLink :to="{ name: 'login' }">Go to Login</RouterLink>
+    <SignupCard />
   </div>
 </template>
