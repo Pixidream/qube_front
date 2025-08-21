@@ -1,3 +1,5 @@
+import { TOTP_LENGTH } from '@core/constants/auth.constants';
+
 export default {
   networkError: 'Une erreur est survenue',
   login: {
@@ -38,6 +40,19 @@ export default {
         passwordMaxLength: 'Le mot de passe est trop long.',
         passwordMatch: 'Les mots de passe sont différents',
         passwordStrength: 'Le mot de passe est trop faible',
+      },
+    },
+  },
+  totp: {
+    form: {
+      title: 'Vérifiez votre identité',
+      subtitle: "Saisissez le code de votre application d'authentification",
+      totpLabel: 'TOTP',
+      totpButton: 'Soumettre',
+      validation: {
+        totp: 'Un TOTP valid est requis',
+        totpMinLength: `Le TOTP doit avoir ${TOTP_LENGTH} chiffres.`,
+        totpMaxLength: `Le TOTP doit avoir ${TOTP_LENGTH} chiffres.`,
       },
     },
   },

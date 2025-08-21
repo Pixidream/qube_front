@@ -1,3 +1,5 @@
+import { TOTP_LENGTH } from '@/core/constants/auth.constants';
+
 export default {
   networkError: 'Something wrong happend',
   login: {
@@ -38,6 +40,19 @@ export default {
         passwordMaxLength: 'Password is too long.',
         passwordMatch: 'Passwords are not the same',
         passwordStrength: 'Password is too weak',
+      },
+    },
+  },
+  totp: {
+    form: {
+      title: 'Verify your identity',
+      subtitle: 'Enter the code from your authenticator app',
+      totpLabel: 'TOTP',
+      totpButton: 'Submit',
+      validation: {
+        totp: 'A valid TOTP is required.',
+        totpMinLength: `TOTP token has to have ${TOTP_LENGTH} figures.`,
+        totpMaxLength: `TOTP token has to have ${TOTP_LENGTH} figures.`,
       },
     },
   },

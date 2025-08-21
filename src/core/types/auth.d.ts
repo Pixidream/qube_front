@@ -1,3 +1,5 @@
+import { User } from './user';
+
 export interface Credentials {
   email: string;
   password: string;
@@ -6,4 +8,9 @@ export interface Credentials {
 export interface LoginResponse {
   message: string;
   token: string;
+}
+
+export interface AuthenticationResponse {
+  user: User;
+  message: string;
 }

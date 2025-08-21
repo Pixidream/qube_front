@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TotpCard from '@/components/organisms/authentication/TotpCard.vue';
+</script>
 <template>
-  <div>TOTP</div>
+  <TotpCard />
 </template>

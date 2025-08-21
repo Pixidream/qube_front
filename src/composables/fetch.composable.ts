@@ -1,11 +1,13 @@
-import { createFetch, useSessionStorage } from '@vueuse/core';
+import { createFetch } from '@vueuse/core';
 import { useRouter } from 'vue-router';
 
 import { APP_CONFIG } from '@/config';
 import { v4 } from 'uuid';
+import { setCookieFromHeader } from '@/utils/cookieParser';
+import { useCookies } from '@vueuse/integrations/useCookies.mjs';
 
-const sessionCookie = useSessionStorage<string | null>('session', null);
 const router = useRouter();
+const cookies = useCookies();
 
 export const usePublicFetch = createFetch({
   baseUrl: APP_CONFIG.api.baseUrl,
@@ -18,17 +20,36 @@ export const usePublicFetch = createFetch({
       };
       return { options };
     },
+    afterFetch({ data, response }) {
+      const setCookieHeaders = response.headers.getSetCookie();
+      console.log(document.cookie);
+      console.log(setCookieHeaders);
+      console.log(
+        response.headers.forEach((header) => {
+          console.log(header);
+        }),
+      );
+      console.log(response.headers.get('Set-Cookie'));
+
+      if (setCookieHeaders) {
+        const parsedCookies = setCookieFromHeader(setCookieHeaders);
+        console.log(parsedCookies);
+      }
+
+      return { data };
+    },
     onFetchError({ error, data }) {
       return { error, data };
     },
   },
-  fetchOptions: { mode: 'cors' },
+  fetchOptions: { mode: 'cors', credentials: 'include' },
 });
 
 export const usePrivateFetch = createFetch({
   baseUrl: APP_CONFIG.api.baseUrl,
   options: {
     beforeFetch({ options, cancel }) {
+      const sessionCookie = cookies.get('id');
       if (!sessionCookie.value) {
         cancel();
         throw new Error('missing session cookie');
@@ -37,14 +58,23 @@ export const usePrivateFetch = createFetch({
       options.headers = {
         'Content-Type': 'application/json',
         'X-REQUEST-ID': v4(),
-        Cookie: sessionCookie.value,
+        Cookie: `id=${sessionCookie}`,
         ...options.headers,
       };
       return { options };
     },
+    afterFetch({ data, response }) {
+      const setCookieHeader = response.headers.get('set-cookie');
+
+      if (setCookieHeader) {
+        setCookieFromHeader(setCookieHeader);
+      }
+
+      return { data };
+    },
     onFetchError({ error, data, response }) {
       if (response?.status === 401) {
-        sessionCookie.value = null;
+        cookies.remove('id');
         router.push('/login');
       }
 
