@@ -84,6 +84,7 @@ const isLoading = computed(() => {
             </FormLabel>
             <FormControl>
               <Input
+                tabindex="1"
                 type="email"
                 placeholder="john.doe@example.com"
                 v-bind="componentField"
@@ -105,6 +106,7 @@ const isLoading = computed(() => {
                 {{ t('auth.login.form.passwordLabel') }}
               </FormLabel>
               <RouterLink
+                tabindex="5"
                 class="ml-auto text-sm underline-offset-4 hover:underline"
                 :to="{ name: 'login' }"
               >
@@ -112,7 +114,12 @@ const isLoading = computed(() => {
               </RouterLink>
             </div>
             <FormControl>
-              <Input type="password" v-bind="componentField" />
+              <Input
+                tabindex="2"
+                type="password"
+                v-bind="componentField"
+                :placeholder="t('auth.login.form.passwordLabel')"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -121,12 +128,18 @@ const isLoading = computed(() => {
       <span v-if="globalError" class="text-destructive-foreground text-sm">{{
         globalError
       }}</span>
-      <Button type="submit" class="w-full" :disabled="!meta.valid || isLoading">
+      <Button
+        tabindex="3"
+        type="submit"
+        class="w-full"
+        :disabled="!meta.valid || isLoading"
+      >
         <Icon v-if="isLoading" icon="svg-spinners:ring-resize" />
         <span v-else>{{ t('auth.login.form.loginButton') }}</span>
       </Button>
     </div>
     <RouterLink
+      tabindex="4"
       :to="{ name: 'signup' }"
       class="text-center text-sm hover:underline hover:underline-offset-4"
     >
