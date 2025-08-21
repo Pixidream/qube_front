@@ -1,4 +1,5 @@
 export default {
+  networkError: 'Une erreur est survenue',
   login: {
     form: {
       title: 'Connectez-vous à votre compte',
@@ -15,6 +16,7 @@ export default {
         password: 'Un mot de passe valide est requis.',
         passwordMinLength: 'Le mot de passe est trop court',
         passwordMaxLength: 'Le mot de passe est trop long.',
+        invalidCreds: 'Email ou mot de passe invalide.',
       },
     },
   },

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ref, computed } from 'vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { useForm } from 'vee-validate';
@@ -13,12 +14,18 @@ import { Input } from '@components/atoms/input';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import { Button } from '@/components/atoms/button';
+import { useAuthStore } from '@/stores/auth.stores';
+import { useAuthMachine } from '@/machines/auth.machine';
+import { Icon } from '@iconify/vue';
 
+const globalError = ref<string | null>(null);
+const authMachine = useAuthMachine();
+const authStore = useAuthStore();
 const { t } = useI18n();
 const formSchema = toTypedSchema(
   z.object({
     email: z
-      .string({ error: () => t('auth.login.form.validation.email') })
+      .email({ error: () => t('auth.login.form.validation.email') })
       .min(2, { error: () => t('auth.login.form.validation.emailMinLength') })
       .max(250, {
         error: () => t('auth.login.form.validation.emailMaxLength'),
@@ -33,12 +40,27 @@ const formSchema = toTypedSchema(
       }),
   }),
 );
-const { handleSubmit, isFieldDirty } = useForm({
+const { handleSubmit, handleReset, isFieldDirty, meta } = useForm({
   validationSchema: formSchema,
 });
 
-const handleLogin = handleSubmit((values) => {
-  console.log('login form submitted !', values);
+const handleLogin = handleSubmit(async (values) => {
+  const success = await authStore.login({
+    email: values.email,
+    password: values.password,
+  });
+
+  if (typeof success === 'boolean' && success) {
+    handleReset();
+  } else if (success.toString().toLowerCase().includes('unauthorized')) {
+    globalError.value = t('auth.login.form.validation.invalidCreds');
+  } else {
+    globalError.value = t('auth.networkError');
+  }
+});
+
+const isLoading = computed(() => {
+  return authMachine.state.value === 'loading';
 });
 </script>
 <template>
@@ -96,9 +118,13 @@ const handleLogin = handleSubmit((values) => {
           </FormItem>
         </FormField>
       </div>
-      <Button type="submit" class="w-full">{{
-        t('auth.login.form.loginButton')
-      }}</Button>
+      <span v-if="globalError" class="text-destructive-foreground text-sm">{{
+        globalError
+      }}</span>
+      <Button type="submit" class="w-full" :disabled="!meta.valid || isLoading">
+        <Icon v-if="isLoading" icon="svg-spinners:ring-resize" />
+        <span v-else>{{ t('auth.login.form.loginButton') }}</span>
+      </Button>
     </div>
     <RouterLink
       :to="{ name: 'signup' }"

@@ -5,7 +5,7 @@ import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
 
 export default typescriptEslint.config(
-  { ignores: ['*.d.ts', '**/coverage', '**/dist'] },
+  { ignores: ['*.d.ts', '**/coverage', '**/dist', '*.lock'] },
   {
     extends: [
       eslint.configs.recommended,
@@ -19,7 +19,10 @@ export default typescriptEslint.config(
       globals: globals.browser,
       parserOptions: { parser: typescriptEslint.parser },
     },
-    rules: { 'vue/multi-word-component-names': 'off' },
+    rules: {
+      'vue/multi-word-component-names': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
   eslintConfigPrettier,
 );

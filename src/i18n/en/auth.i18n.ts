@@ -1,4 +1,5 @@
 export default {
+  networkError: 'Something wrong happend',
   login: {
     form: {
       title: 'Login to your account',
@@ -15,6 +16,7 @@ export default {
         password: 'A valid passowrd is required.',
         passwordMinLength: 'Password is too short.',
         passwordMaxLength: 'Password is too long.',
+        invalidCreds: 'Invalid email or password.',
       },
     },
   },

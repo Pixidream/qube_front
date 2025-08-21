@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useColorMode } from '@vueuse/core';
+import { useRouter, useRoute } from 'vue-router';
+
 import Logo from '@assets/images/logo.png';
 import LoginBackgroundLight from '@assets/images/login_background_light.png';
 import LoginBackgroundDark from '@assets/images/login_background_dark.png';
 import ThemeDropdown from '@components/molecules/utils/ThemeDropdown.vue';
-import { useColorMode } from '@vueuse/core';
 import LanguageDropdown from '@components/molecules/utils/LanguageDropdown.vue';
+import { useAuthMachine } from '@machines/auth.machine';
+import { onBeforeMount } from 'vue';
 
+const router = useRouter();
+const route = useRoute();
 const { t } = useI18n();
 const mode = useColorMode();
 const loginBackgroundImage = computed(() => {
@@ -22,6 +28,46 @@ const loginBackgroundImage = computed(() => {
     : mode.value;
 
   return newMode == 'dark' ? LoginBackgroundDark : LoginBackgroundLight;
+});
+
+const goTo = (pathName: string) => router.push({ name: pathName });
+
+useAuthMachine().actor.subscribe((snapshot) => {
+  switch (snapshot.value) {
+    case 'login':
+      goTo('login');
+      break;
+    case 'signup':
+      goTo('signup');
+      break;
+    case '2fa_totp':
+      goTo('totp');
+      break;
+    case 'recovery_code':
+      goTo('totp-recovery');
+      break;
+    case 'email_totp':
+      goTo('totp');
+      break;
+    case 'verify_email':
+      goTo('verify-email');
+      break;
+    case 'authenticated':
+      (() =>
+        route.query?.redirect ?
+          router.push(route.query.redirect as string)
+        : goTo('home'))();
+      break;
+    default:
+      goTo('login');
+      break;
+  }
+});
+
+onBeforeMount(() => {
+  if (useAuthMachine().state.value === 'login' && route.name !== 'login') {
+    goTo('login');
+  }
 });
 </script>
 <template>
