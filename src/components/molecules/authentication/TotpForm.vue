@@ -70,7 +70,7 @@ const handleTotp = handleSubmit(async (values) => {
                 :model-value="value"
                 class="flex gap-2 items-center mt-1"
                 otp
-                type="number"
+                type="text"
                 :name="componentField.name"
                 @update:model-value="
                   (arrNumber) => setFieldValue('totp', arrNumber)

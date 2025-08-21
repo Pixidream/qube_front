@@ -64,10 +64,10 @@ export const usePrivateFetch = createFetch({
       return { options };
     },
     afterFetch({ data, response }) {
-      const setCookieHeader = response.headers.get('set-cookie');
+      const setCookieHeaders = response.headers.getSetCookie();
 
-      if (setCookieHeader) {
-        setCookieFromHeader(setCookieHeader);
+      if (setCookieHeaders) {
+        setCookieFromHeader(setCookieHeaders);
       }
 
       return { data };

@@ -3,7 +3,6 @@ import { AuthenticationRepository } from './auth.repository';
 import { AuthenticationResponse, Credentials } from '@/core/types/auth';
 import { type LoginResponse } from '@/core/types/auth';
 import { type SuccessResponse } from '@/core/types/response';
-import { createCookies } from '@vueuse/integrations/useCookies';
 
 export const createAuthApiRepository = (): AuthenticationRepository => ({
   login: async (credentials: Credentials) => {
