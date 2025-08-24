@@ -28,7 +28,6 @@ export const useAuthStore = defineStore('auth', () => {
       .login(credentials)
       .then((res) => {
         if (res.error.value) {
-          authMachine.send({ type: 'LOGIN' });
           if (
             res.error.value.toString().toLowerCase().includes('401')
             || res.error.value.toString().toLowerCase().includes('unauthorized')
@@ -42,19 +41,17 @@ export const useAuthStore = defineStore('auth', () => {
 
         shortTTLToken.value = res.data.value?.data.token ?? null;
 
-        setTimeout(() => {
-          authMachine.send({
-            type:
-              res.data.value?.status == 'totp_verify' ?
-                '2FA_TOTP'
-              : 'EMAIL_TOTP',
-          });
-        }, 750);
+        authMachine.send({
+          type:
+            res.data.value?.status == 'totp_verify' ? '2FA_TOTP' : 'EMAIL_TOTP',
+        });
       })
       .catch(() => {
-        authMachine.send({ type: 'LOGIN' });
         authError.value = t('auth.networkError');
         return;
+      })
+      .finally(() => {
+        authMachine.send({ type: 'IDLE' });
       });
   };
 
@@ -67,20 +64,19 @@ export const useAuthStore = defineStore('auth', () => {
         const _user = res.data.value?.data.user;
 
         if (_user === undefined) {
-          authMachine.send({ type: '2FA_TOTP' });
           authError.value = t('auth.networkError');
           return;
         }
 
         user.value = _user;
 
-        setTimeout(() => {
-          authMachine.send({ type: 'AUTHENTICATED' });
-        }, 750);
+        authMachine.send({ type: 'AUTHENTICATED' });
       })
       .catch(() => {
         authError.value = t('auth.networkError');
-        authMachine.send({ type: '2FA_TOTP' });
+      })
+      .finally(() => {
+        authMachine.send({ type: 'IDLE' });
       });
   };
 

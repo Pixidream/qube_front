@@ -33,7 +33,8 @@ const loginBackgroundImage = computed(() => {
 const goTo = (pathName: string) => router.push({ name: pathName });
 
 useAuthMachine().actor.subscribe((snapshot) => {
-  switch (snapshot.value) {
+  // @ts-expect-error value is an object, but reported as string by xstate
+  switch (snapshot.value.flow) {
     case 'login':
       goTo('login');
       break;
@@ -67,7 +68,7 @@ useAuthMachine().actor.subscribe((snapshot) => {
 });
 
 onBeforeMount(() => {
-  if (useAuthMachine().state.value === 'login' && route.name !== 'login') {
+  if (useAuthMachine().state.matches('flow.login') && route.name !== 'login') {
     goTo('login');
   }
 });

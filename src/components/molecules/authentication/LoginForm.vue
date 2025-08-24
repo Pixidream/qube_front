@@ -48,7 +48,7 @@ const handleLogin = handleSubmit(async (values) => {
 });
 
 const isLoading = computed(() => {
-  return authMachine.state.value === 'loading';
+  return authMachine.state.matches('form.loading');
 });
 
 onUnmounted(() => {

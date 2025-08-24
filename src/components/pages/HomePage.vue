@@ -4,7 +4,7 @@ import Button from '@components/atoms/button/Button.vue';
 
 const { send } = useAuthMachine();
 const handleGoToLogin = () => {
-  send({ type: 'LOGIN' });
+  send({ type: 'LOGOUT' });
 };
 </script>
 <template>

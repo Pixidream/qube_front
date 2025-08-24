@@ -7,9 +7,7 @@ import {
 import { ShallowRef } from 'vue';
 
 export interface AuthenticationRepository {
-  login: (
-    credentials: Credentials,
-  ) => Promise<{
+  login: (credentials: Credentials) => Promise<{
     data: ShallowRef<SuccessResponse<LoginResponse> | null>;
     error: ShallowRef<any>;
   }>;

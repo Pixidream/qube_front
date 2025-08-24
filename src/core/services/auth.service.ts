@@ -8,9 +8,7 @@ import { ShallowRef } from 'vue';
 import { SuccessResponse } from '@core/types/response';
 
 export interface AuthService {
-  login: (
-    credentials: Credentials,
-  ) => Promise<{
+  login: (credentials: Credentials) => Promise<{
     data: ShallowRef<SuccessResponse<LoginResponse> | null>;
     error: ShallowRef<any>;
   }>;

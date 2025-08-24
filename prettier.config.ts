@@ -11,7 +11,7 @@ const config: Config = {
   quoteProps: 'as-needed',
   trailingComma: 'all',
   bracketSpacing: true,
-  objectWrap: 'collapse',
+  objectWrap: 'preserve',
   bracketSameLine: false,
   arrowParens: 'always',
   endOfLine: 'lf',
