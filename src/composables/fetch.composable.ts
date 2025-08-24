@@ -1,86 +1,84 @@
-import { createFetch } from '@vueuse/core';
+import { fetch } from '@tauri-apps/plugin-http';
 import { useRouter } from 'vue-router';
+import { ref, type ShallowRef } from 'vue';
 
 import { APP_CONFIG } from '@/config';
 import { v4 } from 'uuid';
-import { setCookieFromHeader } from '@/utils/cookieParser';
-import { useCookies } from '@vueuse/integrations/useCookies.mjs';
 
-const router = useRouter();
-const cookies = useCookies();
+export const useFetch = (endpoint: string) => {
+  const data = ref(null);
+  const error = ref<any | null>(null);
+  const router = useRouter();
 
-export const usePublicFetch = createFetch({
-  baseUrl: APP_CONFIG.api.baseUrl,
-  options: {
-    beforeFetch({ options }) {
-      options.headers = {
-        'Content-Type': 'application/json',
-        'X-REQUEST-ID': v4(),
-        ...options.headers,
+  const get = () => ({
+    json: <T>() => {
+      const execute = async () => {
+        try {
+          const response = await fetch(`${APP_CONFIG.api.baseUrl}${endpoint}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-REQUEST-ID': v4(),
+            },
+            danger: {
+              acceptInvalidCerts: import.meta.env.DEV,
+              acceptInvalidHostnames: false,
+            },
+          });
+
+          if (response.status === 401) {
+            router.push('/login');
+            throw new Error('Unauthorized');
+          }
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          data.value = result;
+        } catch (err: any) {
+          error.value = err;
+          console.error('Public fetch error:', err);
+        }
       };
-      return { options };
+
+      return { execute, data: data as ShallowRef<T | null>, error };
     },
-    afterFetch({ data, response }) {
-      const setCookieHeaders = response.headers.getSetCookie();
-      console.log(document.cookie);
-      console.log(setCookieHeaders);
-      console.log(
-        response.headers.forEach((header) => {
-          console.log(header);
-        }),
-      );
-      console.log(response.headers.get('Set-Cookie'));
+  });
 
-      if (setCookieHeaders) {
-        const parsedCookies = setCookieFromHeader(setCookieHeaders);
-        console.log(parsedCookies);
-      }
+  const post = (payload: any) => ({
+    json: <T>() => {
+      const execute = async () => {
+        try {
+          const response = await fetch(`${APP_CONFIG.api.baseUrl}${endpoint}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-REQUEST-ID': v4(),
+            },
+            body: JSON.stringify(payload),
+            danger: {
+              acceptInvalidCerts: import.meta.env.DEV,
+              acceptInvalidHostnames: false,
+            },
+          });
 
-      return { data };
-    },
-    onFetchError({ error, data }) {
-      return { error, data };
-    },
-  },
-  fetchOptions: { mode: 'cors', credentials: 'include' },
-});
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
 
-export const usePrivateFetch = createFetch({
-  baseUrl: APP_CONFIG.api.baseUrl,
-  options: {
-    beforeFetch({ options, cancel }) {
-      const sessionCookie = cookies.get('id');
-      if (!sessionCookie.value) {
-        cancel();
-        throw new Error('missing session cookie');
-      }
-
-      options.headers = {
-        'Content-Type': 'application/json',
-        'X-REQUEST-ID': v4(),
-        Cookie: `id=${sessionCookie}`,
-        ...options.headers,
+          const result = await response.json();
+          data.value = result;
+        } catch (err) {
+          error.value = err;
+          console.error('Public fetch error:', err);
+        }
       };
-      return { options };
-    },
-    afterFetch({ data, response }) {
-      const setCookieHeaders = response.headers.getSetCookie();
 
-      if (setCookieHeaders) {
-        setCookieFromHeader(setCookieHeaders);
-      }
-
-      return { data };
+      return { execute, data: data as ShallowRef<T | null>, error };
     },
-    onFetchError({ error, data, response }) {
-      if (response?.status === 401) {
-        cookies.remove('id');
-        router.push('/login');
-      }
+  });
 
-      console.error('fetch error', error);
-      return { error, data };
-    },
-  },
-  fetchOptions: { mode: 'cors', credentials: 'include' },
-});
+  return { post, get };
+};
