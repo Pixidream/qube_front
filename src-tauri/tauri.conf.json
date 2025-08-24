@@ -5,7 +5,7 @@
   "identifier": "com.pixidream.qube",
   "build": {
     "beforeDevCommand": "bun run dev",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "https://localhost:1420",
     "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
   },
@@ -18,7 +18,8 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "devCsp": "default-src 'self' https: data: blob:; connect-src https://127.0.0.1:3000 https://localhost:1420;"
     }
   },
   "bundle": {
