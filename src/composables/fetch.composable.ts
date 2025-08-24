@@ -1,5 +1,4 @@
 import { fetch } from '@tauri-apps/plugin-http';
-import { useRouter } from 'vue-router';
 import { ref, type ShallowRef } from 'vue';
 
 import { APP_CONFIG } from '@/config';
@@ -8,7 +7,6 @@ import { v4 } from 'uuid';
 export const useFetch = (endpoint: string) => {
   const data = ref(null);
   const error = ref<any | null>(null);
-  const router = useRouter();
 
   const get = () => ({
     json: <T>() => {
@@ -27,7 +25,6 @@ export const useFetch = (endpoint: string) => {
           });
 
           if (response.status === 401) {
-            router.push('/login');
             throw new Error('Unauthorized');
           }
 
@@ -39,7 +36,7 @@ export const useFetch = (endpoint: string) => {
           data.value = result;
         } catch (err: any) {
           error.value = err;
-          console.error('Public fetch error:', err);
+          console.error('Fetch error:', err);
         }
       };
 
@@ -63,6 +60,10 @@ export const useFetch = (endpoint: string) => {
               acceptInvalidHostnames: false,
             },
           });
+
+          if (response.status === 401) {
+            throw new Error('Unauthorized');
+          }
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

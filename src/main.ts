@@ -1,13 +1,13 @@
+import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
-import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 
-import '@assets/css/index.css';
-import App from './App.vue';
-import { router } from '@router/index';
-import { i18n } from './i18n';
 import { createZxcvbn } from '@/plugins/zxcvbn.plugin';
+import '@assets/css/index.css';
+import { router } from '@router/index';
+import App from './App.vue';
 import { createAuthApiRepository } from './core/repositories/auth/auth-api.repository';
+import { i18n } from './i18n';
 
 createZxcvbn();
 const pinia = createPinia();

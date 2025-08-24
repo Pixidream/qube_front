@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { useAuthMachine } from '@/machines/auth.machine';
 import Button from '@components/atoms/button/Button.vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter();
+const { send } = useAuthMachine();
 const handleGoToLogin = () => {
-  router.push({ name: 'login', query: { redirect: '/otp' } });
+  send({ type: 'LOGIN' });
 };
 </script>
 <template>

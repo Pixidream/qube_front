@@ -1,14 +1,15 @@
-import { usePublicFetch } from '@/composables/fetch.composable';
-import { AuthenticationRepository } from './auth.repository';
-import { AuthenticationResponse, Credentials } from '@/core/types/auth';
-import { type LoginResponse } from '@/core/types/auth';
+import { useFetch } from '@/composables/fetch.composable';
+import {
+  AuthenticationResponse,
+  Credentials,
+  type LoginResponse,
+} from '@/core/types/auth';
 import { type SuccessResponse } from '@/core/types/response';
+import { AuthenticationRepository } from './auth.repository';
 
 export const createAuthApiRepository = (): AuthenticationRepository => ({
   login: async (credentials: Credentials) => {
-    const { execute, data, error } = usePublicFetch('/auth/login', {
-      immediate: false,
-    })
+    const { execute, data, error } = useFetch('/auth/login')
       .post(credentials)
       .json<SuccessResponse<LoginResponse>>();
 
@@ -17,9 +18,7 @@ export const createAuthApiRepository = (): AuthenticationRepository => ({
   },
 
   verifyTotp: async (totp: string, token: string) => {
-    const { execute, data, error } = usePublicFetch('/auth/verify-totp', {
-      immediate: true,
-    })
+    const { execute, data, error } = useFetch('/auth/verify-totp')
       .post({ totp, token, timestamp: new Date().toISOString() })
       .json<SuccessResponse<AuthenticationResponse>>();
 

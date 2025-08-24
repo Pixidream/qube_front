@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/stores/auth.stores';
+import { type RouteMeta } from '@core/types/router';
 import {
   createRouter,
   createWebHashHistory,
@@ -9,7 +11,11 @@ const routes: readonly RouteRecordRaw[] = [
     path: '/',
     name: 'home',
     component: () => import('@components/pages/HomePage.vue'),
-    meta: { requiresAuth: false, displayName: 'Home' },
+    meta: {
+      requiresAuth: true,
+      displayName: 'Home',
+      isAuthFlow: false,
+    } satisfies RouteMeta,
   },
   {
     path: '/auth',
@@ -20,35 +26,55 @@ const routes: readonly RouteRecordRaw[] = [
         name: 'login',
         component: () =>
           import('@components/pages/authentication/LoginPage.vue'),
-        meta: { requiresAuth: false, displayName: 'Login' },
+        meta: {
+          requiresAuth: false,
+          displayName: 'Login',
+          isAuthFlow: true,
+        } satisfies RouteMeta,
       },
       {
         path: 'signup',
         name: 'signup',
         component: () =>
           import('@components/pages/authentication/SignupPage.vue'),
-        meta: { requiresAuth: false, displayName: 'Signup' },
+        meta: {
+          requiresAuth: false,
+          displayName: 'Signup',
+          isAuthFlow: true,
+        } satisfies RouteMeta,
       },
       {
         path: 'totp',
         name: 'totp',
         component: () =>
           import('@components/pages/authentication/TotpPage.vue'),
-        meta: { requiresAuth: false, displayName: 'Totp' },
+        meta: {
+          requiresAuth: false,
+          displayName: 'Totp',
+          isAuthFlow: true,
+        } satisfies RouteMeta,
       },
       {
         path: 'totp-recovery',
         name: 'totp-recovery',
         component: () =>
           import('@components/pages/authentication/TotpRecoveryPage.vue'),
-        meta: { requiresAuth: false, displayName: 'Totp Recovery' },
+        meta: {
+          requiresAuth: false,
+          displayName: 'Totp Recovery',
+          isAuthFlow: true,
+        } satisfies RouteMeta,
       },
       {
         path: 'verify-email',
         name: 'verify-email',
         component: () =>
           import('@components/pages/authentication/VerifyEmailPage.vue'),
-        meta: { requiresAuth: false, displayName: 'Verify Email' },
+        meta: {
+          requiresAuth: false,
+          displayName: 'Verify Email',
+          isAuthFlow: true,
+        } satisfies RouteMeta,
       },
     ],
   },
@@ -57,7 +83,11 @@ const routes: readonly RouteRecordRaw[] = [
 export const router = createRouter({ history: createWebHashHistory(), routes });
 
 router.beforeEach((to) => {
-  if (to.meta.requireAuth) {
-    return { name: 'login', query: { redirect: to.fullPath } };
+  const authStore = useAuthStore();
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    return {
+      name: 'login',
+      query: { redirect: to.meta.isAuthFlow ? '/' : to.fullPath },
+    };
   }
 });

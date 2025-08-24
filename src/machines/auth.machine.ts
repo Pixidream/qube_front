@@ -1,6 +1,6 @@
-import { createMachine } from 'xstate';
 import { defineStore } from 'pinia';
 import { xstate } from 'pinia-xstate';
+import { createMachine } from 'xstate';
 
 export const authMachine = createMachine({
   id: 'authMachine',
@@ -12,7 +12,7 @@ export const authMachine = createMachine({
     email_totp: { on: { LOADING: 'loading' } },
     signup: { on: { LOADING: 'loading' } },
     verify_email: { on: { LOADING: 'loading' } },
-    authenticated: { type: 'final' },
+    authenticated: { on: { LOGIN: 'login' } },
     loading: {
       on: {
         '2FA_TOTP': '2fa_totp',

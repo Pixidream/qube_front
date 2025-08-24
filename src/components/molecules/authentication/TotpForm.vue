@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import * as z from 'zod';
-import { useI18n } from 'vue-i18n';
-import { toTypedSchema } from '@vee-validate/zod';
-import { useForm } from 'vee-validate';
-import { TOTP_LENGTH } from '@core/constants/auth.constants';
+import { useAuthStore } from '@/stores/auth.stores';
+import { Button } from '@components/atoms/button';
 import {
+  FormControl,
   FormField,
   FormItem,
-  FormControl,
   FormMessage,
 } from '@components/atoms/form';
-import { Button } from '@components/atoms/button';
 import {
   PinInput,
   PinInputGroup,
-  PinInputSlot,
   PinInputSeparator,
+  PinInputSlot,
 } from '@components/atoms/pin-input';
+import { TOTP_LENGTH } from '@core/constants/auth.constants';
 import { Icon } from '@iconify/vue';
-import { useAuthStore } from '@/stores/auth.stores';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm } from 'vee-validate';
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import * as z from 'zod';
 
 const { t } = useI18n();
 const authStore = useAuthStore();
@@ -37,15 +37,12 @@ const formSchema = toTypedSchema(
 const { handleSubmit, isFieldDirty, meta, setFieldValue } = useForm({
   validationSchema: formSchema,
 });
-const globalError = ref<string | null>(null);
 const isLoading = ref(false);
 
 const handleTotp = handleSubmit(async (values) => {
   const totp = values.totp.join('');
 
   await authStore.verifyTotp(totp);
-
-  console.log(totp);
 });
 </script>
 <template>
@@ -93,9 +90,11 @@ const handleTotp = handleSubmit(async (values) => {
           </FormItem>
         </FormField>
       </div>
-      <span v-if="globalError" class="text-destructive-foreground text-sm">{{
-        globalError
-      }}</span>
+      <span
+        v-if="authStore.authError"
+        class="text-destructive-foreground text-sm"
+        >{{ authStore.authError }}</span
+      >
       <Button
         tabindex="3"
         type="submit"

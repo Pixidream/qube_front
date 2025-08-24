@@ -1,24 +1,23 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
-import { toTypedSchema } from '@vee-validate/zod';
-import * as z from 'zod';
-import { useForm } from 'vee-validate';
+import { Button } from '@/components/atoms/button';
+import { useAuthMachine } from '@/machines/auth.machine';
+import { useAuthStore } from '@/stores/auth.stores';
 import {
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from '@components/atoms/form';
 import { Input } from '@components/atoms/input';
+import { Icon } from '@iconify/vue';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm } from 'vee-validate';
+import { computed, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
-import { Button } from '@/components/atoms/button';
-import { useAuthStore } from '@/stores/auth.stores';
-import { useAuthMachine } from '@/machines/auth.machine';
-import { Icon } from '@iconify/vue';
+import * as z from 'zod';
 
-const globalError = ref<string | null>(null);
 const authMachine = useAuthMachine();
 const authStore = useAuthStore();
 const { t } = useI18n();
@@ -45,22 +44,15 @@ const { handleSubmit, handleReset, isFieldDirty, meta } = useForm({
 });
 
 const handleLogin = handleSubmit(async (values) => {
-  const success = await authStore.login({
-    email: values.email,
-    password: values.password,
-  });
-
-  if (typeof success === 'boolean' && success) {
-    handleReset();
-  } else if (success.toString().toLowerCase().includes('unauthorized')) {
-    globalError.value = t('auth.login.form.validation.invalidCreds');
-  } else {
-    globalError.value = t('auth.networkError');
-  }
+  await authStore.login({ email: values.email, password: values.password });
 });
 
 const isLoading = computed(() => {
   return authMachine.state.value === 'loading';
+});
+
+onUnmounted(() => {
+  handleReset();
 });
 </script>
 <template>
@@ -125,9 +117,11 @@ const isLoading = computed(() => {
           </FormItem>
         </FormField>
       </div>
-      <span v-if="globalError" class="text-destructive-foreground text-sm">{{
-        globalError
-      }}</span>
+      <span
+        v-if="authStore.authError"
+        class="text-destructive-foreground text-sm"
+        >{{ authStore.authError }}</span
+      >
       <Button
         tabindex="3"
         type="submit"

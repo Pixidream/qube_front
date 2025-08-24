@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import { useColorMode } from '@vueuse/core';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useColorMode } from '@vueuse/core';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
-import Logo from '@assets/images/logo.png';
-import LoginBackgroundLight from '@assets/images/login_background_light.png';
 import LoginBackgroundDark from '@assets/images/login_background_dark.png';
-import ThemeDropdown from '@components/molecules/utils/ThemeDropdown.vue';
+import LoginBackgroundLight from '@assets/images/login_background_light.png';
+import Logo from '@assets/images/logo.png';
 import LanguageDropdown from '@components/molecules/utils/LanguageDropdown.vue';
+import ThemeDropdown from '@components/molecules/utils/ThemeDropdown.vue';
 import { useAuthMachine } from '@machines/auth.machine';
 import { onBeforeMount } from 'vue';
 
@@ -57,6 +57,8 @@ useAuthMachine().actor.subscribe((snapshot) => {
         route.query?.redirect ?
           router.push(route.query.redirect as string)
         : goTo('home'))();
+      break;
+    case 'loading':
       break;
     default:
       goTo('login');
