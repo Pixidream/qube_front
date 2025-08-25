@@ -76,6 +76,17 @@ const routes: readonly RouteRecordRaw[] = [
           isAuthFlow: true,
         } satisfies RouteMeta,
       },
+      {
+        path: 'reset-password',
+        name: 'reset-password',
+        component: () =>
+          import('@components/pages/authentication/ResetPasswordPage.vue'),
+        meta: {
+          requiresAuth: false,
+          displayName: 'Reset Password',
+          isAuthFlow: true,
+        } satisfies RouteMeta,
+      },
     ],
   },
 ];

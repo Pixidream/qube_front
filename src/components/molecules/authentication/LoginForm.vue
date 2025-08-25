@@ -97,13 +97,13 @@ onUnmounted(() => {
               <FormLabel>
                 {{ t('auth.login.form.passwordLabel') }}
               </FormLabel>
-              <RouterLink
+              <a
                 tabindex="5"
-                class="ml-auto text-sm underline-offset-4 hover:underline"
-                :to="{ name: 'login' }"
+                class="ml-auto text-sm cursor-pointer underline-offset-4 hover:underline"
+                @click.prevent="authMachine.send({ type: 'RESET_PASSWORD' })"
               >
                 {{ t('auth.login.form.passwordForgotten') }}
-              </RouterLink>
+              </a>
             </div>
             <FormControl>
               <Input

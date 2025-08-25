@@ -14,3 +14,7 @@ export interface AuthenticationResponse {
   user: User;
   message: string;
 }
+
+export interface PasswordResetResponse {
+  message: string;
+}

@@ -53,6 +53,9 @@ useAuthMachine().actor.subscribe((snapshot) => {
     case 'verify_email':
       goTo('verify-email');
       break;
+    case 'reset_password':
+      goTo('reset-password');
+      break;
     case 'authenticated':
       (() =>
         route.query?.redirect ?

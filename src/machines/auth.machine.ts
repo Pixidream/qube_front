@@ -15,6 +15,7 @@ export const authMachine = createMachine({
             '2FA_TOTP': '2fa_totp',
             EMAIL_TOTP: 'email_totp',
             SIGNUP: 'signup',
+            RESET_PASSWORD: 'reset_password',
           },
         },
         '2fa_totp': {
@@ -43,6 +44,11 @@ export const authMachine = createMachine({
         verify_email: {
           on: {
             AUTHENTICATED: 'authenticated',
+          },
+        },
+        reset_password: {
+          on: {
+            LOGIN: 'login',
           },
         },
         authenticated: {

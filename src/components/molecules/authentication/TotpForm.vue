@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAuthMachine } from '@/machines/auth.machine';
 import { useAuthStore } from '@/stores/auth.stores';
 import { Button } from '@components/atoms/button';
 import {
@@ -17,10 +18,11 @@ import { TOTP_LENGTH } from '@core/constants/auth.constants';
 import { Icon } from '@iconify/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
 
+const authMachine = useAuthMachine();
 const { t } = useI18n();
 const authStore = useAuthStore();
 const formSchema = toTypedSchema(
@@ -37,7 +39,10 @@ const formSchema = toTypedSchema(
 const { handleSubmit, isFieldDirty, meta, setFieldValue } = useForm({
   validationSchema: formSchema,
 });
-const isLoading = ref(false);
+
+const isLoading = computed(() => {
+  return authMachine.state.matches('form.loading');
+});
 
 const handleTotp = handleSubmit(async (values) => {
   const totp = values.totp.join('');

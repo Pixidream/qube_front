@@ -1,21 +1,23 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { zxcvbn } from '@zxcvbn-ts/core';
-import { toTypedSchema } from '@vee-validate/zod';
-import * as z from 'zod';
-import { useForm } from 'vee-validate';
+import { Button } from '@/components/atoms/button';
+import { useAuthStore } from '@/stores/auth.stores';
 import {
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from '@components/atoms/form';
 import { Input } from '@components/atoms/input';
+import { toTypedSchema } from '@vee-validate/zod';
+import { zxcvbn } from '@zxcvbn-ts/core';
+import { useForm } from 'vee-validate';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
-import { Button } from '@/components/atoms/button';
+import * as z from 'zod';
 
+const authStore = useAuthStore();
 const useZxcvbn = (password?: string) => {
   if (password == undefined) return 0;
 
@@ -164,6 +166,11 @@ const handleSignup = handleSubmit((values) => {
           </FormItem>
         </FormField>
       </div>
+      <span
+        v-if="authStore.authError"
+        class="text-destructive-foreground text-sm"
+        >{{ authStore.authError }}</span
+      >
       <Button type="submit" class="w-full">{{
         t('auth.signup.form.signupButton')
       }}</Button>

@@ -1,8 +1,9 @@
-import { useAuthService } from '@/composables/auth.composable';
-import { Credentials } from '@/core/types/auth';
-import { type User } from '@/core/types/user';
 import { i18n } from '@/i18n';
-import { useAuthMachine } from '@/machines/auth.machine';
+import { useAuthService } from '@composables/auth.composable';
+import { MIN_EXEC_TIME_MS } from '@core/constants/auth.constants';
+import { Credentials } from '@core/types/auth';
+import { type User } from '@core/types/user';
+import { useAuthMachine } from '@machines/auth.machine';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
   // ------ Actions ------
   const login = async (credentials: Credentials): Promise<void> => {
     authMachine.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
     authError.value = null;
     authService
       .login(credentials)
@@ -57,6 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const verifyTotp = async (totp: string): Promise<void> => {
     authMachine.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
     authError.value = null;
     authService
       .verifyTotp(totp, shortTTLToken.value || '')
