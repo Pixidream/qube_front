@@ -15,7 +15,6 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import { computed, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { RouterLink } from 'vue-router';
 import * as z from 'zod';
 
 const authMachine = useAuthMachine();
@@ -100,7 +99,9 @@ onUnmounted(() => {
               <a
                 tabindex="5"
                 class="ml-auto text-sm cursor-pointer underline-offset-4 hover:underline"
-                @click.prevent="authMachine.send({ type: 'RESET_PASSWORD' })"
+                @click.prevent="
+                  authMachine.actor.send({ type: 'RESET_PASSWORD' })
+                "
               >
                 {{ t('auth.login.form.passwordForgotten') }}
               </a>
@@ -132,12 +133,12 @@ onUnmounted(() => {
         <span v-else>{{ t('auth.login.form.loginButton') }}</span>
       </Button>
     </div>
-    <RouterLink
+    <a
       tabindex="4"
-      :to="{ name: 'signup' }"
       class="text-center text-sm hover:underline hover:underline-offset-4"
+      @click.prevent="authMachine.actor.send({ type: 'SIGNUP' })"
     >
       {{ t('auth.login.form.noAccountLink') }}
-    </RouterLink>
+    </a>
   </form>
 </template>

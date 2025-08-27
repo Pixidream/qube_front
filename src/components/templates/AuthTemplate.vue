@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useColorMode } from '@vueuse/core';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -13,6 +13,7 @@ import { useAuthMachine } from '@machines/auth.machine';
 import { onBeforeMount } from 'vue';
 
 const router = useRouter();
+const authMachine = useAuthMachine();
 const route = useRoute();
 const { t } = useI18n();
 const mode = useColorMode();
@@ -32,46 +33,56 @@ const loginBackgroundImage = computed(() => {
 
 const goTo = (pathName: string) => router.push({ name: pathName });
 
-useAuthMachine().actor.subscribe((snapshot) => {
-  // @ts-expect-error value is an object, but reported as string by xstate
-  switch (snapshot.value.flow) {
-    case 'login':
-      goTo('login');
-      break;
-    case 'signup':
-      goTo('signup');
-      break;
-    case '2fa_totp':
-      goTo('totp');
-      break;
-    case 'recovery_code':
-      goTo('totp-recovery');
-      break;
-    case 'email_totp':
-      goTo('totp');
-      break;
-    case 'verify_email':
-      goTo('verify-email');
-      break;
-    case 'reset_password':
-      goTo('reset-password');
-      break;
-    case 'authenticated':
-      (() =>
-        route.query?.redirect ?
-          router.push(route.query.redirect as string)
-        : goTo('home'))();
-      break;
-    case 'loading':
-      break;
-    default:
-      goTo('login');
-      break;
-  }
-});
+const subscribeToActor = () => {
+  authMachine.actor.subscribe((snapshot) => {
+    // @ts-expect-error value is an object, but reported as string by xstate
+    switch (snapshot.value.flow) {
+      case 'login':
+        goTo('login');
+        break;
+      case 'signup':
+        goTo('signup');
+        break;
+      case '2fa_totp':
+        goTo('totp');
+        break;
+      case 'recovery_code':
+        goTo('totp-recovery');
+        break;
+      case 'email_totp':
+        goTo('totp');
+        break;
+      case 'verify_email':
+        goTo('verify-email');
+        break;
+      case 'reset_password':
+        goTo('reset-password');
+        break;
+      case 'authenticated':
+        (() =>
+          route.query?.redirect ?
+            router.push(route.query.redirect as string)
+          : goTo('home'))();
+        break;
+      case 'loading':
+        break;
+      default:
+        goTo('login');
+        break;
+    }
+  });
+};
+
+watch(
+  () => authMachine.actor.id,
+  () => {
+    subscribeToActor();
+  },
+);
 
 onBeforeMount(() => {
-  if (useAuthMachine().state.matches('flow.login') && route.name !== 'login') {
+  subscribeToActor();
+  if (authMachine.state.matches('flow.login') && route.name !== 'login') {
     goTo('login');
   }
 });
@@ -84,6 +95,11 @@ onBeforeMount(() => {
           <RouterLink
             :to="{ name: 'login' }"
             class="flex items-center gap-2 font-medium"
+            @click.prevent="
+              () => {
+                authMachine.$reset();
+              }
+            "
           >
             <img :src="Logo" alt="application logo" class="size-4" />
             {{ t('app.name') }}

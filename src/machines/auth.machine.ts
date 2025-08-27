@@ -1,5 +1,5 @@
+import { xstate } from '@core/middlewares/xstate.middleware';
 import { defineStore } from 'pinia';
-import { xstate } from 'pinia-xstate';
 import { createMachine } from 'xstate';
 
 export const authMachine = createMachine({

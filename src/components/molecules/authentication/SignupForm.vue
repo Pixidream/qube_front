@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { Button } from '@/components/atoms/button';
+import { useAuthMachine } from '@/machines/auth.machine';
 import { useAuthStore } from '@/stores/auth.stores';
 import {
   FormControl,
@@ -14,9 +15,9 @@ import { zxcvbn } from '@zxcvbn-ts/core';
 import { useForm } from 'vee-validate';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { RouterLink } from 'vue-router';
 import * as z from 'zod';
 
+const authMachine = useAuthMachine();
 const authStore = useAuthStore();
 const useZxcvbn = (password?: string) => {
   if (password == undefined) return 0;
@@ -175,11 +176,11 @@ const handleSignup = handleSubmit((values) => {
         t('auth.signup.form.signupButton')
       }}</Button>
     </div>
-    <RouterLink
-      :to="{ name: 'login' }"
+    <a
       class="text-center text-sm hover:underline hover:underline-offset-4"
+      @click.prevent="authMachine.actor.send({ type: 'LOGIN' })"
     >
       {{ t('auth.signup.form.haveAccountLink') }}
-    </RouterLink>
+    </a>
   </form>
 </template>
