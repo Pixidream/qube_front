@@ -1,4 +1,4 @@
-import { useFetch } from '@composables/fetch.composable';
+import { useFetchTauri } from '@/composables/fetch-tauri.composable';
 import type {
   AuthenticationResponse,
   Credentials,
@@ -7,11 +7,12 @@ import type {
 } from '@core/types/auth';
 import type { Platform } from '@core/types/platform';
 import type { SuccessResponse } from '@core/types/response';
+import { platform } from '@tauri-apps/plugin-os';
 import type { AuthenticationRepository } from './auth.repository';
 
-export const createAuthApiRepository = (): AuthenticationRepository => ({
+export const createAuthTauriRepository = (): AuthenticationRepository => ({
   login: async (credentials: Credentials) => {
-    const { execute, data, error } = useFetch('/auth/login')
+    const { execute, data, error } = useFetchTauri('/auth/login')
       .post(credentials)
       .json<SuccessResponse<LoginResponse>>();
 
@@ -20,7 +21,7 @@ export const createAuthApiRepository = (): AuthenticationRepository => ({
   },
 
   verifyTotp: async (totp: string, token: string) => {
-    const { execute, data, error } = useFetch('/auth/verify-totp')
+    const { execute, data, error } = useFetchTauri('/auth/verify-totp')
       .post({ totp, token, timestamp: new Date().toISOString() })
       .json<SuccessResponse<AuthenticationResponse>>();
 
@@ -30,7 +31,7 @@ export const createAuthApiRepository = (): AuthenticationRepository => ({
   },
 
   verifyTotpEmail: async (totp: string, token: string) => {
-    const { execute, data, error } = useFetch('/auth/verify-totp-email')
+    const { execute, data, error } = useFetchTauri('/auth/verify-totp-email')
       .post({ totp, token })
       .json<SuccessResponse<AuthenticationResponse>>();
 
@@ -39,9 +40,12 @@ export const createAuthApiRepository = (): AuthenticationRepository => ({
     return { data, error };
   },
 
-  sendPasswordReset: async (email: string, platform: Platform) => {
-    const { execute, data, error } = useFetch('/auth/send-password-reset-email')
-      .post({ email, platform })
+  sendPasswordReset: async (email: string) => {
+    const _platform: Platform = platform();
+    const { execute, data, error } = useFetchTauri(
+      '/auth/send-password-reset-email',
+    )
+      .post({ email, platform: _platform })
       .json<SuccessResponse<PasswordResetResponse>>();
 
     await execute();
@@ -50,7 +54,7 @@ export const createAuthApiRepository = (): AuthenticationRepository => ({
   },
 
   resetPassword: async (token: string, new_password: string) => {
-    const { execute, data, error } = useFetch('/auth/reset-password')
+    const { execute, data, error } = useFetchTauri('/auth/reset-password')
       .post({ token, new_password })
       .json<SuccessResponse<PasswordResetResponse>>();
 

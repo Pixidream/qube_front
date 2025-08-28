@@ -4,7 +4,7 @@ import { ref, type ShallowRef } from 'vue';
 import { APP_CONFIG } from '@/config';
 import { v4 } from 'uuid';
 
-export const useFetch = (endpoint: string) => {
+export const useFetchTauri = (endpoint: string) => {
   const data = ref(null);
   const error = ref<any | null>(null);
 

@@ -4,7 +4,6 @@ import type {
   LoginResponse,
   PasswordResetResponse,
 } from '@core/types/auth';
-import type { Platform } from '@core/types/platform';
 import type { SuccessResponse } from '@core/types/response';
 import type { ShallowRef } from 'vue';
 
@@ -30,10 +29,7 @@ export interface AuthenticationRepository {
     error: ShallowRef<any>;
   }>;
 
-  sendPasswordReset: (
-    email: string,
-    platform: Platform,
-  ) => Promise<{
+  sendPasswordReset: (email: string) => Promise<{
     data: ShallowRef<SuccessResponse<PasswordResetResponse> | null>;
     error: ShallowRef<any>;
   }>;

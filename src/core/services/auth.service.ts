@@ -5,7 +5,6 @@ import type {
   LoginResponse,
   PasswordResetResponse,
 } from '@core/types/auth';
-import type { Platform } from '@core/types/platform';
 import type { SuccessResponse } from '@core/types/response';
 import type { ShallowRef } from 'vue';
 
@@ -31,10 +30,7 @@ export interface AuthService {
     error: ShallowRef<any>;
   }>;
 
-  sendResetPassword: (
-    email: string,
-    platform: Platform,
-  ) => Promise<{
+  sendResetPassword: (email: string) => Promise<{
     data: ShallowRef<SuccessResponse<PasswordResetResponse> | null>;
     error: ShallowRef<any>;
   }>;
@@ -56,8 +52,7 @@ export const createAuthService = (
     repository.verifyTotp(totp, token),
   verifyTotpEmail: (totp: string, token: string) =>
     repository.verifyTotpEmail(totp, token),
-  sendResetPassword: (email: string, platform: Platform) =>
-    repository.sendPasswordReset(email, platform),
+  sendResetPassword: (email: string) => repository.sendPasswordReset(email),
   resetPassword: (token: string, new_password: string) =>
     repository.resetPassword(token, new_password),
 });
