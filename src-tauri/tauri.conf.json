@@ -18,8 +18,18 @@
       }
     ],
     "security": {
-      "csp": null,
-      "devCsp": "default-src 'self' https: data: blob:; connect-src https://127.0.0.1:3000 https://localhost:1420;"
+      "csp": {
+        "default-src": "'self' https: data: blob:",
+        "connect-src": "ipc: http://ipc.localhost https://127.0.0.1:3000 https://localhost:1420 https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com",
+        "style-src": "'unsafe-inline' 'self'",
+        "img-src": "'self' asset: blob: data:"
+      },
+      "devCsp": {
+        "default-src": "'self' https: data: blob:",
+        "connect-src": "ipc: http://ipc.localhost https://127.0.0.1:3000 https://localhost:1420 https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com",
+        "style-src": "'unsafe-inline' 'self'",
+        "img-src": "'self' asset: blob: data:"
+      }
     }
   },
   "bundle": {
