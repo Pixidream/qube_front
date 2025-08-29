@@ -55,7 +55,11 @@ const handleTotp = handleSubmit(async (values) => {
     <div class="flex flex-col items-center gap-2 text-center">
       <h1 class="text-2xl font-bold">{{ t('auth.totp.form.title') }}</h1>
       <p class="text-muted-foreground w-full text-sm text-balance">
-        {{ t('auth.totp.form.subtitle') }}
+        {{
+          authStore.totpType === 'totp' ?
+            t('auth.totp.form.subtitleTotp')
+          : t('auth.totp.form.subtitleEmail')
+        }}
       </p>
     </div>
     <div class="grid gap-6">

@@ -46,7 +46,8 @@ export default {
   totp: {
     form: {
       title: 'Vérifiez votre identité',
-      subtitle: "Saisissez le code de votre application d'authentification",
+      subtitleTotp: "Saisissez le code de votre application d'authentification",
+      subtitleEmail: 'Saisissez le code reçus par email',
       totpLabel: 'TOTP',
       totpButton: 'Soumettre',
       validation: {
@@ -54,6 +55,45 @@ export default {
         totpMinLength: `Le TOTP doit avoir ${TOTP_LENGTH} chiffres.`,
         totpMaxLength: `Le TOTP doit avoir ${TOTP_LENGTH} chiffres.`,
       },
+    },
+  },
+  sendResetPassword: {
+    form: {
+      title: 'Réinitialiser votre mot de passe',
+      subtitle:
+        'Saisissez votre email pour recevoir un lien de réinitialisation',
+      emailLabel: 'Email',
+      submitButton: 'Envoyer',
+      validation: {
+        email: 'Un email valide est requis.',
+        emailMinLength: "L'addresse est trop courte",
+        emailMaxLength: "L'addresse est trop longue.",
+      },
+    },
+    toast: {
+      title: 'Email envoyé',
+      description:
+        'Vérifiez votre boîte de réception pour le lien de réinitialisation',
+    },
+  },
+  resetPassword: {
+    form: {
+      title: 'Nouveau mot de passe',
+      subtitle: 'Choisissez un mot de passe sécurisé pour votre compte',
+      passwordLabel: 'Mot de passe',
+      confirmPasswordLabel: 'Confirmez votre mot de passe',
+      submitButton: 'Sauvegarder',
+      validation: {
+        password: 'Un mot de passe valide est requis.',
+        passwordMinLength: 'Le mot de passe est trop court',
+        passwordMaxLength: 'Le mot de passe est trop long.',
+        passwordMatch: 'Les mots de passe sont différents',
+        passwordStrength: 'Le mot de passe est trop faible',
+      },
+    },
+    toast: {
+      title: 'Mot de passe mis à jour',
+      description: 'Vous pouvez maintenant vous connecter',
     },
   },
 };

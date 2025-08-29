@@ -4,6 +4,7 @@ import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
+import { useAuthStore } from '@/stores/auth.stores';
 import LoginBackgroundDark from '@assets/images/login_background_dark.png';
 import LoginBackgroundLight from '@assets/images/login_background_light.png';
 import Logo from '@assets/images/logo.png';
@@ -31,7 +32,10 @@ const loginBackgroundImage = computed(() => {
   return newMode == 'dark' ? LoginBackgroundDark : LoginBackgroundLight;
 });
 
-const goTo = (pathName: string) => router.push({ name: pathName });
+const goTo = (pathName: string) => {
+  useAuthStore().authError = null;
+  router.push({ name: pathName });
+};
 
 const subscribeToActor = () => {
   authMachine.actor.subscribe((snapshot) => {

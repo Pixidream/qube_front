@@ -20,6 +20,11 @@ export const useAuthStore = defineStore('auth', () => {
     data: ShallowRef<SuccessResponse<AuthenticationResponse> | null>;
     error: ShallowRef<any>;
   }) => {
+    if (res.error.value) {
+      authError.value = t('auth.networkError');
+      return;
+    }
+
     const _user = res.data.value?.data.user;
 
     if (_user === undefined) {
@@ -43,9 +48,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ------ Actions ------
   const login = async (credentials: Credentials): Promise<void> => {
+    authError.value = null;
     authMachine.actor.send({ type: 'LOADING' });
     await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
-    authError.value = null;
     authService
       .login(credentials)
       .then((res) => {
@@ -78,9 +83,9 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const verifyTotp = async (totp: string): Promise<void> => {
+    authError.value = null;
     authMachine.actor.send({ type: 'LOADING' });
     await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
-    authError.value = null;
 
     const request =
       totpType.value === 'totp' ?
@@ -97,5 +102,70 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
-  return { user, shortTTLToken, authError, isAuthenticated, login, verifyTotp };
+  const sendResetPassword = async (email: string): Promise<boolean> => {
+    authError.value = null;
+    authMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .sendResetPassword(email)
+      .then((res) => {
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        authMachine.actor.send({ type: 'LOGIN' });
+
+        return true;
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return false;
+      })
+      .finally(() => {
+        authMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
+  const resetPassword = async (
+    token: string,
+    new_password: string,
+  ): Promise<boolean> => {
+    authError.value = null;
+    authMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .resetPassword(token, new_password)
+      .then((res) => {
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        authMachine.actor.send({ type: 'LOGIN' });
+
+        return true;
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return false;
+      })
+      .finally(() => {
+        authMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
+  return {
+    user,
+    shortTTLToken,
+    authError,
+    totpType,
+    isAuthenticated,
+    login,
+    verifyTotp,
+    sendResetPassword,
+    resetPassword,
+  };
 });

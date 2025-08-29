@@ -4,6 +4,13 @@ import { ref, type ShallowRef } from 'vue';
 import { APP_CONFIG } from '@/config';
 import { v4 } from 'uuid';
 
+const DANGER_CONFIG = {
+  // TODO: DANGER !! REMOVE true before production
+  acceptInvalidCerts: true,
+  // acceptInvalidCerts: import.meta.env.DEV,
+  acceptInvalidHostnames: false,
+};
+
 export const useFetchTauri = (endpoint: string) => {
   const data = ref(null);
   const error = ref<any | null>(null);
@@ -18,10 +25,7 @@ export const useFetchTauri = (endpoint: string) => {
               'Content-Type': 'application/json',
               'X-REQUEST-ID': v4(),
             },
-            danger: {
-              acceptInvalidCerts: import.meta.env.DEV,
-              acceptInvalidHostnames: false,
-            },
+            danger: DANGER_CONFIG,
           });
 
           if (response.status === 401) {
@@ -55,10 +59,7 @@ export const useFetchTauri = (endpoint: string) => {
               'X-REQUEST-ID': v4(),
             },
             body: JSON.stringify(payload),
-            danger: {
-              acceptInvalidCerts: import.meta.env.DEV,
-              acceptInvalidHostnames: false,
-            },
+            danger: DANGER_CONFIG,
           });
 
           if (response.status === 401) {
@@ -73,7 +74,7 @@ export const useFetchTauri = (endpoint: string) => {
           data.value = result;
         } catch (err) {
           error.value = err;
-          console.error('Public fetch error:', err);
+          console.error('Fetch error:', err);
         }
       };
 

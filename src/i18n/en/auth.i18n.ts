@@ -46,7 +46,8 @@ export default {
   totp: {
     form: {
       title: 'Verify your identity',
-      subtitle: 'Enter the code from your authenticator app',
+      subtitleTotp: 'Enter the code from your authenticator app',
+      subtitleEmail: 'Enter the code received by email',
       totpLabel: 'TOTP',
       totpButton: 'Submit',
       validation: {
@@ -54,6 +55,43 @@ export default {
         totpMinLength: `TOTP token has to have ${TOTP_LENGTH} figures.`,
         totpMaxLength: `TOTP token has to have ${TOTP_LENGTH} figures.`,
       },
+    },
+  },
+  sendResetPassword: {
+    form: {
+      title: 'Reset your password',
+      subtitle: 'Enter your email to receive a reset link',
+      emailLabel: 'Email',
+      submitButton: 'Send',
+      validation: {
+        email: 'A valid email is required.',
+        emailMinLength: 'Email is too short.',
+        emailMaxLength: 'Email is too long.',
+      },
+    },
+    toast: {
+      title: 'Email sent',
+      description: 'Check your inbox for the reset link',
+    },
+  },
+  resetPassword: {
+    form: {
+      title: 'New password',
+      subtitle: 'Choose a secure password for your account',
+      passwordLabel: 'Password',
+      confirmPasswordLabel: 'Confirm your password',
+      submitButton: 'Save',
+      validation: {
+        password: 'A valid passowrd is required.',
+        passwordMinLength: 'Password is too short.',
+        passwordMaxLength: 'Password is too long.',
+        passwordMatch: 'Passwords are not the same',
+        passwordStrength: 'Password is too weak',
+      },
+    },
+    toast: {
+      title: 'Password updated',
+      description: 'You can now log in with your new password',
     },
   },
 };

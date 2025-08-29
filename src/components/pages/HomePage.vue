@@ -2,9 +2,9 @@
 import { useAuthMachine } from '@/machines/auth.machine';
 import Button from '@components/atoms/button/Button.vue';
 
-const { send } = useAuthMachine();
+const authMachine = useAuthMachine();
 const handleGoToLogin = () => {
-  send({ type: 'LOGOUT' });
+  authMachine.actor.send({ type: 'LOGOUT' });
 };
 </script>
 <template>
