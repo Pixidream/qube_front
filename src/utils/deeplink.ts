@@ -1,4 +1,5 @@
 import { sendAuthEvent, useAuthMachine } from '@machines/auth.machine';
+import { LocationQueryRaw, useRouter } from 'vue-router';
 
 type QueryValue = string | string[] | boolean | undefined;
 type ParsedQuery = Record<string, QueryValue>;
@@ -61,19 +62,32 @@ export const parseQueryString = (url: string): ParsedQuery => {
   return result;
 };
 
+export const extractPath = (url: string): string => {
+  const _url = new URL(url);
+  return _url.pathname;
+};
+
 export const handleDeeplink = async (deeplinks: string[]) => {
   if (!deeplinks.length) return;
 
   // for now we handle 1 deeplink only.
-  const deeplink = deeplinks[0];
+  const deeplink = deeplinks.at(-1);
+
+  if (deeplink === undefined) {
+    return;
+  }
+
   const authMachine = useAuthMachine();
+  const query = parseQueryString(deeplink) as LocationQueryRaw;
 
-  // for now I just want to handle deeplinks for this route.
-  if (!deeplink.includes('reset-password')) return;
+  // deeplink handle for auth routes as it's not going through router
+  if (deeplink.includes('reset-password')) {
+    // Send event with query data - navigation will be handled by machine entry action
+    authMachine.actor.send(sendAuthEvent.resetPassword(query));
+    return;
+  }
 
-  // Parse query params and send them with the event
-  const query = parseQueryString(deeplink);
-
-  // Send event with query data - navigation will be handled by machine entry action
-  authMachine.actor.send(sendAuthEvent.resetPassword(query));
+  const path = extractPath(deeplink);
+  const router = useRouter();
+  router.push({ path, query });
 };
