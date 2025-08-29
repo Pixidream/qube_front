@@ -4,17 +4,16 @@ import { getCurrent, onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { handleDeeplink } from '@utils/deeplink';
 import { useColorMode } from '@vueuse/core';
 import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import 'vue-sonner/style.css';
-const router = useRouter();
+
 const setupDeeplinks = async () => {
   const startUrls = await getCurrent();
   if (startUrls) {
-    handleDeeplink(startUrls, router);
+    handleDeeplink(startUrls);
   }
 
   await onOpenUrl((urls) => {
-    handleDeeplink(urls, router);
+    handleDeeplink(urls);
   });
 };
 

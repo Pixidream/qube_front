@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useColorMode } from '@vueuse/core';
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -10,13 +10,19 @@ import LoginBackgroundLight from '@assets/images/login_background_light.png';
 import Logo from '@assets/images/logo.png';
 import LanguageDropdown from '@components/molecules/utils/LanguageDropdown.vue';
 import ThemeDropdown from '@components/molecules/utils/ThemeDropdown.vue';
-import { useAuthMachine } from '@machines/auth.machine';
+import { sendAuthEvent, useAuthMachine } from '@machines/auth.machine';
 import { onBeforeMount } from 'vue';
 
 const router = useRouter();
-const authMachine = useAuthMachine();
 const route = useRoute();
 const { t } = useI18n();
+const authMachine = useAuthMachine();
+
+// Initialize router in auth machine context
+authMachine.$updateContext((context) => ({
+  ...context,
+  router,
+}));
 const mode = useColorMode();
 const loginBackgroundImage = computed(() => {
   const newMode: 'dark' | 'light' =
@@ -32,62 +38,15 @@ const loginBackgroundImage = computed(() => {
   return newMode == 'dark' ? LoginBackgroundDark : LoginBackgroundLight;
 });
 
-const goTo = (pathName: string) => {
-  useAuthStore().authError = null;
-  router.push({ name: pathName });
-};
-
-const subscribeToActor = () => {
-  authMachine.actor.subscribe((snapshot) => {
-    // @ts-expect-error value is an object, but reported as string by xstate
-    switch (snapshot.value.flow) {
-      case 'login':
-        goTo('login');
-        break;
-      case 'signup':
-        goTo('signup');
-        break;
-      case '2fa_totp':
-        goTo('totp');
-        break;
-      case 'recovery_code':
-        goTo('totp-recovery');
-        break;
-      case 'email_totp':
-        goTo('totp');
-        break;
-      case 'verify_email':
-        goTo('verify-email');
-        break;
-      case 'reset_password':
-        goTo('reset-password');
-        break;
-      case 'authenticated':
-        (() =>
-          route.query?.redirect ?
-            router.push(route.query.redirect as string)
-          : goTo('home'))();
-        break;
-      case 'loading':
-        break;
-      default:
-        goTo('login');
-        break;
-    }
-  });
-};
-
-watch(
-  () => authMachine.actor.id,
-  () => {
-    subscribeToActor();
-  },
-);
-
 onBeforeMount(() => {
-  subscribeToActor();
-  if (authMachine.state.matches('flow.login') && route.name !== 'login') {
-    goTo('login');
+  // Clear any previous auth errors
+  useAuthStore().authError = null;
+
+  // Set redirect path if present in query
+  if (route.query?.redirect) {
+    authMachine.actor.send(
+      sendAuthEvent.setRedirect(route.query.redirect as string),
+    );
   }
 });
 </script>

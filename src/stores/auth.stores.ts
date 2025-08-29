@@ -5,7 +5,7 @@ import type { AuthenticationResponse } from '@core/types/auth';
 import { Credentials } from '@core/types/auth';
 import type { SuccessResponse } from '@core/types/response';
 import { type User } from '@core/types/user';
-import { useAuthMachine } from '@machines/auth.machine';
+import { sendAuthEvent, useAuthMachine } from '@machines/auth.machine';
 import { defineStore } from 'pinia';
 import { computed, ref, type ShallowRef } from 'vue';
 
@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     user.value = _user;
 
-    authMachine.actor.send({ type: 'AUTHENTICATED' });
+    authMachine.actor.send(sendAuthEvent.authenticated());
   };
 
   // ------ State ------
