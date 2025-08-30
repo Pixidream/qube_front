@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useAppMachine } from '@/machines/app.machine';
-import { router } from '@/router';
 import { useAppStore } from '@/stores/app.stores';
 import AppLogo from '@assets/images/logo.png';
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { patchApp } from '@/main';
 
 const { t } = useI18n();
 const appStore = useAppStore();
@@ -13,11 +11,7 @@ const appMachine = useAppMachine();
 
 const initApp = async () => {
   await appStore.initApp();
-
-  setTimeout(() => {
-    patchApp(router);
-    appMachine.actor.send({ type: 'LOADED' });
-  }, 100);
+  appMachine.actor.send({ type: 'LOADED' });
 };
 
 onMounted(() => {

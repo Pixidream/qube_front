@@ -1,3 +1,4 @@
+import { useAppStore } from '@/stores/app.stores';
 import { useAuthStore } from '@/stores/auth.stores';
 import { type RouteMeta } from '@core/types/router';
 import {
@@ -95,6 +96,12 @@ export const router = createRouter({ history: createWebHashHistory(), routes });
 
 router.beforeEach((to) => {
   const authStore = useAuthStore();
+  const appStore = useAppStore();
+
+  if (!appStore.isAppInitialized) {
+    return;
+  }
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return {
       name: 'login',

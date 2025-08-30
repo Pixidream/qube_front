@@ -1,1 +1,4 @@
-export default { name: 'Qube' };
+export default {
+  name: 'Qube',
+  retryMessage: 'An error has occurred. Retrying {count}/{max}',
+};
