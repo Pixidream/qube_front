@@ -10,8 +10,10 @@ const appStore = useAppStore();
 const appMachine = useAppMachine();
 
 const initApp = async () => {
-  await appStore.initApp();
-  appMachine.actor.send({ type: 'LOADED' });
+  const success = await appStore.initApp();
+  if (success) {
+    appMachine.actor.send({ type: 'LOADED' });
+  }
 };
 
 onMounted(() => {

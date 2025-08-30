@@ -162,21 +162,27 @@ export const useAuthStore = defineStore('auth', () => {
     authMachine.actor.send({ type: 'LOADING' });
     await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
 
-    authService
-      .me()
-      .then((res) => {
-        if (res.error.value) {
+    try {
+      const res = await authService.me();
+
+      if (res.error.value) {
+        const errorStr = res.error.value.toString().toLowerCase();
+        if (errorStr.includes('401') || errorStr.includes('unauthorized')) {
           user.value = null;
           return;
         }
 
-        user.value = res.data.value?.data ?? null;
-      })
-      .catch(() => {
-        authError.value = t('auth.networkError');
-        user.value = null;
-      })
-      .finally(() => authMachine.actor.send({ type: 'IDLE' }));
+        throw new Error(res.error.value.toString());
+      }
+
+      user.value = res.data.value?.data ?? null;
+    } catch (error) {
+      authError.value = t('auth.networkError');
+      user.value = null;
+      throw error;
+    } finally {
+      authMachine.actor.send({ type: 'IDLE' });
+    }
   };
 
   return {
