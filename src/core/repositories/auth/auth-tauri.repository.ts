@@ -7,6 +7,7 @@ import type {
 } from '@core/types/auth';
 import type { Platform } from '@core/types/platform';
 import type { SuccessResponse } from '@core/types/response';
+import type { User } from '@core/types/user';
 import { platform } from '@tauri-apps/plugin-os';
 import type { AuthenticationRepository } from './auth.repository';
 
@@ -57,6 +58,16 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
     const { execute, data, error } = useFetchTauri('/auth/reset-password')
       .post({ token, new_password })
       .json<SuccessResponse<PasswordResetResponse>>();
+
+    await execute();
+
+    return { data, error };
+  },
+
+  me: async () => {
+    const { execute, data, error } = useFetchTauri('/users/me')
+      .get()
+      .json<SuccessResponse<User>>();
 
     await execute();
 

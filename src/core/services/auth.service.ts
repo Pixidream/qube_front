@@ -5,43 +5,32 @@ import type {
   LoginResponse,
   PasswordResetResponse,
 } from '@core/types/auth';
-import type { SuccessResponse } from '@core/types/response';
-import type { ShallowRef } from 'vue';
+import type { ApiResponse } from '@core/types/response';
+import type { User } from '@core/types/user';
 
 export interface AuthService {
-  login: (credentials: Credentials) => Promise<{
-    data: ShallowRef<SuccessResponse<LoginResponse> | null>;
-    error: ShallowRef<any>;
-  }>;
+  login: (credentials: Credentials) => Promise<ApiResponse<LoginResponse>>;
 
   verifyTotp: (
     totp: string,
     token: string,
-  ) => Promise<{
-    data: ShallowRef<SuccessResponse<AuthenticationResponse> | null>;
-    error: ShallowRef<any>;
-  }>;
+  ) => Promise<ApiResponse<AuthenticationResponse>>;
 
   verifyTotpEmail: (
     totp: string,
     token: string,
-  ) => Promise<{
-    data: ShallowRef<SuccessResponse<AuthenticationResponse> | null>;
-    error: ShallowRef<any>;
-  }>;
+  ) => Promise<ApiResponse<AuthenticationResponse>>;
 
-  sendResetPassword: (email: string) => Promise<{
-    data: ShallowRef<SuccessResponse<PasswordResetResponse> | null>;
-    error: ShallowRef<any>;
-  }>;
+  sendResetPassword: (
+    email: string,
+  ) => Promise<ApiResponse<PasswordResetResponse>>;
 
   resetPassword: (
     token: string,
     new_password: string,
-  ) => Promise<{
-    data: ShallowRef<SuccessResponse<PasswordResetResponse> | null>;
-    error: ShallowRef<any>;
-  }>;
+  ) => Promise<ApiResponse<PasswordResetResponse>>;
+
+  me: () => Promise<ApiResponse<User>>;
 }
 
 export const createAuthService = (
@@ -55,4 +44,5 @@ export const createAuthService = (
   sendResetPassword: (email: string) => repository.sendPasswordReset(email),
   resetPassword: (token: string, new_password: string) =>
     repository.resetPassword(token, new_password),
+  me: () => repository.me(),
 });

@@ -157,15 +157,41 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
+  const me = async (): Promise<void> => {
+    authError.value = null;
+    authMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    authService
+      .me()
+      .then((res) => {
+        if (res.error.value) {
+          user.value = null;
+          return;
+        }
+
+        user.value = res.data.value?.data ?? null;
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        user.value = null;
+      })
+      .finally(() => authMachine.actor.send({ type: 'IDLE' }));
+  };
+
   return {
+    // ------ state ------
     user,
     shortTTLToken,
     authError,
     totpType,
+    // ------ getters ------
     isAuthenticated,
+    // ------ actions ------
     login,
     verifyTotp,
     sendResetPassword,
     resetPassword,
+    me,
   };
 });

@@ -101,4 +101,10 @@ router.beforeEach((to) => {
       query: { redirect: to.meta.isAuthFlow ? '/' : to.fullPath },
     };
   }
+
+  if (authStore.isAuthenticated && to.meta.isAuthFlow) {
+    return {
+      name: 'home',
+    };
+  }
 });
