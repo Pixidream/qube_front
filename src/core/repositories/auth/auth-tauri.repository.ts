@@ -1,76 +1,86 @@
 import { useFetchTauri } from '@/composables/fetch-tauri.composable';
 import type {
   AuthenticationResponse,
+  BasicResponse,
   Credentials,
   LoginResponse,
-  PasswordResetResponse,
+  PasswordResetBody,
+  SendPasswordResetBody,
+  VerifyTotpBody,
+  VerifyTotpEmailBody,
 } from '@core/types/auth';
 import type { Platform } from '@core/types/platform';
-import type { SuccessResponse } from '@core/types/response';
+import type { ApiResponse, SuccessResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
 import { platform } from '@tauri-apps/plugin-os';
 import type { AuthenticationRepository } from './auth.repository';
 
+const _postRequest = async <T, Y>(
+  path: string,
+  body: Y,
+): Promise<ApiResponse<T>> => {
+  const { execute, data, error } = useFetchTauri(path)
+    .post(body)
+    .json<SuccessResponse<T>>();
+
+  await execute();
+
+  return { data, error };
+};
+
+const _getRequest = async <T>(path: string): Promise<ApiResponse<T>> => {
+  const { execute, data, error } = useFetchTauri(path)
+    .get()
+    .json<SuccessResponse<T>>();
+
+  await execute();
+
+  return { data, error };
+};
+
 export const createAuthTauriRepository = (): AuthenticationRepository => ({
   login: async (credentials: Credentials) => {
-    const { execute, data, error } = useFetchTauri('/auth/login')
-      .post(credentials)
-      .json<SuccessResponse<LoginResponse>>();
-
-    await execute();
-    return { data, error };
+    return await _postRequest<LoginResponse, Credentials>(
+      '/auth/login',
+      credentials,
+    );
   },
 
   verifyTotp: async (totp: string, token: string) => {
-    const { execute, data, error } = useFetchTauri('/auth/verify-totp')
-      .post({ totp, token, timestamp: new Date().toISOString() })
-      .json<SuccessResponse<AuthenticationResponse>>();
-
-    await execute();
-
-    return { data, error };
+    return await _postRequest<AuthenticationResponse, VerifyTotpBody>(
+      '/auth/verify-totp',
+      { totp, token, timestamp: new Date().toISOString() },
+    );
   },
 
   verifyTotpEmail: async (totp: string, token: string) => {
-    const { execute, data, error } = useFetchTauri('/auth/verify-totp-email')
-      .post({ totp, token })
-      .json<SuccessResponse<AuthenticationResponse>>();
-
-    await execute();
-
-    return { data, error };
+    return await _postRequest<AuthenticationResponse, VerifyTotpEmailBody>(
+      '/auth/verify-totp-email',
+      { totp, token },
+    );
   },
 
   sendPasswordReset: async (email: string) => {
     const _platform: Platform = platform();
-    const { execute, data, error } = useFetchTauri(
+
+    return await _postRequest<BasicResponse, SendPasswordResetBody>(
       '/auth/send-password-reset-email',
-    )
-      .post({ email, platform: _platform })
-      .json<SuccessResponse<PasswordResetResponse>>();
-
-    await execute();
-
-    return { data, error };
+      { email, platform: _platform },
+    );
   },
 
   resetPassword: async (token: string, new_password: string) => {
-    const { execute, data, error } = useFetchTauri('/auth/reset-password')
-      .post({ token, new_password })
-      .json<SuccessResponse<PasswordResetResponse>>();
-
-    await execute();
-
-    return { data, error };
+    return await _postRequest<BasicResponse, PasswordResetBody>(
+      '/auth/reset-password',
+      { token, new_password },
+    );
   },
 
   me: async () => {
-    const { execute, data, error } = useFetchTauri('/users/me')
-      .get()
-      .json<SuccessResponse<User>>();
+    return await _getRequest<User>('/users/me');
+  },
 
-    await execute();
-
-    return { data, error };
+  logout: async () => {
+    return await _postRequest<BasicResponse, null>('/auth/logout', null);
   },
 });

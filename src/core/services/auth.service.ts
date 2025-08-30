@@ -1,9 +1,9 @@
 import type { AuthenticationRepository } from '@/core/repositories/auth/auth.repository';
 import type {
   AuthenticationResponse,
+  BasicResponse,
   Credentials,
   LoginResponse,
-  PasswordResetResponse,
 } from '@core/types/auth';
 import type { ApiResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
@@ -21,16 +21,16 @@ export interface AuthService {
     token: string,
   ) => Promise<ApiResponse<AuthenticationResponse>>;
 
-  sendResetPassword: (
-    email: string,
-  ) => Promise<ApiResponse<PasswordResetResponse>>;
+  sendResetPassword: (email: string) => Promise<ApiResponse<BasicResponse>>;
 
   resetPassword: (
     token: string,
     new_password: string,
-  ) => Promise<ApiResponse<PasswordResetResponse>>;
+  ) => Promise<ApiResponse<BasicResponse>>;
 
   me: () => Promise<ApiResponse<User>>;
+
+  logout: () => Promise<ApiResponse<BasicResponse>>;
 }
 
 export const createAuthService = (
@@ -45,4 +45,5 @@ export const createAuthService = (
   resetPassword: (token: string, new_password: string) =>
     repository.resetPassword(token, new_password),
   me: () => repository.me(),
+  logout: () => repository.logout(),
 });

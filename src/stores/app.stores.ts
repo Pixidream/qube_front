@@ -1,6 +1,7 @@
 import { APP_CONFIG } from '@/config';
 import { MIN_EXEC_TIME_MS } from '@/core/constants/auth.constants';
 import { i18n } from '@/i18n';
+import { useAuthMachine } from '@/machines/auth.machine';
 import { useAppRefresh } from '@/utils/refresh.util';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
@@ -59,7 +60,6 @@ export const useAppStore = defineStore('appState', () => {
         }
       }
 
-      // If step failed after all retries
       if (!success) {
         const refreshLabel =
           isTauri ?
@@ -94,11 +94,14 @@ export const useAppStore = defineStore('appState', () => {
     isAppInitialized.value = false;
 
     try {
-      // Execute all initialization steps with retry logic
+      // Execute all initialization steps (in declared order) with retry logic
       const success = await executeInitSteps(_verifyAuth);
 
       if (success) {
         // Ensure minimum execution time for UX
+        if (useAuthStore().user) {
+          useAuthMachine().actor.send({ type: 'RESTORE_SESSION' });
+        }
         await _delay(MIN_EXEC_TIME_MS);
         isAppInitialized.value = true;
       }

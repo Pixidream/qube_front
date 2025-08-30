@@ -16,6 +16,7 @@ type AuthEvent =
   | { type: 'SIGNUP' }
   | { type: 'RESET_PASSWORD'; query?: Record<string, any> }
   | { type: 'RECOVERY_CODE' }
+  | { type: 'RESTORE_SESSION' }
   | { type: 'AUTHENTICATED'; redirectPath?: string }
   | { type: 'VERIFY_EMAIL' }
   | { type: 'LOGIN' }
@@ -52,6 +53,9 @@ export const authMachine = createMachine(
               RESET_PASSWORD: {
                 target: 'reset_password',
                 actions: ['assignQuery'],
+              },
+              RESTORE_SESSION: {
+                target: 'authenticated',
               },
             },
           },
@@ -109,7 +113,7 @@ export const authMachine = createMachine(
           authenticated: {
             entry: ['resetAuthError', 'navigateToAuthenticated'],
             on: {
-              LOGOUT: 'login',
+              LOGOUT: { target: 'login', actions: ['logout'] },
             },
           },
         },
@@ -217,6 +221,11 @@ export const authMachine = createMachine(
         } else {
           context.router.push({ name: 'home' });
         }
+      },
+
+      logout: async () => {
+        const authStore = useAuthStore();
+        await authStore.logout();
       },
     },
   },

@@ -1,8 +1,8 @@
 import type {
   AuthenticationResponse,
+  BasicResponse,
   Credentials,
   LoginResponse,
-  PasswordResetResponse,
 } from '@core/types/auth';
 import type { ApiResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
@@ -20,14 +20,14 @@ export interface AuthenticationRepository {
     token: string,
   ) => Promise<ApiResponse<AuthenticationResponse>>;
 
-  sendPasswordReset: (
-    email: string,
-  ) => Promise<ApiResponse<PasswordResetResponse>>;
+  sendPasswordReset: (email: string) => Promise<ApiResponse<BasicResponse>>;
 
   resetPassword: (
     token: string,
     new_password: string,
-  ) => Promise<ApiResponse<PasswordResetResponse>>;
+  ) => Promise<ApiResponse<BasicResponse>>;
 
   me: () => Promise<ApiResponse<User>>;
+
+  logout: () => Promise<ApiResponse<{ message: string }>>;
 }

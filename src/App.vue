@@ -4,11 +4,24 @@ import SplashScreen from '@components/pages/SplashScreen.vue';
 import { getCurrent, onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { handleDeeplink } from '@utils/deeplink';
 import { useColorMode } from '@vueuse/core';
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import 'vue-sonner/style.css';
 import { useAppMachine } from './machines/app.machine';
+import { useAuthStore } from './stores/auth.stores';
 
 const appMachine = useAppMachine();
+const authStore = useAuthStore();
+const router = useRouter();
+
+watch(
+  () => authStore.user,
+  (newUser, oldUser) => {
+    if (!newUser && oldUser && appMachine.state.matches('loaded')) {
+      router.push({ name: 'login' });
+    }
+  },
+);
 
 const setupDeeplinks = async () => {
   const startUrls = await getCurrent();

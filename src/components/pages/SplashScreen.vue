@@ -16,6 +16,12 @@ const router = useRouter();
 appMachine.actor.subscribe((snapshot) => {
   if (!authStore.isAuthenticated && snapshot.matches('loaded')) {
     router.push({ name: 'login' });
+  } else if (
+    authStore.isAuthenticated
+    && snapshot.matches('loaded')
+    && router.currentRoute.value.meta.isAuthFlow
+  ) {
+    router.push({ name: 'home' });
   }
 });
 

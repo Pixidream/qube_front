@@ -185,6 +185,24 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const logout = async (): Promise<void> => {
+    authError.value = null;
+    authMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    authService
+      .logout()
+      .then(() => {
+        user.value = null;
+      })
+      .catch(() => {
+        user.value = null;
+      })
+      .finally(() => {
+        authMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
   return {
     // ------ state ------
     user,
@@ -199,5 +217,6 @@ export const useAuthStore = defineStore('auth', () => {
     sendResetPassword,
     resetPassword,
     me,
+    logout,
   };
 });
