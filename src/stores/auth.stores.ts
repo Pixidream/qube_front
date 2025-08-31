@@ -8,6 +8,8 @@ import { type User } from '@core/types/user';
 import { sendAuthEvent, useAuthMachine } from '@machines/auth.machine';
 import { defineStore } from 'pinia';
 import { computed, ref, type ShallowRef } from 'vue';
+import { createAvatar } from '@dicebear/core';
+import { glass } from '@dicebear/collection';
 
 export const useAuthStore = defineStore('auth', () => {
   // ------ Setup ------
@@ -45,6 +47,17 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ------ Getters ------
   const isAuthenticated = computed(() => user.value !== null);
+  const getAvatar = computed<string>(
+    () =>
+      user.value?.profile_picture
+      ?? createAvatar(glass, { seed: user.value?.email }).toDataUri(),
+  );
+  const getDisplayName = computed<string>(
+    () =>
+      [user.value?.first_name, user.value?.last_name].join(' ')
+      ?? user.value?.username
+      ?? user.value?.email,
+  );
 
   // ------ Actions ------
   const login = async (credentials: Credentials): Promise<void> => {
@@ -211,6 +224,8 @@ export const useAuthStore = defineStore('auth', () => {
     totpType,
     // ------ getters ------
     isAuthenticated,
+    getAvatar,
+    getDisplayName,
     // ------ actions ------
     login,
     verifyTotp,

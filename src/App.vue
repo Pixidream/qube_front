@@ -43,8 +43,14 @@ onMounted(setupDeeplinks);
 <template>
   <Toaster />
   <div class="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-    <AppTemplate v-if="appMachine.state.matches('loaded')" />
-    <SplashScreen v-else />
+    <SplashScreen v-if="appMachine.state.matches('initializing')" />
+    <AppTemplate
+      v-else-if="
+        appMachine.state.matches('loaded')
+        && !router.currentRoute.value.meta.isAuthFlow
+      "
+    />
+    <RouterView v-else />
   </div>
 </template>
 

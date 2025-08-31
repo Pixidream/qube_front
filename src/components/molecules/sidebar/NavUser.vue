@@ -24,11 +24,25 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/atoms/sidebar';
+import { Icon } from '@iconify/vue';
 import { useAuthStore } from '@/stores/auth.stores';
+import { useAuthMachine } from '@/machines/auth.machine';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const authStore = useAuthStore();
-
 const { isMobile } = useSidebar();
+const authMachine = useAuthMachine();
+const { t } = useI18n();
+
+const isLoading = computed<boolean>(() =>
+  authMachine.state.matches('form.loading'),
+);
+
+const handleLogout = (event: Event) => {
+  event.preventDefault();
+  authMachine.actor.send({ type: 'LOGOUT' });
+};
 </script>
 
 <template>
@@ -42,25 +56,15 @@ const { isMobile } = useSidebar();
           >
             <Avatar class="h-8 w-8 rounded-lg">
               <AvatarImage
-                :src="authStore.user?.profile_picture || ''"
-                :alt="
-                  [authStore.user?.first_name, authStore.user?.last_name].join(
-                    ' ',
-                  )
-                  ?? authStore.user?.username
-                  ?? authStore.user?.email
-                "
+                :src="authStore.getAvatar"
+                :alt="`${authStore.getDisplayName}'s avatar`"
               />
               <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
-              <span class="truncate font-semibold">{{
-                [authStore.user?.first_name, authStore.user?.last_name].join(
-                  ' ',
-                )
-                ?? authStore.user?.username
-                ?? authStore.user?.email
-              }}</span>
+              <span class="truncate font-semibold">
+                {{ authStore.getDisplayName }}</span
+              >
               <span class="truncate text-xs">{{ authStore.user?.email }}</span>
             </div>
             <ChevronsUpDown class="ml-auto size-4" />
@@ -76,26 +80,15 @@ const { isMobile } = useSidebar();
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
                 <AvatarImage
-                  :src="authStore.user?.profile_picture || ''"
-                  :alt="
-                    [
-                      authStore.user?.first_name,
-                      authStore.user?.last_name,
-                    ].join(' ')
-                    ?? authStore.user?.username
-                    ?? authStore.user?.email
-                  "
+                  :src="authStore.getAvatar"
+                  :alt="`${authStore.getDisplayName}'s avatar`"
                 />
                 <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">{{
-                  [authStore.user?.first_name, authStore.user?.last_name].join(
-                    ' ',
-                  )
-                  ?? authStore.user?.username
-                  ?? authStore.user?.email
-                }}</span>
+                <span class="truncate font-semibold">
+                  {{ authStore.getDisplayName }}
+                </span>
                 <span class="truncate text-xs">{{
                   authStore.user?.email
                 }}</span>
@@ -125,9 +118,15 @@ const { isMobile } = useSidebar();
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut />
-            Log out
+          <DropdownMenuItem :disabled="isLoading" @select="handleLogout">
+            <template v-if="isLoading">
+              <Icon icon="svg-spinners:ring-resize" />
+              {{ t('navbar.navuser.disconnecting') }}
+            </template>
+            <template v-else>
+              <LogOut />
+              {{ t('navbar.navuser.logout') }}
+            </template>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
