@@ -13,6 +13,8 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@dicebear/collection": "^9.2.4",
+    "@dicebear/core": "^9.2.4",
     "@formkit/auto-animate": "^0.8.2",
     "@tailwindcss/vite": "^4.1.11",
     "@tauri-apps/api": "^2",
