@@ -59,7 +59,9 @@ const handleLogout = (event: Event) => {
                 :src="authStore.getAvatar"
                 :alt="`${authStore.getDisplayName}'s avatar`"
               />
-              <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
+              <AvatarFallback class="rounded-lg">{{
+                authStore.getAvatarFallback
+              }}</AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-semibold">
@@ -83,10 +85,12 @@ const handleLogout = (event: Event) => {
                   :src="authStore.getAvatar"
                   :alt="`${authStore.getDisplayName}'s avatar`"
                 />
-                <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
+                <AvatarFallback class="rounded-lg">{{
+                  authStore.getAvatarFallback
+                }}</AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">
+                <span class="truncate font-semibold max-w-4/5">
                   {{ authStore.getDisplayName }}
                 </span>
                 <span class="truncate text-xs">{{

@@ -52,11 +52,31 @@ export const useAuthStore = defineStore('auth', () => {
       user.value?.profile_picture
       ?? createAvatar(glass, { seed: user.value?.email }).toDataUri(),
   );
+  const getAvatarFallback = computed<string>(() => {
+    const displayName = getDisplayName.value;
+
+    console.log(displayName, '///', user.value, '///', getDisplayName.value);
+    if (!displayName) return '?';
+
+    if (displayName.includes('@')) {
+      const emailPrefix = displayName.split('@')[0];
+      return emailPrefix.substring(0, 2).toUpperCase();
+    }
+
+    const nameParts = displayName.trim().split(/\s+/);
+    if (nameParts.length > 1) {
+      return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
+    }
+
+    return displayName.substring(0, 2).toUpperCase();
+  });
+
   const getDisplayName = computed<string>(
     () =>
-      [user.value?.first_name, user.value?.last_name].join(' ')
-      ?? user.value?.username
-      ?? user.value?.email,
+      [user.value?.first_name, user.value?.last_name].join(' ').trim()
+      || user.value?.username
+      || user.value?.email
+      || '',
   );
 
   // ------ Actions ------
@@ -226,6 +246,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     getAvatar,
     getDisplayName,
+    getAvatarFallback,
     // ------ actions ------
     login,
     verifyTotp,
