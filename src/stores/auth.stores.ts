@@ -55,7 +55,6 @@ export const useAuthStore = defineStore('auth', () => {
   const getAvatarFallback = computed<string>(() => {
     const displayName = getDisplayName.value;
 
-    console.log(displayName, '///', user.value, '///', getDisplayName.value);
     if (!displayName) return '?';
 
     if (displayName.includes('@')) {
