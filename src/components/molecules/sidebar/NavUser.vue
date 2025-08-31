@@ -29,6 +29,7 @@ import { useAuthMachine } from '@/machines/auth.machine';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ThemeToggle from '@components/molecules/utils/ThemeToggle.vue';
+import LanguageToggle from '@components/molecules/utils/LanguageToggle.vue';
 
 const authStore = useAuthStore();
 const { isMobile } = useSidebar();
@@ -103,6 +104,9 @@ const handleLogout = (event: Event) => {
           <DropdownMenuGroup>
             <DropdownMenuItem @select.prevent="">
               <ThemeToggle class="max-h-5" />
+            </DropdownMenuItem>
+            <DropdownMenuItem @select.prevent="">
+              <LanguageToggle class="max-h-5" />
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
