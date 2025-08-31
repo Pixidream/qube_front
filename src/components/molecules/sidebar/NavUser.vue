@@ -5,7 +5,6 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
 } from 'lucide-vue-next';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@components/atoms/avatar';
@@ -29,6 +28,7 @@ import { useAuthStore } from '@/stores/auth.stores';
 import { useAuthMachine } from '@/machines/auth.machine';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import ThemeToggle from '@components/molecules/utils/ThemeToggle.vue';
 
 const authStore = useAuthStore();
 const { isMobile } = useSidebar();
@@ -101,9 +101,8 @@ const handleLogout = (event: Event) => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Sparkles />
-              Upgrade to Pro
+            <DropdownMenuItem @select.prevent="">
+              <ThemeToggle class="max-h-5" />
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
