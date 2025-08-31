@@ -13,13 +13,13 @@ const icons = {
   auto: 'radix-icons:laptop',
 };
 const themeNames = {
-  light: t('utils.themeDropdown.light'),
-  dark: t('utils.themeDropdown.dark'),
-  auto: t('utils.themeDropdown.system'),
+  light: () => t('utils.themeDropdown.light'),
+  dark: () => t('utils.themeDropdown.dark'),
+  auto: () => t('utils.themeDropdown.system'),
 };
 
 const getIconName = computed<string>(() => icons[mode.store.value]);
-const getThemeName = computed<string>(() => themeNames[mode.store.value]);
+const getThemeName = computed<string>(() => themeNames[mode.store.value]());
 
 const toggleTheme = () => {
   if (mode.store.value === 'light') {
