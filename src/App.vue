@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router';
 import 'vue-sonner/style.css';
 import { useAppMachine } from './machines/app.machine';
 import { useAuthStore } from './stores/auth.stores';
+import AppTemplate from './components/templates/AppTemplate.vue';
 
 const appMachine = useAppMachine();
 const authStore = useAuthStore();
@@ -42,7 +43,7 @@ onMounted(setupDeeplinks);
 <template>
   <Toaster />
   <div class="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-    <RouterView v-if="appMachine.state.matches('loaded')" />
+    <AppTemplate v-if="appMachine.state.matches('loaded')" />
     <SplashScreen v-else />
   </div>
 </template>
