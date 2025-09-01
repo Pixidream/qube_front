@@ -1,12 +1,4 @@
 <script setup lang="ts">
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-} from 'lucide-vue-next';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@components/atoms/avatar';
 import {
   DropdownMenu,
@@ -30,11 +22,13 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ThemeToggle from '@components/molecules/utils/ThemeToggle.vue';
 import LanguageToggle from '@components/molecules/utils/LanguageToggle.vue';
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const { isMobile } = useSidebar();
 const authMachine = useAuthMachine();
 const { t } = useI18n();
+const router = useRouter();
 
 const isLoading = computed<boolean>(() =>
   authMachine.state.matches('form.loading'),
@@ -70,7 +64,7 @@ const handleLogout = (event: Event) => {
               >
               <span class="truncate text-xs">{{ authStore.user?.email }}</span>
             </div>
-            <ChevronsUpDown class="ml-auto size-4" />
+            <Icon icon="lucide:chevrons-up-down" class="ml-auto size-4" />
           </SidebarMenuButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -111,16 +105,12 @@ const handleLogout = (event: Event) => {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck />
-              Account
+            <DropdownMenuItem @click="router.push({ name: 'profile' })">
+              <Icon icon="lucide:badge-check" />
+              {{ t('navbar.navuser.account') }}
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <CreditCard />
-              Billing
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Bell />
+              <Icon icon="lucide:bell" />
               Notifications
             </DropdownMenuItem>
           </DropdownMenuGroup>
@@ -131,7 +121,7 @@ const handleLogout = (event: Event) => {
               {{ t('navbar.navuser.disconnecting') }}
             </template>
             <template v-else>
-              <LogOut />
+              <Icon icon="lucide:log-out" />
               {{ t('navbar.navuser.logout') }}
             </template>
           </DropdownMenuItem>

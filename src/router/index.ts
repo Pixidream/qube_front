@@ -14,7 +14,7 @@ const routes: readonly RouteRecordRaw[] = [
     component: () => import('@components/pages/HomePage.vue'),
     meta: {
       requiresAuth: true,
-      displayName: 'Home',
+      displayName: 'navigation.home',
       isAuthFlow: false,
     } satisfies RouteMeta,
   },
@@ -29,7 +29,7 @@ const routes: readonly RouteRecordRaw[] = [
           import('@components/pages/authentication/LoginPage.vue'),
         meta: {
           requiresAuth: false,
-          displayName: 'Login',
+          displayName: 'navigation.login',
           isAuthFlow: true,
         } satisfies RouteMeta,
       },
@@ -40,7 +40,7 @@ const routes: readonly RouteRecordRaw[] = [
           import('@components/pages/authentication/SignupPage.vue'),
         meta: {
           requiresAuth: false,
-          displayName: 'Signup',
+          displayName: 'navigation.signup',
           isAuthFlow: true,
         } satisfies RouteMeta,
       },
@@ -51,7 +51,7 @@ const routes: readonly RouteRecordRaw[] = [
           import('@components/pages/authentication/TotpPage.vue'),
         meta: {
           requiresAuth: false,
-          displayName: 'Totp',
+          displayName: 'naviation.totp',
           isAuthFlow: true,
         } satisfies RouteMeta,
       },
@@ -62,7 +62,7 @@ const routes: readonly RouteRecordRaw[] = [
           import('@components/pages/authentication/TotpRecoveryPage.vue'),
         meta: {
           requiresAuth: false,
-          displayName: 'Totp Recovery',
+          displayName: 'navigation.totpRecovery',
           isAuthFlow: true,
         } satisfies RouteMeta,
       },
@@ -73,7 +73,7 @@ const routes: readonly RouteRecordRaw[] = [
           import('@components/pages/authentication/VerifyEmailPage.vue'),
         meta: {
           requiresAuth: false,
-          displayName: 'Verify Email',
+          displayName: 'navigation.verifyEmail',
           isAuthFlow: true,
         } satisfies RouteMeta,
       },
@@ -84,8 +84,36 @@ const routes: readonly RouteRecordRaw[] = [
           import('@components/pages/authentication/ResetPasswordPage.vue'),
         meta: {
           requiresAuth: false,
-          displayName: 'Reset Password',
+          displayName: 'navigation.resetPassword',
           isAuthFlow: true,
+        } satisfies RouteMeta,
+      },
+    ],
+  },
+  {
+    path: '/account',
+    component: () => import('@components/templates/AccountTemplate.vue'),
+    redirect: { name: 'profile' },
+    name: 'account',
+    children: [
+      {
+        path: 'profile',
+        name: 'profile',
+        component: () => import('@components/pages/account/ProfilePage.vue'),
+        meta: {
+          requiresAuth: true,
+          displayName: 'navigation.profile',
+          isAuthFlow: false,
+        } satisfies RouteMeta,
+      },
+      {
+        path: 'security',
+        name: 'security',
+        component: () => import('@components/pages/account/SecurityPage.vue'),
+        meta: {
+          requiresAuth: true,
+          displayName: 'navigation.security',
+          isAuthFlow: false,
         } satisfies RouteMeta,
       },
     ],

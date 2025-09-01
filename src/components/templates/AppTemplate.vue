@@ -34,10 +34,10 @@ const router = useRouter();
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem
-                class="hidden md:block"
+                class="hidden md:block cursor-pointer"
                 @click="router.push({ name: 'home' })"
               >
-                <BreadcrumbLink href="#">
+                <BreadcrumbLink>
                   {{ t('app.name') }}
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -45,9 +45,27 @@ const router = useRouter();
                 v-if="route.name !== 'home'"
                 class="hidden md:block"
               />
-              <BreadcrumbItem v-if="route.name !== 'home'">
-                <BreadcrumbPage>{{ route.meta.displayName }}</BreadcrumbPage>
-              </BreadcrumbItem>
+              <template v-if="route.name !== 'home'">
+                <template
+                  v-for="(path, index) in route.path.split('/').filter(Boolean)"
+                  :key="path"
+                >
+                  <BreadcrumbItem
+                    class="cursor-pointer"
+                    @click.prevent="router.push({ name: path })"
+                  >
+                    <BreadcrumbPage>{{
+                      t(`navigation.${path}`)
+                    }}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator
+                    v-if="
+                      index < route.path.split('/').filter(Boolean).length - 1
+                    "
+                    class="hidden md:block"
+                  />
+                </template>
+              </template>
             </BreadcrumbList>
           </Breadcrumb>
         </div>

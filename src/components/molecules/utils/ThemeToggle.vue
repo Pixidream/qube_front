@@ -8,9 +8,9 @@ import { useI18n } from 'vue-i18n';
 const mode = useColorMode({ disableTransition: false });
 const { t } = useI18n();
 const icons = {
-  light: 'radix-icons:sun',
-  dark: 'radix-icons:moon',
-  auto: 'radix-icons:laptop',
+  light: 'lucide:sun',
+  dark: 'lucide:moon',
+  auto: 'lucide:laptop-minimal',
 };
 const themeNames = {
   light: () => t('utils.themeDropdown.light'),
