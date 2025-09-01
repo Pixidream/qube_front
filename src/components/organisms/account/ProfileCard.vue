@@ -22,7 +22,9 @@ const getFormatedDate = computed<string>(() => {
 <template>
   <Card>
     <CardContent>
-      <div class="flex flex-col items-start gap-6 md:flex-row md:items-center">
+      <div
+        class="flex flex-wrap flex-col items-start gap-6 md:flex-row md:items-center"
+      >
         <AvatarEditor
           :src="authStore.getAvatar"
           :alt="`${authStore.getDisplayName}'s avatar`"
