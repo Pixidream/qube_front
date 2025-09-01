@@ -96,4 +96,8 @@ export default {
       description: 'Vous pouvez maintenant vous connecter',
     },
   },
+  profile: {
+    joined: 'À rejoins le {date}',
+    edit: 'Éditer mon profile',
+  },
 };

@@ -94,4 +94,8 @@ export default {
       description: 'You can now log in with your new password',
     },
   },
+  profile: {
+    joined: 'Joined {date}',
+    edit: 'Edit profile',
+  },
 };

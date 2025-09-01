@@ -9,8 +9,16 @@ import {
 } from '@components/atoms/dropdown-menu';
 import { useI18n } from 'vue-i18n';
 import { type SupportedLocale, localeNames, icons } from '@i18n/index';
+import dayjs from '@/plugins/dayjs.plugin';
+import fr from 'dayjs/locale/fr';
+import en from 'dayjs/locale/en';
 
 const { locale, availableLocales } = useI18n<{ locale: SupportedLocale }>();
+
+const handleLocalUpdate = (loc: SupportedLocale) => {
+  locale.value = loc;
+  dayjs.locale(loc === 'fr' ? fr : en);
+};
 </script>
 
 <template>
@@ -28,7 +36,7 @@ const { locale, availableLocales } = useI18n<{ locale: SupportedLocale }>();
       <DropdownMenuItem
         v-for="loc of availableLocales"
         :key="loc"
-        @click="locale = loc"
+        @click="handleLocalUpdate(loc as SupportedLocale)"
       >
         <Icon
           :icon="icons[loc as SupportedLocale]"
