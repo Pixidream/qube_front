@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Toaster } from '@components/atoms/sonner';
 import SplashScreen from '@components/pages/SplashScreen.vue';
-import { getCurrent, onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { handleDeeplink } from '@utils/deeplink';
 import { useColorMode } from '@vueuse/core';
 import { onMounted, watch } from 'vue';
@@ -10,10 +9,12 @@ import 'vue-sonner/style.css';
 import { useAppMachine } from './machines/app.machine';
 import { useAuthStore } from './stores/auth.stores';
 import AppTemplate from './components/templates/AppTemplate.vue';
+import { useRuntimeDevice } from './composables/device.composable';
 
 const appMachine = useAppMachine();
 const authStore = useAuthStore();
 const router = useRouter();
+const { isTauri } = useRuntimeDevice();
 
 watch(
   () => authStore.user,
@@ -25,14 +26,23 @@ watch(
 );
 
 const setupDeeplinks = async () => {
-  const startUrls = await getCurrent();
-  if (startUrls) {
-    handleDeeplink(startUrls);
-  }
+  if (!isTauri.value) return;
 
-  await onOpenUrl((urls) => {
-    handleDeeplink(urls);
-  });
+  try {
+    const { getCurrent, onOpenUrl } = await import(
+      '@tauri-apps/plugin-deep-link'
+    );
+    const startUrls = await getCurrent();
+    if (startUrls) {
+      handleDeeplink(startUrls);
+    }
+
+    await onOpenUrl((urls) => {
+      handleDeeplink(urls);
+    });
+  } catch (error) {
+    console.error('Failed to setup deeplinks:', error);
+  }
 };
 
 useColorMode();

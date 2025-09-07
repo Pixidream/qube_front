@@ -19,23 +19,23 @@ const _postRequest = async <T, Y>(
   path: string,
   body: Y,
 ): Promise<ApiResponse<T>> => {
-  const { execute, data, error } = useFetchTauri(path)
+  const { execute, data, error, response } = useFetchTauri(path)
     .post(body)
     .json<SuccessResponse<T>>();
 
   await execute();
 
-  return { data, error };
+  return { data, error, response };
 };
 
 const _getRequest = async <T>(path: string): Promise<ApiResponse<T>> => {
-  const { execute, data, error } = useFetchTauri(path)
+  const { execute, data, error, response } = useFetchTauri(path)
     .get()
     .json<SuccessResponse<T>>();
 
   await execute();
 
-  return { data, error };
+  return { data, error, response };
 };
 
 export const createAuthTauriRepository = (): AuthenticationRepository => ({

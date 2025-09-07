@@ -87,10 +87,7 @@ export const useAuthStore = defineStore('auth', () => {
       .login(credentials)
       .then((res) => {
         if (res.error.value) {
-          if (
-            res.error.value.toString().toLowerCase().includes('401')
-            || res.error.value.toString().toLowerCase().includes('unauthorized')
-          ) {
+          if (res.response.value?.status === 401) {
             authError.value = t('auth.login.form.validation.invalidCreds');
           } else {
             authError.value = t('auth.networkError');
@@ -198,8 +195,7 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await authService.me();
 
       if (res.error.value) {
-        const errorStr = res.error.value.toString().toLowerCase();
-        if (errorStr.includes('401') || errorStr.includes('unauthorized')) {
+        if (res.response.value?.status === 401) {
           user.value = null;
           return;
         }

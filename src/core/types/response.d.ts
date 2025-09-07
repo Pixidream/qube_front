@@ -19,4 +19,5 @@ export interface ErrorResponse {
 export interface ApiResponse<T> {
   data: ShallowRef<SuccessResponse<T> | null>;
   error: ShallowRef<any>;
+  response: ShallowRef<Response | null>;
 }

@@ -14,12 +14,13 @@ const DANGER_CONFIG = {
 export const useFetchTauri = (endpoint: string) => {
   const data = ref(null);
   const error = ref<any | null>(null);
+  const response = ref<Response | null>(null);
 
   const get = () => ({
     json: <T>() => {
       const execute = async () => {
         try {
-          const response = await fetch(`${APP_CONFIG.api.baseUrl}${endpoint}`, {
+          response.value = await fetch(`${APP_CONFIG.api.baseUrl}${endpoint}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -28,15 +29,15 @@ export const useFetchTauri = (endpoint: string) => {
             danger: DANGER_CONFIG,
           });
 
-          if (response.status === 401) {
+          if (response.value.status === 401) {
             throw new Error('Unauthorized');
           }
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          if (!response.value.ok) {
+            throw new Error(`HTTP error! status: ${response.value.status}`);
           }
 
-          const result = await response.json();
+          const result = await response.value.json();
           data.value = result;
         } catch (err: any) {
           error.value = err;
@@ -44,7 +45,7 @@ export const useFetchTauri = (endpoint: string) => {
         }
       };
 
-      return { execute, data: data as ShallowRef<T | null>, error };
+      return { execute, data: data as ShallowRef<T | null>, error, response };
     },
   });
 
@@ -52,7 +53,7 @@ export const useFetchTauri = (endpoint: string) => {
     json: <T>() => {
       const execute = async () => {
         try {
-          const response = await fetch(`${APP_CONFIG.api.baseUrl}${endpoint}`, {
+          response.value = await fetch(`${APP_CONFIG.api.baseUrl}${endpoint}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -62,15 +63,15 @@ export const useFetchTauri = (endpoint: string) => {
             danger: DANGER_CONFIG,
           });
 
-          if (response.status === 401) {
+          if (response.value.status === 401) {
             throw new Error('Unauthorized');
           }
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          if (!response.value.ok) {
+            throw new Error(`HTTP error! status: ${response.value.status}`);
           }
 
-          const result = await response.json();
+          const result = await response.value.json();
           data.value = result;
         } catch (err) {
           error.value = err;
@@ -78,7 +79,7 @@ export const useFetchTauri = (endpoint: string) => {
         }
       };
 
-      return { execute, data: data as ShallowRef<T | null>, error };
+      return { execute, data: data as ShallowRef<T | null>, error, response };
     },
   });
 
