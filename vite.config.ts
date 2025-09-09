@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import tailwindcss from '@tailwindcss/vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import path from 'node:path';
-import fs from 'fs';
+// import fs from 'fs';
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -16,10 +16,10 @@ export default defineConfig(async () => ({
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
     port: 1420,
-    https: {
-      key: fs.readFileSync('./certs/localhost-key.pem'),
-      cert: fs.readFileSync('./certs/localhost.pem'),
-    },
+    // https: {
+    //   key: fs.readFileSync('./certs/localhost-key.pem'),
+    //   cert: fs.readFileSync('./certs/localhost.pem'),
+    // },
     strictPort: true,
     host: host || false,
     hmr: host ? { protocol: 'ws', host, port: 1421 } : undefined,

@@ -5,7 +5,7 @@
   "identifier": "com.pixidream.qube",
   "build": {
     "beforeDevCommand": "bun run dev",
-    "devUrl": "https://localhost:1420",
+    "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
   },
@@ -14,19 +14,20 @@
       {
         "title": "qube",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "useHttpsScheme": true
       }
     ],
     "security": {
       "csp": {
         "default-src": "'self' https: data: blob:",
-        "connect-src": "ipc: http://ipc.localhost https://127.0.0.1:3000 https://localhost:1420 https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com",
+        "connect-src": "ipc: http://ipc.localhost https://127.0.0.1:3000 https://192.168.1.47:3000 https://localhost:1420 http://localhost:1420 https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com",
         "style-src": "'unsafe-inline' 'self'",
         "img-src": "'self' asset: blob: data:"
       },
       "devCsp": {
         "default-src": "'self' https: data: blob:",
-        "connect-src": "ipc: http://ipc.localhost https://127.0.0.1:3000 https://localhost:1420 https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com",
+        "connect-src": "ipc: http://ipc.localhost https://192.168.1.47:3000 https://127.0.0.1:3000 https://localhost:1420 http://localhost:1420 https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com",
         "style-src": "'unsafe-inline' 'self'",
         "img-src": "'self' asset: blob: data:"
       }
