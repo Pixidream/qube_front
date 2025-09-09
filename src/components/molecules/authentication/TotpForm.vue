@@ -74,22 +74,22 @@ const handleTotp = handleSubmit(async (values) => {
               <PinInput
                 id="totp"
                 :model-value="value"
-                class="flex gap-2 items-center mt-1"
+                class="flex gap-1 sm:gap-2 items-center mt-1"
                 otp
-                type="text"
+                type="number"
                 :name="componentField.name"
                 @update:model-value="
                   (arrNumber) => setFieldValue('totp', arrNumber)
                 "
               >
-                <PinInputGroup>
+                <PinInputGroup class="gap-1 sm:gap-2">
                   <template v-for="(id, index) in TOTP_LENGTH" :key="id">
                     <PinInputSlot
-                      class="rounded-md border mx-1"
+                      class="rounded-md border w-8 h-10 sm:w-10 sm:h-12 text-sm sm:text-base"
                       :index="index"
                     />
                     <template v-if="index === 3">
-                      <PinInputSeparator class="mx-2" />
+                      <PinInputSeparator class="mx-1 sm:mx-2" />
                     </template>
                   </template>
                 </PinInputGroup>

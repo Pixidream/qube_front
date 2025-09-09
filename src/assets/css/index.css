@@ -135,9 +135,7 @@
   );
 }
 .safe-height {
-  height: calc(
-    100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)
-  );
+  height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
 }
 
 .safe-max-height {
