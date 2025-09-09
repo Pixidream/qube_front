@@ -24,7 +24,9 @@ const router = useRouter();
 <template>
   <SidebarProvider>
     <SidebarApp />
-    <SidebarInset>
+    <SidebarInset
+      class="flex flex-col h-screen overflow-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+    >
       <header
         class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"
       >
@@ -34,17 +36,14 @@ const router = useRouter();
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem
-                class="hidden md:block cursor-pointer"
+                class="block cursor-pointer"
                 @click="router.push({ name: 'home' })"
               >
                 <BreadcrumbLink>
                   {{ t('app.name') }}
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator
-                v-if="route.name !== 'home'"
-                class="hidden md:block"
-              />
+              <BreadcrumbSeparator v-if="route.name !== 'home'" class="block" />
               <template v-if="route.name !== 'home'">
                 <template
                   v-for="(path, index) in route.path.split('/').filter(Boolean)"
@@ -62,7 +61,7 @@ const router = useRouter();
                     v-if="
                       index < route.path.split('/').filter(Boolean).length - 1
                     "
-                    class="hidden md:block"
+                    class="block"
                   />
                 </template>
               </template>
@@ -70,7 +69,7 @@ const router = useRouter();
           </Breadcrumb>
         </div>
       </header>
-      <main class="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <main class="flex flex-1 flex-col gap-4 p-4 pt-0 overflow-y-auto min-h-0">
         <RouterView />
       </main>
     </SidebarInset>

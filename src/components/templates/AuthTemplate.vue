@@ -51,7 +51,7 @@ onBeforeMount(() => {
 });
 </script>
 <template>
-  <div class="grid safe-height lg:grid-cols-2">
+  <div class="grid safe-min-height lg:grid-cols-2">
     <div class="flex flex-col gap-4 p-6 md:p-10">
       <div class="flex justify-between">
         <div class="flex gap-2 justify-start">

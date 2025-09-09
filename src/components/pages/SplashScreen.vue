@@ -38,7 +38,7 @@ onMounted(() => {
 </script>
 <template>
   <div
-    class="safe-height w-dvw flex flex-col justify-center items-center bg-background"
+    class="safe-min-height w-dvw flex flex-col justify-center items-center bg-background"
   >
     <div class="flex flex-col items-center space-y-6">
       <div class="animate-fade-in">

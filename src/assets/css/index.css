@@ -129,8 +129,19 @@
   }
 }
 
-.safe-height {
+.safe-min-height {
   min-height: calc(
+    100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  );
+}
+.safe-height {
+  height: calc(
+    100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  );
+}
+
+.safe-max-height {
+  max-height: calc(
     100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)
   );
 }
