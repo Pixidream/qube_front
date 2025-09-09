@@ -16,9 +16,19 @@ const props = withDefaults(defineProps<SidebarProps>(), {
 </script>
 <template>
   <Sidebar v-bind="props">
-    <SidebarHeader><TeamSwitcher /></SidebarHeader>
+    <SidebarHeader class="sidebar-header-padding"
+      ><TeamSwitcher
+    /></SidebarHeader>
     <SidebarContent></SidebarContent>
-    <SidebarFooter><NavUser /></SidebarFooter>
+    <SidebarFooter class="sidebar-footer-padding"><NavUser /></SidebarFooter>
     <SidebarRail />
   </Sidebar>
 </template>
+<style scoped>
+.sidebar-header-padding {
+  padding-top: calc(env(safe-area-inset-top) + var(--spacing) * 2);
+}
+.sidebar-footer-padding {
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--spacing) * 2);
+}
+</style>
