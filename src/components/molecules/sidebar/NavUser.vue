@@ -25,18 +25,25 @@ import LanguageToggle from '@components/molecules/utils/LanguageToggle.vue';
 import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
-const { isMobile } = useSidebar();
 const authMachine = useAuthMachine();
 const { t } = useI18n();
 const router = useRouter();
+const { isMobile, setOpenMobile } = useSidebar();
 
 const isLoading = computed<boolean>(() =>
   authMachine.state.matches('form.loading'),
 );
 
+const closeSidebar = () => (isMobile.value ? setOpenMobile(false) : () => {});
+
 const handleLogout = (event: Event) => {
   event.preventDefault();
   authMachine.actor.send({ type: 'LOGOUT' });
+};
+
+const handleProfileClick = () => {
+  router.push({ name: 'profile' });
+  closeSidebar();
 };
 </script>
 
@@ -105,7 +112,7 @@ const handleLogout = (event: Event) => {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem @click="router.push({ name: 'profile' })">
+            <DropdownMenuItem @click="handleProfileClick">
               <Icon icon="lucide:badge-check" />
               {{ t('navbar.navuser.account') }}
             </DropdownMenuItem>
