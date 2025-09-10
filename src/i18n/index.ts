@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n';
+import { useLocalStorage } from '@vueuse/core';
 import fr from './fr';
 import en from './en';
 
@@ -13,9 +14,33 @@ export const localeNames: Record<SupportedLocale, string> = {
   fr: 'Français',
 };
 
+const supportedLocales: SupportedLocale[] = ['en', 'fr'];
+
+const getInitialLocale = (): SupportedLocale => {
+  // Try to get from localStorage first
+  const stored = localStorage.getItem('locale');
+  if (stored && supportedLocales.includes(stored as SupportedLocale)) {
+    return stored as SupportedLocale;
+  }
+
+  // Fallback to navigator language if supported
+  const navigatorLang = navigator.language.split('-')[0] as SupportedLocale;
+  if (supportedLocales.includes(navigatorLang)) {
+    return navigatorLang;
+  }
+
+  // Default to 'fr'
+  return 'fr';
+};
+
+export const locale = useLocalStorage<SupportedLocale>(
+  'locale',
+  getInitialLocale(),
+);
+
 export const i18n = createI18n<[messageSchemaFR], 'fr' | 'en'>({
   legacy: false,
-  locale: navigator.language.split('-')[0] ?? 'fr',
+  locale: locale.value,
   fallbackLocale: 'fr',
   messages: { fr, en },
 });

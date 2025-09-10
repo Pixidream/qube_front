@@ -8,15 +8,18 @@ import {
   DropdownMenuTrigger,
 } from '@components/atoms/dropdown-menu';
 import { useI18n } from 'vue-i18n';
-import { type SupportedLocale, localeNames, icons } from '@i18n/index';
+import { type SupportedLocale, localeNames, icons, locale } from '@i18n/index';
 import dayjs from '@/plugins/dayjs.plugin';
 import fr from 'dayjs/locale/fr';
 import en from 'dayjs/locale/en';
 
-const { locale, availableLocales } = useI18n<{ locale: SupportedLocale }>();
+const { locale: i18nLocale, availableLocales } = useI18n<{
+  locale: SupportedLocale;
+}>();
 
 const handleLocalUpdate = (loc: SupportedLocale) => {
   locale.value = loc;
+  i18nLocale.value = loc;
   dayjs.locale(loc === 'fr' ? fr : en);
 };
 </script>

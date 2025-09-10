@@ -3,12 +3,12 @@ import { Button } from '@components/atoms/button';
 import { Icon } from '@iconify/vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { type SupportedLocale, localeNames, icons } from '@i18n/index';
+import { type SupportedLocale, localeNames, icons, locale } from '@i18n/index';
 import dayjs from '@/plugins/dayjs.plugin';
 import fr from 'dayjs/locale/fr';
 import en from 'dayjs/locale/en';
 
-const { locale } = useI18n<{ locale: SupportedLocale }>();
+const { locale: i18nLocale } = useI18n<{ locale: SupportedLocale }>();
 
 const getIconName = computed<string>(
   () => icons[locale.value as SupportedLocale],
@@ -17,9 +17,11 @@ const getIconName = computed<string>(
 const toggleLanguage = () => {
   if (locale.value === 'en') {
     locale.value = 'fr';
+    i18nLocale.value = 'fr';
     dayjs.locale(fr);
   } else {
     locale.value = 'en';
+    i18nLocale.value = 'en';
     dayjs.locale(en);
   }
 };
