@@ -19,7 +19,9 @@ const passwordLastChanged = computed(() =>
 <template>
   <div class="flex items-center justify-between">
     <div class="space-y-1">
-      <Label>{{ t('account.security.password') }}</Label>
+      <Label class="text-md md:text-lg font-semibold">{{
+        t('account.security.password')
+      }}</Label>
       <p class="text-muted-foreground text-sm">{{ passwordLastChanged }}</p>
     </div>
     <slot />

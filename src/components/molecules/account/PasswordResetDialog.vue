@@ -22,7 +22,10 @@ const { t } = useI18n();
         {{ t('account.security.changePasswordButton') }}
       </Button>
     </DialogTrigger>
-    <DialogContent class="sm:max-w-[425px]">
+    <DialogContent
+      class="sm:max-w-[425px]"
+      @interact-outside="(e) => e.preventDefault()"
+    >
       <DialogHeader>
         <DialogTitle>Change PAssword</DialogTitle>
         <DialogDescription>
