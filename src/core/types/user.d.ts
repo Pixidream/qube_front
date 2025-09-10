@@ -11,4 +11,5 @@ export interface User {
   is_active: boolean;
   totp_enabled: boolean;
   email_verified?: Date;
+  password_updated?: Date;
 }
