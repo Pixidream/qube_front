@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { Label } from '@components/atoms/label';
-import { Button } from '@components/atoms/button';
-import { Icon } from '@iconify/vue';
 import { useI18n } from 'vue-i18n';
 import dayjs from '@/plugins/dayjs.plugin';
 import { computed } from 'vue';
@@ -24,9 +22,6 @@ const passwordLastChanged = computed(() =>
       <Label>{{ t('account.security.password') }}</Label>
       <p class="text-muted-foreground text-sm">{{ passwordLastChanged }}</p>
     </div>
-    <Button variant="outline">
-      <Icon icon="lucide:key-round" />
-      {{ t('account.security.changePasswordButton') }}
-    </Button>
+    <slot />
   </div>
 </template>

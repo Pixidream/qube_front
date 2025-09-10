@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PasswordResetDialog from '@/components/molecules/account/PasswordResetDialog.vue';
 import {
   Card,
   CardContent,
@@ -22,7 +23,9 @@ const { t } = useI18n();
     </CardHeader>
     <CardContent>
       <div class="space-y-4">
-        <PasswordResetItem />
+        <PasswordResetItem>
+          <PasswordResetDialog />
+        </PasswordResetItem>
         <Separator class="w-full" />
       </div>
     </CardContent>
