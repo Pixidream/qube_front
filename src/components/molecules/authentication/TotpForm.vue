@@ -71,6 +71,7 @@ const handleTotp = handleSubmit(async (values) => {
         >
           <FormItem v-auto-animate>
             <FormControl>
+              <!-- @vue-expect-error type="number" is required here to get the correct keyboard -->
               <PinInput
                 id="totp"
                 :model-value="value"
