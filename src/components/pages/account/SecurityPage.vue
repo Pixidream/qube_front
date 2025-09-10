@@ -1,3 +1,6 @@
+<script setup lang="ts">
+import SecurityCard from '@components/organisms/account/SecurityCard.vue';
+</script>
 <template>
-  <h1>Security</h1>
+  <SecurityCard />
 </template>
