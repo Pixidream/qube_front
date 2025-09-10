@@ -1,5 +1,8 @@
 import { createI18n } from 'vue-i18n';
 import { useLocalStorage } from '@vueuse/core';
+import dayjs from '@/plugins/dayjs.plugin';
+import dayjsFr from 'dayjs/locale/fr';
+import dayjsEn from 'dayjs/locale/en';
 import fr from './fr';
 import en from './en';
 
@@ -37,6 +40,8 @@ export const locale = useLocalStorage<SupportedLocale>(
   'locale',
   getInitialLocale(),
 );
+
+dayjs.locale(locale.value === 'fr' ? dayjsFr : dayjsEn);
 
 export const i18n = createI18n<[messageSchemaFR], 'fr' | 'en'>({
   legacy: false,

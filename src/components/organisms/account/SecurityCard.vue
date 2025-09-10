@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PasswordResetDialog from '@/components/molecules/account/PasswordResetDialog.vue';
+import TotpConfigurationDialog from '@/components/molecules/account/TotpConfigurationDialog.vue';
 import {
   Card,
   CardContent,
@@ -9,6 +10,7 @@ import {
 } from '@components/atoms/card';
 import { Separator } from '@components/atoms/separator';
 import PasswordResetItem from '@components/molecules/account/PasswordResetItem.vue';
+import TotpConfigurationItem from '@components/molecules/account/TotpConfigurationItem.vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -27,6 +29,9 @@ const { t } = useI18n();
           <PasswordResetDialog />
         </PasswordResetItem>
         <Separator class="w-full" />
+        <TotpConfigurationItem>
+          <TotpConfigurationDialog />
+        </TotpConfigurationItem>
       </div>
     </CardContent>
   </Card>

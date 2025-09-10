@@ -7,5 +7,11 @@ export default {
     lastChanged: 'Changé {timeSince}',
     neverChanged: 'Jamais mis à jour',
     changePasswordButton: 'Modifier le mot de passe',
+    totp: 'Authentification à double facteur',
+    totpSubtitle:
+      'Ajoutez une couche de sécurité supplémentaire à votre compte',
+    totpEnabled: 'Activé',
+    totpDisabled: 'Désactivé',
+    totpConfigureButton: 'Configurer',
   },
 };
