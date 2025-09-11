@@ -4,6 +4,7 @@ import { Button } from '@components/atoms/button';
 import { DialogFooter } from '@components/atoms/dialog';
 import { Icon } from '@iconify/vue';
 import { Input } from '@components/atoms/input';
+import { Skeleton } from '@components/atoms/skeleton';
 import {
   FormControl,
   FormField,
@@ -36,25 +37,59 @@ const { isFieldDirty, meta } = useForm({
 });
 const isLoading = ref<boolean>(false);
 const qrCode = ref<string | null>(null);
+const isLoadingQrCode = ref<boolean>(false);
 
 actor.subscribe((snapshot) => {
   isLoading.value = snapshot.matches('form.loading');
 });
 
-onMounted(() => {
-  authStore.askForTotp().then((res) => {
+const loadQrCode = async () => {
+  isLoadingQrCode.value = true;
+  qrCode.value = null;
+
+  try {
+    const res = await authStore.askForTotp();
     qrCode.value = res?.qr_code ?? null;
-  });
+  } finally {
+    isLoadingQrCode.value = false;
+  }
+};
+
+onMounted(() => {
+  loadQrCode();
 });
 </script>
 <template>
   <div>
-    <img
-      v-if="qrCode"
-      :src="`data:image/png;base64,${qrCode}`"
-      alt="totp qrcode"
-      class="w-sm h-sm"
-    />
+    <div class="!w-sm container-sm mb-4">
+      <!-- Skeleton pendant le chargement -->
+      <Skeleton v-if="isLoadingQrCode" class="w-full h-full" />
+
+      <!-- QR Code quand il est disponible -->
+      <img
+        v-else-if="qrCode"
+        :src="`data:image/png;base64,${qrCode}`"
+        alt="totp qrcode"
+        class="w-full h-full rounded-sm"
+      />
+
+      <!-- Placeholder avec bouton reload -->
+      <div
+        v-else
+        class="w-full h-full bg-card border border-border rounded-md flex items-center justify-center"
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          :disabled="isLoadingQrCode"
+          class="w-full h-full"
+          @click="loadQrCode"
+        >
+          <Icon icon="lucide:refresh-cw" class="h-6 w-6" />
+        </Button>
+      </div>
+    </div>
+
     <form class="flex flex-col gap-6">
       <div class="grid gap-6">
         <div class="grid gap-3">
@@ -102,3 +137,8 @@ onMounted(() => {
     </Button>
   </DialogFooter>
 </template>
+<style scoped>
+.container-sm {
+  height: var(--container-sm);
+}
+</style>
