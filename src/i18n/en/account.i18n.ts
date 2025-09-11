@@ -53,8 +53,13 @@ export default {
       title: 'Regenerate recovery codes',
       subtitle: 'Generate new recovery codes and invalidate the old ones',
       success: 'Recovery codes regenerated successfully',
-      error: 'Failed to regenerate recovery codes',
       confirm: 'Regenerate codes',
+      processing: 'Regenerating recovery codes...',
+      passwordVerify: {
+        title: 'Security Confirmation Required',
+        description:
+          'Please verify your password to regenerate recovery codes. This is a sensitive security operation.',
+      },
       warning: {
         title: 'Warning!',
         description:
@@ -67,14 +72,23 @@ export default {
           'These NEW codes replace your previous ones. Store them safely - you will not see them again.',
         complete: 'I have saved my new codes',
       },
+      error: {
+        title: 'Error',
+        description: 'Failed to regenerate recovery codes',
+      },
     },
     totpDisable: {
       button: 'Disable',
       title: 'Disable Two-Factor Authentication',
       subtitle: 'Turn off TOTP authentication for your account',
       success: 'Two-factor authentication disabled successfully',
-      error: 'Failed to disable two-factor authentication',
       confirm: 'Disable TOTP',
+      processing: 'Disabling two-factor authentication...',
+      passwordVerify: {
+        title: 'Security Confirmation Required',
+        description:
+          'Please verify your password to disable two-factor authentication. This will reduce your account security.',
+      },
       warning: {
         title: 'Security Warning!',
         description:
@@ -86,9 +100,14 @@ export default {
         item2: 'Invalidate all recovery codes',
         item3: 'Reduce your account security',
       },
+      error: {
+        title: 'Error',
+        description: 'Failed to disable two-factor authentication',
+      },
     },
   },
   common: {
     cancel: 'Cancel',
+    retry: 'Try Again',
   },
 };

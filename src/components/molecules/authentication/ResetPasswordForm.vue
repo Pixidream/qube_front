@@ -177,7 +177,11 @@ onUnmounted(() => {
               {{ t('auth.resetPassword.form.confirmPasswordLabel') }}
             </FormLabel>
             <FormControl>
-              <Input type="password" v-bind="componentField" />
+              <Input
+                type="password"
+                v-bind="componentField"
+                @keydown.enter="handleSignup"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

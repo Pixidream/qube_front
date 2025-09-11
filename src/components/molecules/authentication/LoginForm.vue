@@ -112,6 +112,7 @@ onUnmounted(() => {
                 type="password"
                 v-bind="componentField"
                 :placeholder="t('auth.login.form.passwordLabel')"
+                @keydown.enter="handleLogin"
               />
             </FormControl>
             <FormMessage />

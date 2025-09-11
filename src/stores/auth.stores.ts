@@ -416,7 +416,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const regenerateRecoveryCodes = async (): Promise<boolean> => {
     authError.value = null;
-    totpConfigurationMachine.actor.send({ type: 'LOADING' });
     await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
 
     return authService
@@ -443,15 +442,11 @@ export const useAuthStore = defineStore('auth', () => {
       .catch(() => {
         authError.value = t('auth.networkError');
         return false;
-      })
-      .finally(() => {
-        totpConfigurationMachine.actor.send({ type: 'IDLE' });
       });
   };
 
   const disableTotp = async (): Promise<boolean> => {
     authError.value = null;
-    totpConfigurationMachine.actor.send({ type: 'LOADING' });
     await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
 
     return authService
@@ -475,9 +470,6 @@ export const useAuthStore = defineStore('auth', () => {
       .catch(() => {
         authError.value = t('auth.networkError');
         return false;
-      })
-      .finally(() => {
-        totpConfigurationMachine.actor.send({ type: 'IDLE' });
       });
   };
 

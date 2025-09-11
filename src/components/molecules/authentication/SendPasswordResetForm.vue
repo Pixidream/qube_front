@@ -82,6 +82,7 @@ onUnmounted(() => {
                 type="email"
                 placeholder="john.doe@example.com"
                 v-bind="componentField"
+                @keydown.enter="handleLogin"
               />
             </FormControl>
             <FormMessage />

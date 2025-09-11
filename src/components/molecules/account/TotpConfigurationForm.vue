@@ -24,7 +24,7 @@ import { useForm } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import z from 'zod';
 import { ref } from 'vue';
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 
 const { actor } = useTotpConfigurationMachine();
 const authStore = useAuthStore();
@@ -45,7 +45,7 @@ const formSchema = toTypedSchema(
       }),
   }),
 );
-const { handleSubmit, handleReset, isFieldDirty, meta, setFieldValue } =
+const { handleSubmit, handleReset, isFieldDirty, meta, setFieldValue, values } =
   useForm({
     validationSchema: formSchema,
   });
@@ -78,6 +78,16 @@ const handleSetup = handleSubmit(async (values) => {
   actor.send({ type: 'SHOW_RECOVERY_CODES' });
   handleReset();
 });
+
+// Auto-submit when TOTP is complete
+watch(
+  () => values.totp,
+  (newValue) => {
+    if (newValue && newValue.length === TOTP_LENGTH && meta.value.valid) {
+      handleSetup();
+    }
+  },
+);
 
 onMounted(() => {
   loadQrCode();
@@ -134,6 +144,7 @@ onMounted(() => {
                   @update:model-value="
                     (arrNumber) => setFieldValue('totp', arrNumber)
                   "
+                  @keydown.enter="handleSetup"
                 >
                   <PinInputGroup class="gap-1">
                     <template v-for="(id, index) in TOTP_LENGTH" :key="id">
@@ -164,7 +175,7 @@ onMounted(() => {
   <DialogFooter>
     <Button
       tabindex="3"
-      type="submit"
+      type="button"
       class="w-full"
       :disabled="!meta.valid || isLoading"
       @click="handleSetup"

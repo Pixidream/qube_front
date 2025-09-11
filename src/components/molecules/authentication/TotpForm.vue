@@ -18,7 +18,7 @@ import { TOTP_LENGTH } from '@core/constants/auth.constants';
 import { Icon } from '@iconify/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
 
@@ -38,7 +38,7 @@ const formSchema = toTypedSchema(
       }),
   }),
 );
-const { handleSubmit, isFieldDirty, meta, setFieldValue } = useForm({
+const { handleSubmit, isFieldDirty, meta, setFieldValue, values } = useForm({
   validationSchema: formSchema,
 });
 
@@ -55,6 +55,16 @@ const handleTotp = handleSubmit(async (values) => {
     await authStore.verifyTotp(code);
   }
 });
+
+// Auto-submit when TOTP is complete
+watch(
+  () => values.totp,
+  (newValue) => {
+    if (newValue && newValue.length === TOTP_LENGTH && meta.value.valid) {
+      handleTotp();
+    }
+  },
+);
 
 const toggleRecoveryMode = () => {
   isRecoveryMode.value = !isRecoveryMode.value;
@@ -94,6 +104,7 @@ const toggleRecoveryMode = () => {
                 @update:model-value="
                   (arrNumber) => setFieldValue('totp', arrNumber)
                 "
+                @keydown.enter="handleTotp"
               >
                 <PinInputGroup class="gap-1 sm:gap-2">
                   <template v-for="(id, index) in TOTP_LENGTH" :key="id">

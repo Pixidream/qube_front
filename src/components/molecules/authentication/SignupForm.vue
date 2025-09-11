@@ -161,7 +161,11 @@ const handleSignup = handleSubmit((values) => {
               {{ t('auth.signup.form.confirmPasswordLabel') }}
             </FormLabel>
             <FormControl>
-              <Input type="password" v-bind="componentField" />
+              <Input
+                type="password"
+                v-bind="componentField"
+                @keydown.enter="handleSignup"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

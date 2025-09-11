@@ -46,7 +46,7 @@ export default {
   totp: {
     form: {
       title: 'Vérifiez votre identité',
-      subtitleTotp: 'Saisissez le code de votre application authenticatrice',
+      subtitleTotp: "Saisissez le code de votre application d'authentification",
       subtitleEmail: 'Saisissez le code reçus par email',
       subtitleRecovery: 'Saisissez un de vos codes de récupération',
       totpLabel: 'TOTP',

@@ -57,8 +57,13 @@ export default {
       subtitle:
         'Générer de nouveaux codes de récupération et invalider les anciens',
       success: 'Codes de récupération régénérés avec succès',
-      error: 'Échec de la régénération des codes de récupération',
       confirm: 'Régénérer les codes',
+      processing: 'Régénération des codes de récupération...',
+      passwordVerify: {
+        title: 'Confirmation de sécurité requise',
+        description:
+          'Veuillez vérifier votre mot de passe pour régénérer les codes de récupération. Ceci est une opération de sécurité sensible.',
+      },
       warning: {
         title: 'Attention!',
         description:
@@ -71,14 +76,23 @@ export default {
           'Ces NOUVEAUX codes remplacent les précédents. Stockez-les en sécurité - vous ne les verrez plus.',
         complete: "J'ai sauvegardé mes nouveaux codes",
       },
+      error: {
+        title: 'Erreur',
+        description: 'Échec de la régénération des codes de récupération',
+      },
     },
     totpDisable: {
       button: 'Désactiver',
       title: "Désactiver l'authentification à double facteur",
       subtitle: "Désactiver l'authentification TOTP pour votre compte",
       success: 'Authentification à double facteur désactivée avec succès',
-      error: "Échec de la désactivation de l'authentification à double facteur",
       confirm: 'Désactiver TOTP',
+      processing: "Désactivation de l'authentification à double facteur...",
+      passwordVerify: {
+        title: 'Confirmation de sécurité requise',
+        description:
+          "Veuillez vérifier votre mot de passe pour désactiver l'authentification à double facteur. Ceci réduira la sécurité de votre compte.",
+      },
       warning: {
         title: 'Avertissement de sécurité!',
         description:
@@ -90,9 +104,15 @@ export default {
         item2: 'Invalider tous les codes de récupération',
         item3: 'Réduire la sécurité de votre compte',
       },
+      error: {
+        title: 'Erreur',
+        description:
+          "Échec de la désactivation de l'authentification à double facteur",
+      },
     },
   },
   common: {
     cancel: 'Annuler',
+    retry: 'Réessayer',
   },
 };

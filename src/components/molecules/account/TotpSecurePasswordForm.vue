@@ -11,16 +11,17 @@ import {
   FormLabel,
   FormMessage,
 } from '@components/atoms/form';
-import { useTotpConfigurationMachine } from '@machines/totpConfiguration.machine';
+import { useTotpSecureActionMachine } from '@machines/totpSecureAction.machine';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import z from 'zod';
 import { ref } from 'vue';
 
-const { actor } = useTotpConfigurationMachine();
+const { actor } = useTotpSecureActionMachine();
 const authStore = useAuthStore();
 const { t } = useI18n();
+
 const formSchema = toTypedSchema(
   z.object({
     password: z
@@ -33,24 +34,31 @@ const formSchema = toTypedSchema(
       }),
   }),
 );
+
 const { handleSubmit, handleReset, isFieldDirty, meta } = useForm({
   validationSchema: formSchema,
 });
+
 const isLoading = ref<boolean>(false);
 
 actor.subscribe((snapshot) => {
-  isLoading.value = snapshot.matches('form.loading');
+  isLoading.value = snapshot.context.isLoading;
 });
 
 const handleVerify = handleSubmit(async (values) => {
+  actor.send({ type: 'LOADING' });
+
   const verified = await authStore.verifyPassword(values.password);
+
+  actor.send({ type: 'IDLE' });
 
   if (!verified) return;
 
-  actor.send({ type: 'TOTP_CONFIG' });
+  actor.send({ type: 'PASSWORD_VERIFIED' });
   handleReset();
 });
 </script>
+
 <template>
   <form class="flex flex-col gap-6">
     <div class="grid gap-6">
@@ -82,8 +90,9 @@ const handleVerify = handleSubmit(async (values) => {
       <span
         v-if="authStore.authError"
         class="text-destructive-foreground text-sm"
-        >{{ authStore.authError }}</span
       >
+        {{ authStore.authError }}
+      </span>
     </div>
   </form>
   <DialogFooter>
