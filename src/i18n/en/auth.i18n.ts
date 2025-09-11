@@ -48,14 +48,28 @@ export default {
       title: 'Verify your identity',
       subtitleTotp: 'Enter the code from your authenticator app',
       subtitleEmail: 'Enter the code received by email',
+      subtitleRecovery: 'Enter one of your recovery codes',
       totpLabel: 'TOTP',
       totpButton: 'Submit',
+      recoveryButton: 'Use recovery code',
+      useRecoveryCode: 'Use a recovery code instead',
+      backToTotp: 'Back to authenticator code',
       validation: {
         totp: 'A valid TOTP is required.',
         totpMinLength: `TOTP token has to have ${TOTP_LENGTH} figures.`,
         totpMaxLength: `TOTP token has to have ${TOTP_LENGTH} figures.`,
       },
     },
+  },
+  recoveryCode: {
+    remainingCodes:
+      'Recovery code used successfully. {count} recovery codes remaining.',
+    lastCodeRemaining:
+      'Recovery code used successfully. This was your last recovery code! Please generate new ones.',
+    fewCodesRemaining:
+      'Recovery code used successfully. Only {count} recovery codes remaining. Consider generating new ones.',
+    noCodesRemaining:
+      'Recovery code used successfully. You have no recovery codes left! Please generate new ones immediately.',
   },
   sendResetPassword: {
     form: {

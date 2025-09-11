@@ -54,3 +54,32 @@ export interface AskForTotpResponse {
   qr_code: string;
   url: string;
 }
+
+export interface SetupTotpBody {
+  totp: string;
+  timestamp: string;
+}
+
+export interface SetupTotpResponse {
+  message: string;
+  totp_recovery_codes: string[];
+}
+
+export interface VerifyRecoveryCodeBody {
+  code: string;
+  token: string;
+}
+
+export interface VerifyRecoveryCodeResponse {
+  user: User;
+  message: string;
+}
+
+export interface RegenerateRecoveryCodesResponse {
+  message: string;
+  totp_recovery_codes: string[];
+}
+
+export interface DisableTotpResponse {
+  message: string;
+}

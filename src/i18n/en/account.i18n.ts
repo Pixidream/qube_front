@@ -31,5 +31,64 @@ export default {
         totpInvalid: 'The provided code is invalid',
       },
     },
+    totpRecovery: {
+      title: 'Save your recovery codes',
+      subtitle:
+        'These codes can be used to access your account if you lose your authenticator device',
+      warning: {
+        title: 'Important!',
+        description:
+          'Store these codes in a safe place. You will not be able to see them again.',
+      },
+      copy: 'Copy codes',
+      copied: 'Copied!',
+      download: 'Download codes',
+      downloading: 'Downloading recovery codes...',
+      downloadSuccess: 'Recovery codes downloaded successfully',
+      downloadError: 'Failed to download, codes copied to clipboard instead',
+      complete: 'I have saved my codes',
+    },
+    totpRegenerate: {
+      button: 'Regenerate codes',
+      title: 'Regenerate recovery codes',
+      subtitle: 'Generate new recovery codes and invalidate the old ones',
+      success: 'Recovery codes regenerated successfully',
+      error: 'Failed to regenerate recovery codes',
+      confirm: 'Regenerate codes',
+      warning: {
+        title: 'Warning!',
+        description:
+          'This will invalidate all your current recovery codes. Make sure you have access to your authenticator app.',
+      },
+      newCodes: {
+        title: 'Your new recovery codes',
+        subtitle: 'Your old recovery codes are no longer valid',
+        warning:
+          'These NEW codes replace your previous ones. Store them safely - you will not see them again.',
+        complete: 'I have saved my new codes',
+      },
+    },
+    totpDisable: {
+      button: 'Disable',
+      title: 'Disable Two-Factor Authentication',
+      subtitle: 'Turn off TOTP authentication for your account',
+      success: 'Two-factor authentication disabled successfully',
+      error: 'Failed to disable two-factor authentication',
+      confirm: 'Disable TOTP',
+      warning: {
+        title: 'Security Warning!',
+        description:
+          'Disabling 2FA will make your account less secure. Are you sure you want to continue?',
+      },
+      consequences: {
+        title: 'This will:',
+        item1: 'Remove TOTP requirement for login',
+        item2: 'Invalidate all recovery codes',
+        item3: 'Reduce your account security',
+      },
+    },
+  },
+  common: {
+    cancel: 'Cancel',
   },
 };

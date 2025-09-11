@@ -45,9 +45,10 @@ const formSchema = toTypedSchema(
       }),
   }),
 );
-const { isFieldDirty, meta, setFieldValue } = useForm({
-  validationSchema: formSchema,
-});
+const { handleSubmit, handleReset, isFieldDirty, meta, setFieldValue } =
+  useForm({
+    validationSchema: formSchema,
+  });
 const isLoading = ref<boolean>(false);
 const qrCode = ref<string | null>(null);
 const isLoadingQrCode = ref<boolean>(false);
@@ -67,6 +68,16 @@ const loadQrCode = async () => {
     isLoadingQrCode.value = false;
   }
 };
+
+const handleSetup = handleSubmit(async (values) => {
+  const totp = values.totp.join('');
+  const success = await authStore.setupTotp(totp);
+
+  if (!success) return;
+
+  actor.send({ type: 'SHOW_RECOVERY_CODES' });
+  handleReset();
+});
 
 onMounted(() => {
   loadQrCode();
@@ -156,7 +167,7 @@ onMounted(() => {
       type="submit"
       class="w-full"
       :disabled="!meta.valid || isLoading"
-      @click="() => {}"
+      @click="handleSetup"
     >
       <Icon v-if="isLoading" icon="svg-spinners:ring-resize" />
       <span v-else>{{ t('account.security.totpForm.button') }}</span>

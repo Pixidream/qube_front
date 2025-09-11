@@ -33,5 +33,66 @@ export default {
         totpInvalid: 'Le code entré est invalide.',
       },
     },
+    totpRecovery: {
+      title: 'Sauvegardez vos codes de récupération',
+      subtitle:
+        "Ces codes peuvent être utilisés pour accéder à votre compte si vous perdez votre appareil d'authentification",
+      warning: {
+        title: 'Important!',
+        description:
+          'Stockez ces codes dans un endroit sûr. Vous ne pourrez plus les voir à nouveau.',
+      },
+      copy: 'Copier les codes',
+      copied: 'Copié!',
+      download: 'Télécharger les codes',
+      downloading: 'Téléchargement des codes de récupération...',
+      downloadSuccess: 'Codes de récupération téléchargés avec succès',
+      downloadError:
+        'Échec du téléchargement, codes copiés dans le presse-papiers',
+      complete: "J'ai sauvegardé mes codes",
+    },
+    totpRegenerate: {
+      button: 'Régénérer les codes',
+      title: 'Régénérer les codes de récupération',
+      subtitle:
+        'Générer de nouveaux codes de récupération et invalider les anciens',
+      success: 'Codes de récupération régénérés avec succès',
+      error: 'Échec de la régénération des codes de récupération',
+      confirm: 'Régénérer les codes',
+      warning: {
+        title: 'Attention!',
+        description:
+          "Ceci va invalider tous vos codes de récupération actuels. Assurez-vous d'avoir accès à votre application d'authentification.",
+      },
+      newCodes: {
+        title: 'Vos nouveaux codes de récupération',
+        subtitle: 'Vos anciens codes de récupération ne sont plus valides',
+        warning:
+          'Ces NOUVEAUX codes remplacent les précédents. Stockez-les en sécurité - vous ne les verrez plus.',
+        complete: "J'ai sauvegardé mes nouveaux codes",
+      },
+    },
+    totpDisable: {
+      button: 'Désactiver',
+      title: "Désactiver l'authentification à double facteur",
+      subtitle: "Désactiver l'authentification TOTP pour votre compte",
+      success: 'Authentification à double facteur désactivée avec succès',
+      error: "Échec de la désactivation de l'authentification à double facteur",
+      confirm: 'Désactiver TOTP',
+      warning: {
+        title: 'Avertissement de sécurité!',
+        description:
+          'Désactiver le 2FA rendra votre compte moins sécurisé. Êtes-vous sûr de vouloir continuer?',
+      },
+      consequences: {
+        title: 'Ceci va:',
+        item1: "Supprimer l'exigence TOTP pour la connexion",
+        item2: 'Invalider tous les codes de récupération',
+        item3: 'Réduire la sécurité de votre compte',
+      },
+    },
+  },
+  common: {
+    cancel: 'Annuler',
   },
 };

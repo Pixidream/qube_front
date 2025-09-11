@@ -14,6 +14,7 @@ import { computed, ref, type ShallowRef } from 'vue';
 import { createAvatar } from '@dicebear/core';
 import { glass } from '@dicebear/collection';
 import { useTotpConfigurationMachine } from '@/machines/totpConfiguration.machine';
+import { toast } from 'vue-sonner';
 
 export const useAuthStore = defineStore('auth', () => {
   // ------ Setup ------
@@ -41,6 +42,9 @@ export const useAuthStore = defineStore('auth', () => {
 
     user.value = _user;
 
+    // Clear shortTTLToken after successful authentication
+    shortTTLToken.value = null;
+
     authMachine.actor.send(sendAuthEvent.authenticated());
   };
 
@@ -49,6 +53,8 @@ export const useAuthStore = defineStore('auth', () => {
   const shortTTLToken = ref<string | null>(null);
   const authError = ref<string | null>(null);
   const totpType = ref<'email' | 'totp' | null>(null);
+  const totpRecoveryCodes = ref<string[]>([]);
+  const shouldCloseTotpDialog = ref<boolean>(false);
 
   // ------ Getters ------
   const isAuthenticated = computed(() => user.value !== null);
@@ -128,6 +134,67 @@ export const useAuthStore = defineStore('auth', () => {
 
     request
       .then(handleAuthenticationResponse)
+      .catch(() => {
+        authError.value = t('auth.networkError');
+      })
+      .finally(() => {
+        authMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
+  const verifyRecoveryCode = async (recoveryCode: string): Promise<void> => {
+    authError.value = null;
+    authMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    authService
+      .verifyRecoveryCode(recoveryCode, shortTTLToken.value || '')
+      .then((res) => {
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return;
+        }
+
+        const _user = res.data.value?.data.user;
+        const remainingCodes = res.data.value?.data.message;
+
+        if (_user === undefined) {
+          authError.value = t('auth.networkError');
+          return;
+        }
+
+        user.value = _user;
+        shortTTLToken.value = null;
+
+        // Show toast with remaining recovery codes count
+        if (remainingCodes) {
+          const count = parseInt(remainingCodes, 10);
+          if (!isNaN(count)) {
+            if (count === 0) {
+              toast.warning(t('auth.recoveryCode.noCodesRemaining'), {
+                duration: 8000,
+              });
+            } else if (count === 1) {
+              toast.warning(t('auth.recoveryCode.lastCodeRemaining'), {
+                duration: 6000,
+              });
+            } else if (count <= 3) {
+              toast.warning(
+                t('auth.recoveryCode.fewCodesRemaining', { count }),
+                {
+                  duration: 5000,
+                },
+              );
+            } else {
+              toast.info(t('auth.recoveryCode.remainingCodes', { count }), {
+                duration: 4000,
+              });
+            }
+          }
+        }
+
+        authMachine.actor.send(sendAuthEvent.authenticated());
+      })
       .catch(() => {
         authError.value = t('auth.networkError');
       })
@@ -300,12 +367,128 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
+  const setupTotp = async (totp: string): Promise<boolean> => {
+    authError.value = null;
+    totpConfigurationMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .setupTotp(totp)
+      .then((res) => {
+        if (res.response.value?.status === 401) {
+          user.value = null;
+          return false;
+        }
+
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        const setupData = res.data.value?.data;
+        if (setupData) {
+          totpRecoveryCodes.value = setupData.totp_recovery_codes;
+          return true;
+        }
+
+        return false;
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return false;
+      })
+      .finally(() => {
+        totpConfigurationMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
+  const clearTotpRecoveryCodes = () => {
+    totpRecoveryCodes.value = [];
+  };
+
+  const closeTotpDialog = () => {
+    shouldCloseTotpDialog.value = true;
+  };
+
+  const resetTotpDialogState = () => {
+    shouldCloseTotpDialog.value = false;
+  };
+
+  const regenerateRecoveryCodes = async (): Promise<boolean> => {
+    authError.value = null;
+    totpConfigurationMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .regenerateRecoveryCodes()
+      .then((res) => {
+        if (res.response.value?.status === 401) {
+          user.value = null;
+          return false;
+        }
+
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        const recoveryData = res.data.value?.data;
+        if (recoveryData) {
+          totpRecoveryCodes.value = recoveryData.totp_recovery_codes;
+          return true;
+        }
+
+        return false;
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return false;
+      })
+      .finally(() => {
+        totpConfigurationMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
+  const disableTotp = async (): Promise<boolean> => {
+    authError.value = null;
+    totpConfigurationMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .disableTotp()
+      .then((res) => {
+        if (res.response.value?.status === 401) {
+          user.value = null;
+          return false;
+        }
+
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        // Refresh user data to reflect TOTP disabled
+        return me()
+          .then(() => true)
+          .catch(() => false);
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return false;
+      })
+      .finally(() => {
+        totpConfigurationMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
   return {
     // ------ state ------
     user,
     shortTTLToken,
     authError,
     totpType,
+    totpRecoveryCodes,
+    shouldCloseTotpDialog,
     // ------ getters ------
     isAuthenticated,
     getAvatar,
@@ -314,11 +497,18 @@ export const useAuthStore = defineStore('auth', () => {
     // ------ actions ------
     login,
     verifyTotp,
+    verifyRecoveryCode,
     sendResetPassword,
     resetPassword,
     me,
     logout,
     verifyPassword,
     askForTotp,
+    setupTotp,
+    clearTotpRecoveryCodes,
+    closeTotpDialog,
+    resetTotpDialogState,
+    regenerateRecoveryCodes,
+    disableTotp,
   };
 });

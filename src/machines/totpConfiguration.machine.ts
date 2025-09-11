@@ -4,6 +4,9 @@ import { createMachine } from 'xstate';
 
 type TotpConfigurationEvent =
   | { type: 'TOTP_CONFIG' }
+  | { type: 'SHOW_RECOVERY_CODES' }
+  | { type: 'COMPLETE' }
+  | { type: 'RESET' }
   | { type: 'LOADING' }
   | { type: 'IDLE' };
 
@@ -26,6 +29,20 @@ export const totpConfigurationMachine = createMachine({
           },
         },
         totp_config: {
+          on: {
+            SHOW_RECOVERY_CODES: {
+              target: 'recovery_codes',
+            },
+          },
+        },
+        recovery_codes: {
+          on: {
+            COMPLETE: {
+              target: 'completed',
+            },
+          },
+        },
+        completed: {
           type: 'final',
         },
       },
@@ -44,6 +61,11 @@ export const totpConfigurationMachine = createMachine({
           },
         },
       },
+    },
+  },
+  on: {
+    RESET: {
+      target: '.flow.password_verify',
     },
   },
 });

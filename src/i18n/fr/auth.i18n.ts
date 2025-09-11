@@ -46,16 +46,30 @@ export default {
   totp: {
     form: {
       title: 'Vérifiez votre identité',
-      subtitleTotp: "Saisissez le code de votre application d'authentification",
+      subtitleTotp: 'Saisissez le code de votre application authenticatrice',
       subtitleEmail: 'Saisissez le code reçus par email',
+      subtitleRecovery: 'Saisissez un de vos codes de récupération',
       totpLabel: 'TOTP',
       totpButton: 'Soumettre',
+      recoveryButton: 'Utiliser le code de récupération',
+      useRecoveryCode: 'Utiliser un code de récupération à la place',
+      backToTotp: 'Retour au code authenticateur',
       validation: {
         totp: 'Un TOTP valid est requis',
         totpMinLength: `Le TOTP doit avoir ${TOTP_LENGTH} chiffres.`,
         totpMaxLength: `Le TOTP doit avoir ${TOTP_LENGTH} chiffres.`,
       },
     },
+  },
+  recoveryCode: {
+    remainingCodes:
+      'Code de récupération utilisé avec succès. {count} codes de récupération restants.',
+    lastCodeRemaining:
+      "Code de récupération utilisé avec succès. C'était votre dernier code de récupération ! Veuillez en générer de nouveaux.",
+    fewCodesRemaining:
+      'Code de récupération utilisé avec succès. Seulement {count} codes de récupération restants. Pensez à en générer de nouveaux.',
+    noCodesRemaining:
+      "Code de récupération utilisé avec succès. Vous n'avez plus de codes de récupération ! Veuillez en générer de nouveaux immédiatement.",
   },
   sendResetPassword: {
     form: {

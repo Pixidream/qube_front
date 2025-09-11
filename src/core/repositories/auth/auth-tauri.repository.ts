@@ -1,8 +1,14 @@
 import { useFetchTauri } from '@/composables/fetch-tauri.composable';
 import {
   AskForTotpResponse,
+  DisableTotpResponse,
+  RegenerateRecoveryCodesResponse,
+  SetupTotpBody,
+  SetupTotpResponse,
   VerifyPasswordBody,
   VerifyPasswordResponse,
+  VerifyRecoveryCodeBody,
+  VerifyRecoveryCodeResponse,
   type AuthenticationResponse,
   type BasicResponse,
   type Credentials,
@@ -96,5 +102,33 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
 
   askForTotp: async () => {
     return await _getRequest<AskForTotpResponse>('/auth/ask-for-totp');
+  },
+
+  setupTotp: async (totp: string) => {
+    return await _postRequest<SetupTotpResponse, SetupTotpBody>(
+      '/auth/setup-totp',
+      { totp, timestamp: new Date().toISOString() },
+    );
+  },
+
+  verifyRecoveryCode: async (recoveryCode: string, token: string) => {
+    return await _postRequest<
+      VerifyRecoveryCodeResponse,
+      VerifyRecoveryCodeBody
+    >('/auth/verify-recovery-codes', { code: recoveryCode, token });
+  },
+
+  regenerateRecoveryCodes: async () => {
+    return await _postRequest<RegenerateRecoveryCodesResponse, null>(
+      '/auth/regenerate-recovery-codes',
+      null,
+    );
+  },
+
+  disableTotp: async () => {
+    return await _postRequest<DisableTotpResponse, null>(
+      '/auth/disable-totp',
+      null,
+    );
   },
 });

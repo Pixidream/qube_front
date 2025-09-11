@@ -18,13 +18,15 @@ import { TOTP_LENGTH } from '@core/constants/auth.constants';
 import { Icon } from '@iconify/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
 
 const authMachine = useAuthMachine();
 const { t } = useI18n();
 const authStore = useAuthStore();
+const isRecoveryMode = ref<boolean>(false);
+
 const formSchema = toTypedSchema(
   z.object({
     totp: z
@@ -45,10 +47,20 @@ const isLoading = computed(() => {
 });
 
 const handleTotp = handleSubmit(async (values) => {
-  const totp = values.totp.join('');
+  const code = values.totp.join('');
 
-  await authStore.verifyTotp(totp);
+  if (isRecoveryMode.value) {
+    await authStore.verifyRecoveryCode(code);
+  } else {
+    await authStore.verifyTotp(code);
+  }
 });
+
+const toggleRecoveryMode = () => {
+  isRecoveryMode.value = !isRecoveryMode.value;
+  // Reset form when switching modes
+  setFieldValue('totp', []);
+};
 </script>
 <template>
   <form class="flex flex-col gap-6 items-center" @submit="handleTotp">
@@ -56,8 +68,8 @@ const handleTotp = handleSubmit(async (values) => {
       <h1 class="text-2xl font-bold">{{ t('auth.totp.form.title') }}</h1>
       <p class="text-muted-foreground w-full text-sm text-balance">
         {{
-          authStore.totpType === 'totp' ?
-            t('auth.totp.form.subtitleTotp')
+          isRecoveryMode ? t('auth.totp.form.subtitleRecovery')
+          : authStore.totpType === 'totp' ? t('auth.totp.form.subtitleTotp')
           : t('auth.totp.form.subtitleEmail')
         }}
       </p>
@@ -76,8 +88,8 @@ const handleTotp = handleSubmit(async (values) => {
                 id="totp"
                 :model-value="value"
                 class="flex gap-1 sm:gap-2 items-center mt-1"
-                otp
-                type="number"
+                :otp="!isRecoveryMode"
+                :type="isRecoveryMode ? 'text' : 'number'"
                 :name="componentField.name"
                 @update:model-value="
                   (arrNumber) => setFieldValue('totp', arrNumber)
@@ -89,7 +101,7 @@ const handleTotp = handleSubmit(async (values) => {
                       class="rounded-md border w-8 h-10 sm:w-10 sm:h-12 text-sm sm:text-base"
                       :index="index"
                     />
-                    <template v-if="index === 3">
+                    <template v-if="index === 3 && !isRecoveryMode">
                       <PinInputSeparator class="mx-1 sm:mx-2" />
                     </template>
                   </template>
@@ -105,15 +117,36 @@ const handleTotp = handleSubmit(async (values) => {
         class="text-destructive-foreground text-sm"
         >{{ authStore.authError }}</span
       >
-      <Button
-        tabindex="3"
-        type="submit"
-        class="w-full"
-        :disabled="!meta.valid || isLoading"
-      >
-        <Icon v-if="isLoading" icon="svg-spinners:ring-resize" />
-        <span v-else>{{ t('auth.totp.form.totpButton') }}</span>
-      </Button>
+      <div class="flex flex-col gap-3">
+        <Button
+          tabindex="3"
+          type="submit"
+          class="w-full"
+          :disabled="!meta.valid || isLoading"
+        >
+          <Icon v-if="isLoading" icon="svg-spinners:ring-resize" />
+          <span v-else>{{
+            isRecoveryMode ?
+              t('auth.totp.form.recoveryButton')
+            : t('auth.totp.form.totpButton')
+          }}</span>
+        </Button>
+
+        <Button
+          v-if="authStore.totpType === 'totp'"
+          type="button"
+          variant="ghost"
+          size="sm"
+          class="text-muted-foreground"
+          @click="toggleRecoveryMode"
+        >
+          {{
+            isRecoveryMode ?
+              t('auth.totp.form.backToTotp')
+            : t('auth.totp.form.useRecoveryCode')
+          }}
+        </Button>
+      </div>
     </div>
   </form>
 </template>

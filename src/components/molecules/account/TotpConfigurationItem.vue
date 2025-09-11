@@ -3,6 +3,8 @@ import { Label } from '@components/atoms/label';
 import { useI18n } from 'vue-i18n';
 import { Badge } from '@components/atoms/badge';
 import { useAuthStore } from '@/stores/auth.stores';
+import TotpRegenerateCodesDialog from './TotpRegenerateCodesDialog.vue';
+import TotpDisableDialog from './TotpDisableDialog.vue';
 
 const { t } = useI18n();
 const authStore = useAuthStore();
@@ -30,7 +32,15 @@ const authStore = useAuthStore();
           )
         }}</Badge
       >
+
+      <!-- If TOTP is disabled, show configuration slot -->
       <slot v-if="!authStore.user?.totp_enabled" />
+
+      <!-- If TOTP is enabled, show management buttons -->
+      <div v-else class="flex items-center gap-2">
+        <TotpRegenerateCodesDialog />
+        <TotpDisableDialog />
+      </div>
     </div>
   </div>
 </template>

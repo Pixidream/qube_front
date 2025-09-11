@@ -3,6 +3,7 @@ import PasswordResetDialog from '@/components/molecules/account/PasswordResetDia
 import TotpConfigurationDialog from '@/components/molecules/account/TotpConfigurationDialog.vue';
 import VerifyPasswordForm from '@/components/molecules/account/VerifyPasswordForm.vue';
 import TotpConfigurationForm from '@/components/molecules/account/TotpConfigurationForm.vue';
+import TotpRecoveryCodesForm from '@/components/molecules/account/TotpRecoveryCodesForm.vue';
 import {
   Card,
   CardContent,
@@ -38,6 +39,9 @@ const { t } = useI18n();
             </template>
             <template #totp>
               <TotpConfigurationForm />
+            </template>
+            <template #recovery>
+              <TotpRecoveryCodesForm />
             </template>
           </TotpConfigurationDialog>
         </TotpConfigurationItem>

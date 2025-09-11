@@ -4,8 +4,12 @@ import type {
   AuthenticationResponse,
   BasicResponse,
   Credentials,
+  DisableTotpResponse,
   LoginResponse,
+  RegenerateRecoveryCodesResponse,
+  SetupTotpResponse,
   VerifyPasswordResponse,
+  VerifyRecoveryCodeResponse,
 } from '@core/types/auth';
 import type { ApiResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
@@ -39,6 +43,19 @@ export interface AuthService {
   ) => Promise<ApiResponse<VerifyPasswordResponse>>;
 
   askForTotp: () => Promise<ApiResponse<AskForTotpResponse>>;
+
+  setupTotp: (totp: string) => Promise<ApiResponse<SetupTotpResponse>>;
+
+  verifyRecoveryCode: (
+    recoveryCode: string,
+    token: string,
+  ) => Promise<ApiResponse<VerifyRecoveryCodeResponse>>;
+
+  regenerateRecoveryCodes: () => Promise<
+    ApiResponse<RegenerateRecoveryCodesResponse>
+  >;
+
+  disableTotp: () => Promise<ApiResponse<DisableTotpResponse>>;
 }
 
 export const createAuthService = (
@@ -56,4 +73,9 @@ export const createAuthService = (
   logout: () => repository.logout(),
   verifyPassword: (password: string) => repository.verifyPassword(password),
   askForTotp: () => repository.askForTotp(),
+  setupTotp: (totp: string) => repository.setupTotp(totp),
+  verifyRecoveryCode: (recoveryCode: string, token: string) =>
+    repository.verifyRecoveryCode(recoveryCode, token),
+  regenerateRecoveryCodes: () => repository.regenerateRecoveryCodes(),
+  disableTotp: () => repository.disableTotp(),
 });
