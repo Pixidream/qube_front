@@ -31,7 +31,7 @@ const formSchema = toTypedSchema(
       }),
   }),
 );
-const { handleSubmit, handleReset, isFieldDirty, meta } = useForm({
+const { isFieldDirty, meta } = useForm({
   validationSchema: formSchema,
 });
 const isLoading = ref<boolean>(false);
@@ -40,15 +40,6 @@ const qrCode = ref<string | null>(null);
 actor.subscribe((snapshot) => {
   isLoading.value = snapshot.matches('form.loading');
 });
-
-// const handleSetup = handleSubmit(async (values) => {
-//   const verified = await authStore.verifyPassword(values.totp);
-
-//   if (!verified) return;
-
-//   actor.send({ type: 'TOTP_CONFIG' });
-//   handleReset();
-// });
 
 onMounted(() => {
   authStore.askForTotp().then((res) => {
