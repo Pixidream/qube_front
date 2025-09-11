@@ -4,6 +4,7 @@ import { MIN_EXEC_TIME_MS } from '@core/constants/auth.constants';
 import type {
   AskForTotpResponse,
   AuthenticationResponse,
+  ChangePasswordBody,
 } from '@core/types/auth';
 import { Credentials } from '@core/types/auth';
 import type { SuccessResponse } from '@core/types/response';
@@ -473,6 +474,33 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
+  const changePassword = async (
+    changePasswordData: ChangePasswordBody,
+  ): Promise<boolean> => {
+    authError.value = null;
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .changePassword(changePasswordData)
+      .then((res) => {
+        if (res.response.value?.status === 401) {
+          user.value = null;
+          return false;
+        }
+
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        return true;
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return false;
+      });
+  };
+
   return {
     // ------ state ------
     user,
@@ -502,5 +530,6 @@ export const useAuthStore = defineStore('auth', () => {
     resetTotpDialogState,
     regenerateRecoveryCodes,
     disableTotp,
+    changePassword,
   };
 });

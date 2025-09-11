@@ -1,6 +1,7 @@
 import { useFetch } from '@vueuse/core';
 import {
   AskForTotpResponse,
+  ChangePasswordBody,
   DisableTotpResponse,
   RegenerateRecoveryCodesResponse,
   SetupTotpBody,
@@ -155,6 +156,13 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
       return await _postRequest<DisableTotpResponse, null>(
         '/auth/disable-totp',
         null,
+      );
+    },
+
+    changePassword: async (changePasswordData: ChangePasswordBody) => {
+      return await _postRequest<BasicResponse, ChangePasswordBody>(
+        '/auth/change-password',
+        changePasswordData,
       );
     },
   };

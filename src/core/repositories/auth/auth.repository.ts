@@ -2,6 +2,7 @@ import type {
   AskForTotpResponse,
   AuthenticationResponse,
   BasicResponse,
+  ChangePasswordBody,
   Credentials,
   DisableTotpResponse,
   LoginResponse,
@@ -55,4 +56,8 @@ export interface AuthenticationRepository {
   >;
 
   disableTotp: () => Promise<ApiResponse<DisableTotpResponse>>;
+
+  changePassword: (
+    changePasswordData: ChangePasswordBody,
+  ) => Promise<ApiResponse<BasicResponse>>;
 }

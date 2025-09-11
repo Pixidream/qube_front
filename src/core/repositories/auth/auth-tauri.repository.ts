@@ -1,6 +1,7 @@
 import { useFetchTauri } from '@/composables/fetch-tauri.composable';
 import {
   AskForTotpResponse,
+  ChangePasswordBody,
   DisableTotpResponse,
   RegenerateRecoveryCodesResponse,
   SetupTotpBody,
@@ -129,6 +130,13 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
     return await _postRequest<DisableTotpResponse, null>(
       '/auth/disable-totp',
       null,
+    );
+  },
+
+  changePassword: async (changePasswordData: ChangePasswordBody) => {
+    return await _postRequest<BasicResponse, ChangePasswordBody>(
+      '/auth/change-password',
+      changePasswordData,
     );
   },
 });

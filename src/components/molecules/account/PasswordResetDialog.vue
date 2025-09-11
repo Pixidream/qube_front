@@ -5,17 +5,24 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@components/atoms/dialog';
+import ChangePasswordForm from './ChangePasswordForm.vue';
 import { useI18n } from 'vue-i18n';
+import { ref } from 'vue';
 
 const { t } = useI18n();
+const isDialogOpen = ref<boolean>(false);
+
+const handleDialogClose = (open: boolean) => {
+  isDialogOpen.value = open;
+};
 </script>
+
 <template>
-  <Dialog>
+  <Dialog v-model:open="isDialogOpen" @update:open="handleDialogClose">
     <DialogTrigger as-child>
       <Button variant="outline">
         <Icon icon="lucide:key-round" />
@@ -27,15 +34,14 @@ const { t } = useI18n();
       @interact-outside="(e) => e.preventDefault()"
     >
       <DialogHeader>
-        <DialogTitle>Change PAssword</DialogTitle>
+        <DialogTitle>
+          {{ t('account.security.changePassword.title') }}
+        </DialogTitle>
         <DialogDescription>
-          You will be able to change password here :D
+          {{ t('account.security.changePassword.subtitle') }}
         </DialogDescription>
-        <h1>To Implement !!</h1>
       </DialogHeader>
-      <DialogFooter>
-        <Button> Save changes </Button>
-      </DialogFooter>
+      <ChangePasswordForm @close="handleDialogClose(false)" />
     </DialogContent>
   </Dialog>
 </template>

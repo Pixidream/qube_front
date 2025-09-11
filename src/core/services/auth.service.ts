@@ -3,6 +3,7 @@ import type {
   AskForTotpResponse,
   AuthenticationResponse,
   BasicResponse,
+  ChangePasswordBody,
   Credentials,
   DisableTotpResponse,
   LoginResponse,
@@ -56,6 +57,10 @@ export interface AuthService {
   >;
 
   disableTotp: () => Promise<ApiResponse<DisableTotpResponse>>;
+
+  changePassword: (
+    changePasswordData: ChangePasswordBody,
+  ) => Promise<ApiResponse<BasicResponse>>;
 }
 
 export const createAuthService = (
@@ -78,4 +83,6 @@ export const createAuthService = (
     repository.verifyRecoveryCode(recoveryCode, token),
   regenerateRecoveryCodes: () => repository.regenerateRecoveryCodes(),
   disableTotp: () => repository.disableTotp(),
+  changePassword: (changePasswordData: ChangePasswordBody) =>
+    repository.changePassword(changePasswordData),
 });

@@ -27,6 +27,11 @@ export interface PasswordResetBody {
   new_password: string;
 }
 
+export interface ChangePasswordBody {
+  current_password: string;
+  new_password: string;
+}
+
 export interface LoginResponse {
   message: string;
   token: string;

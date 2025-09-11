@@ -105,6 +105,17 @@ export default {
         description: 'Failed to disable two-factor authentication',
       },
     },
+    changePassword: {
+      title: 'Change Password',
+      subtitle: 'Update your account password',
+      currentPasswordLabel: 'Current Password',
+      newPasswordLabel: 'New Password',
+      confirmPasswordLabel: 'Confirm New Password',
+      success: 'Password changed successfully',
+      error: 'Failed to change password',
+      logoutNotice:
+        'For security reasons, you will be logged out to use your new password',
+    },
   },
   common: {
     cancel: 'Cancel',

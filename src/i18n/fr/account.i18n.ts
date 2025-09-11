@@ -110,6 +110,17 @@ export default {
           "Échec de la désactivation de l'authentification à double facteur",
       },
     },
+    changePassword: {
+      title: 'Changer le mot de passe',
+      subtitle: 'Mettre à jour le mot de passe de votre compte',
+      currentPasswordLabel: 'Mot de passe actuel',
+      newPasswordLabel: 'Nouveau mot de passe',
+      confirmPasswordLabel: 'Confirmer le nouveau mot de passe',
+      success: 'Mot de passe changé avec succès',
+      error: 'Échec du changement de mot de passe',
+      logoutNotice:
+        'Pour des raisons de sécurité, vous serez déconnecté pour utiliser votre nouveau mot de passe',
+    },
   },
   common: {
     cancel: 'Annuler',
