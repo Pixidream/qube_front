@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import PasswordResetDialog from '@/components/molecules/account/PasswordResetDialog.vue';
 import TotpConfigurationDialog from '@/components/molecules/account/TotpConfigurationDialog.vue';
+import VerifyPasswordForm from '@/components/molecules/account/VerifyPasswordForm.vue';
+import TotpConfigurationForm from '@/components/molecules/account/TotpConfigurationForm.vue';
 import {
   Card,
   CardContent,
@@ -30,7 +32,14 @@ const { t } = useI18n();
         </PasswordResetItem>
         <Separator class="w-full" />
         <TotpConfigurationItem>
-          <TotpConfigurationDialog />
+          <TotpConfigurationDialog>
+            <template #password>
+              <VerifyPasswordForm />
+            </template>
+            <template #totp>
+              <TotpConfigurationForm />
+            </template>
+          </TotpConfigurationDialog>
         </TotpConfigurationItem>
       </div>
     </CardContent>

@@ -8,7 +8,9 @@ const { t } = useI18n();
 const authStore = useAuthStore();
 </script>
 <template>
-  <div class="flex items-center justify-between">
+  <div
+    class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
+  >
     <div class="space-y-1">
       <Label class="text-md md:text-lg font-semibold">{{
         t('account.security.totp')

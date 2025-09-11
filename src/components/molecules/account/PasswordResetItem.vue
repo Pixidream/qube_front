@@ -17,7 +17,9 @@ const passwordLastChanged = computed(() =>
 );
 </script>
 <template>
-  <div class="flex items-center justify-between">
+  <div
+    class="flex items-start md:items-center flex-col md:flex-row gap-4 justify-between"
+  >
     <div class="space-y-1">
       <Label class="text-md md:text-lg font-semibold">{{
         t('account.security.password')

@@ -40,3 +40,17 @@ export interface AuthenticationResponse {
 export interface BasicResponse {
   message: string;
 }
+
+export interface VerifyPasswordBody {
+  password: string;
+}
+
+export interface VerifyPasswordResponse {
+  message: string;
+  success: boolean;
+}
+
+export interface AskForTotpResponse {
+  qr_code: string;
+  url: string;
+}

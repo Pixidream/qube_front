@@ -1,13 +1,16 @@
 import { useFetchTauri } from '@/composables/fetch-tauri.composable';
-import type {
-  AuthenticationResponse,
-  BasicResponse,
-  Credentials,
-  LoginResponse,
-  PasswordResetBody,
-  SendPasswordResetBody,
-  VerifyTotpBody,
-  VerifyTotpEmailBody,
+import {
+  AskForTotpResponse,
+  VerifyPasswordBody,
+  VerifyPasswordResponse,
+  type AuthenticationResponse,
+  type BasicResponse,
+  type Credentials,
+  type LoginResponse,
+  type PasswordResetBody,
+  type SendPasswordResetBody,
+  type VerifyTotpBody,
+  type VerifyTotpEmailBody,
 } from '@core/types/auth';
 import type { Platform } from '@core/types/platform';
 import type { ApiResponse, SuccessResponse } from '@core/types/response';
@@ -82,5 +85,16 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
 
   logout: async () => {
     return await _postRequest<BasicResponse, null>('/auth/logout', null);
+  },
+
+  verifyPassword: async (password: string) => {
+    return await _postRequest<VerifyPasswordResponse, VerifyPasswordBody>(
+      '/auth/verify-password',
+      { password },
+    );
+  },
+
+  askForTotp: async () => {
+    return await _getRequest<AskForTotpResponse>('/auth/ask-for-totp');
   },
 });

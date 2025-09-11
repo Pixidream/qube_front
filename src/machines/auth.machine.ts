@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/stores/auth.stores';
+import { useAuthStore } from '@stores/auth.stores';
 import { xstate } from '@core/middlewares/xstate.middleware';
 import { defineStore } from 'pinia';
 import type { Router } from 'vue-router';

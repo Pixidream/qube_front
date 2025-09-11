@@ -1,7 +1,10 @@
 import { i18n } from '@/i18n';
 import { useAuthService } from '@composables/auth.composable';
 import { MIN_EXEC_TIME_MS } from '@core/constants/auth.constants';
-import type { AuthenticationResponse } from '@core/types/auth';
+import type {
+  AskForTotpResponse,
+  AuthenticationResponse,
+} from '@core/types/auth';
 import { Credentials } from '@core/types/auth';
 import type { SuccessResponse } from '@core/types/response';
 import { type User } from '@core/types/user';
@@ -10,10 +13,12 @@ import { defineStore } from 'pinia';
 import { computed, ref, type ShallowRef } from 'vue';
 import { createAvatar } from '@dicebear/core';
 import { glass } from '@dicebear/collection';
+import { useTotpConfigurationMachine } from '@/machines/totpConfiguration.machine';
 
 export const useAuthStore = defineStore('auth', () => {
   // ------ Setup ------
   const authMachine = useAuthMachine();
+  const totpConfigurationMachine = useTotpConfigurationMachine();
   const authService = useAuthService();
   const { t } = i18n.global;
 
@@ -231,6 +236,70 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
+  const verifyPassword = async (password: string): Promise<boolean> => {
+    authError.value = null;
+    totpConfigurationMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .verifyPassword(password)
+      .then((res) => {
+        if (res.response.value?.status === 401) {
+          user.value = null;
+          return false;
+        }
+
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        if (!res.data.value?.data.success) {
+          authError.value = t(
+            'account.security.passwordVerifyForm.validation.passwordError',
+          );
+        }
+
+        return res.data.value?.data.success ?? false;
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return false;
+      })
+      .finally(() => {
+        totpConfigurationMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
+  const askForTotp = async (): Promise<AskForTotpResponse | null> => {
+    authError.value = null;
+    totpConfigurationMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .askForTotp()
+      .then((res) => {
+        if (res.response.value?.status === 401) {
+          user.value = null;
+          return null;
+        }
+
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return null;
+        }
+
+        return res.data.value?.data ?? null;
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return null;
+      })
+      .finally(() => {
+        totpConfigurationMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
   return {
     // ------ state ------
     user,
@@ -249,5 +318,7 @@ export const useAuthStore = defineStore('auth', () => {
     resetPassword,
     me,
     logout,
+    verifyPassword,
+    askForTotp,
   };
 });

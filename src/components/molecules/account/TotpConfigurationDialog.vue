@@ -5,14 +5,31 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@components/atoms/dialog';
 import { useI18n } from 'vue-i18n';
+import { useTotpConfigurationMachine } from '@machines/totpConfiguration.machine';
+import { ref, computed } from 'vue';
 
+const { actor } = useTotpConfigurationMachine();
 const { t } = useI18n();
+const isPasswordVerification = ref<boolean>(true);
+const title = computed(() =>
+  isPasswordVerification.value ?
+    t('account.security.passwordVerifyForm.title')
+  : t('account.security.totpForm.title'),
+);
+const subtitle = computed(() =>
+  isPasswordVerification.value ?
+    t('account.security.passwordVerifyForm.subtitle')
+  : t('account.security.totpForm.subtitle'),
+);
+
+actor.subscribe((snapshot) => {
+  isPasswordVerification.value = snapshot.matches('flow.password_verify');
+});
 </script>
 <template>
   <Dialog>
@@ -27,19 +44,13 @@ const { t } = useI18n();
       @interact-outside="(e) => e.preventDefault()"
     >
       <DialogHeader>
-        <DialogTitle>Configure TOTP</DialogTitle>
+        <DialogTitle>{{ title }}</DialogTitle>
         <DialogDescription>
-          You will be able to configure totp here :D
+          {{ subtitle }}
         </DialogDescription>
-        <h1>To Implement !!</h1>
-        <ol>
-          <li>server need to have a route to handle password verification</li>
-          <li>once password verified then we can request for totp</li>
-        </ol>
       </DialogHeader>
-      <DialogFooter>
-        <Button> Submit </Button>
-      </DialogFooter>
+      <slot v-if="isPasswordVerification" name="password" />
+      <slot v-if="!isPasswordVerification" name="totp" />
     </DialogContent>
   </Dialog>
 </template>
