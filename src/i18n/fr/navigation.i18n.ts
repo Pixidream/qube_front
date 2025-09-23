@@ -9,4 +9,5 @@ export default {
   profile: 'Profile',
   security: 'Sécurité',
   account: 'Compte',
+  personal: 'Personel',
 };

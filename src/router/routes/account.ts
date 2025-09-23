@@ -9,6 +9,16 @@ export default [
     name: 'account',
     children: [
       {
+        path: 'personal',
+        name: 'personal',
+        component: () => import('@components/pages/account/PersonalPage.vue'),
+        metal: {
+          requiresAuth: true,
+          displayName: 'navigation.personal',
+          isAuthFlow: false,
+        } satisfies RouteMeta,
+      },
+      {
         path: 'profile',
         name: 'profile',
         component: () => import('@components/pages/account/ProfilePage.vue'),
