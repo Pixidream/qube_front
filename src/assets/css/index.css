@@ -5,7 +5,9 @@
 
 @font-face {
   font-family: geist;
-  src: url('@/assets/fonts/geist/geist_variable.ttf');
+  src: url('@/assets/fonts/geist/geist_variable.ttf') format('woff2-variations');
+  font-display: swap;
+  font-weight: 100 900;
 }
 
 @theme inline {
