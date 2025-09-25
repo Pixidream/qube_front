@@ -22,6 +22,7 @@
     "@tauri-apps/plugin-http": "~2",
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-os": "~2",
+    "@tauri-apps/plugin-updater": "~2",
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^13.9.0",
     "@vueuse/integrations": "^13.7.0",
