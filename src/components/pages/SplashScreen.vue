@@ -6,12 +6,19 @@ import AppLogo from '@assets/images/logo.png';
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { Progress } from '@components/atoms/progress';
+import type { UpdateSteps } from '@core/types/app.d';
 
 const { t } = useI18n();
 const appStore = useAppStore();
 const appMachine = useAppMachine();
 const authStore = useAuthStore();
 const router = useRouter();
+const updatingText: Record<UpdateSteps, string> = {
+  installing: 'app.update.installing',
+  checking: 'app.update.checking',
+  downloading: 'app.update.downloading',
+};
 
 appMachine.actor.subscribe((snapshot) => {
   if (!authStore.isAuthenticated && snapshot.matches('loaded')) {
@@ -53,7 +60,19 @@ onMounted(() => {
           {{ t('app.name') }}
         </h1>
       </div>
-      <div class="flex space-x-1">
+      <div
+        v-if="appStore.getUpdating"
+        class="w-sm flex flex-col justify-center items-center"
+      >
+        <p class="text-sm text-muted-foreground w-full text-center p-4">
+          {{ t(updatingText[appStore.getUpdatingStep]) }}
+        </p>
+        <Progress
+          :indeterminate="appStore.getContentLength === 0"
+          :model-value="appStore.getUpdateDownloadProgress"
+        />
+      </div>
+      <div v-else div class="flex space-x-1">
         <div
           class="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"
         ></div>

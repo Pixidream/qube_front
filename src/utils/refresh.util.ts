@@ -5,7 +5,7 @@ import { useRuntimeDevice } from '@composables/device.composable';
  * Handles both Tauri and web environments appropriately
  */
 export const useAppRefresh = () => {
-  const { isTauri } = useRuntimeDevice();
+  const { isTauri, isTauriDesktop } = useRuntimeDevice();
 
   const refresh = async (): Promise<void> => {
     try {
@@ -27,5 +27,6 @@ export const useAppRefresh = () => {
     refresh,
     getRefreshLabel,
     isTauri: isTauri.value,
+    isTauriDesktop: isTauriDesktop.value,
   };
 };

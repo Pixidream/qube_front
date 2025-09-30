@@ -8,4 +8,9 @@ export default {
     refreshButton: 'Refresh',
     restartButton: 'Restart App',
   },
+  update: {
+    checking: 'Checking for update...',
+    installing: 'Installing update',
+    downloading: 'Downloading update',
+  },
 };

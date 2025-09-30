@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "qube",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "com.pixidream.qube",
   "build": {
     "beforeDevCommand": "bun run dev",
@@ -12,10 +12,12 @@
   "app": {
     "windows": [
       {
-        "title": "qube",
+        "title": "Qube",
         "width": 800,
         "height": 600,
-        "useHttpsScheme": true
+        "useHttpsScheme": true,
+        "maximized": true,
+        "resizable": true
       }
     ],
     "security": {
@@ -34,6 +36,7 @@
     }
   },
   "bundle": {
+    "createUpdaterArtifacts": true,
     "active": true,
     "targets": "all",
     "icon": [
@@ -49,6 +52,12 @@
       "desktop": {
         "schemes": ["qube"]
       }
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDU2QkRCQzdFMEQ2NERBNEUKUldSTzJtUU5mcnk5VmlFSTBpc2N0Z1NtT2pNOXJMYlVJTC9QbmthM1BrUDZKVWZIdkJISXlQaHYK",
+      "endpoints": [
+        "https://f003.backblazeb2.com/file/qube-updater/latest.json"
+      ]
     }
   }
 }

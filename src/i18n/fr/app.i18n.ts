@@ -8,4 +8,9 @@ export default {
     refreshButton: 'Actualiser',
     restartButton: 'Redémarrer',
   },
+  update: {
+    checking: 'Vérification des mises à jour...',
+    installing: 'Installation de la mise à jour',
+    downloading: 'Téléchargement de la mise à jour',
+  },
 };
