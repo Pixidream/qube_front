@@ -9,6 +9,7 @@ export const useAppRefresh = () => {
 
   const refresh = async (): Promise<void> => {
     try {
+      console.log('[REFRESHUTIL] Reloading window.');
       window.location.reload();
     } catch (error) {
       console.error('Failed to refresh application:', error);
@@ -20,7 +21,9 @@ export const useAppRefresh = () => {
    * Get the appropriate refresh method description for UI
    */
   const getRefreshLabel = (): string => {
-    return isTauri.value ? 'Restart App' : 'Refresh Page';
+    const refreshLabel = isTauri.value ? 'Restart App' : 'Refresh Page';
+    console.debug(`[REFRESHUTIL] getting refresh label: ${refreshLabel}`);
+    return refreshLabel;
   };
 
   return {

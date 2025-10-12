@@ -1,11 +1,28 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { Button } from '@components/atoms/button';
+import { isTauri } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
 
 const props = defineProps<{
   src: string;
   alt: string;
 }>();
+
+const handleFileUploadWeb = () => {};
+
+const handleFileUploadTauri = async () => {
+  const file = await open({
+    multiple: false,
+    directory: false,
+    filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg'] }],
+  });
+};
+
+const handleFileUpload = () => {
+  if (!isTauri) handleFileUploadWeb();
+  handleFileUploadTauri();
+};
 </script>
 <template>
   <div class="relative">
@@ -16,6 +33,7 @@ const props = defineProps<{
     </span>
     <Button
       class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 size-9 absolute -right-2 -bottom-2 h-8 w-8 rounded-full"
+      @click="handleFileUpload"
     >
       <Icon class="text-foreground" icon="lucide:camera" />
     </Button>

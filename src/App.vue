@@ -11,22 +11,37 @@ import { useAuthStore } from './stores/auth.stores';
 import AppTemplate from './components/templates/AppTemplate.vue';
 import { useRuntimeDevice } from './composables/device.composable';
 
+console.log('[APP] loading appMachine, authStore, router, isTauri.');
 const appMachine = useAppMachine();
 const authStore = useAuthStore();
 const router = useRouter();
 const { isTauri } = useRuntimeDevice();
 
+console.log('[APP] Loading color mode.');
+useColorMode();
+
+console.log('[APP] adding watchter on authStore.user');
 watch(
   () => authStore.user,
   (newUser, oldUser) => {
+    console.log(
+      `[APP] authStore.user changed. new: ${newUser} /// old: ${oldUser}`,
+    );
     if (!newUser && oldUser && appMachine.state.matches('loaded')) {
+      console.log(
+        '[APP] new user is null and a user was present. Redirecting to Login page.',
+      );
       router.push({ name: 'login' });
     }
   },
 );
 
 const setupDeeplinks = async () => {
-  if (!isTauri.value) return;
+  console.log('[APP] Setting up deeplinks');
+  if (!isTauri.value) {
+    console.log('[APP] Not a tauri env, skipping deeplinks');
+    return;
+  }
 
   try {
     const { getCurrent, onOpenUrl } = await import(
@@ -34,18 +49,18 @@ const setupDeeplinks = async () => {
     );
     const startUrls = await getCurrent();
     if (startUrls) {
+      console.log('[APP] Found startup URLs.');
       handleDeeplink(startUrls);
     }
 
     await onOpenUrl((urls) => {
+      console.log('[APP] Received deeplink URLs at runtime.');
       handleDeeplink(urls);
     });
   } catch (error) {
-    console.error('Failed to setup deeplinks:', error);
+    console.error('[APP] Failed to setup deeplinks:', error);
   }
 };
-
-useColorMode();
 
 onMounted(setupDeeplinks);
 </script>
