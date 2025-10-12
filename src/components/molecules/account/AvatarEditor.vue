@@ -17,6 +17,8 @@ const handleFileUploadTauri = async () => {
     directory: false,
     filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg'] }],
   });
+
+  console.log(file);
 };
 
 const handleFileUpload = () => {
