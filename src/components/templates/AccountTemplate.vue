@@ -26,7 +26,7 @@ const handleTrigger = (routeName: RouteRecordNameGeneric) => {
     <ProfileCard />
     <div>
       <Tabs :model-value="currentTab as string" class="w-full">
-        <TabsList class="grid w-full grid-cols-2">
+        <TabsList class="w-full">
           <TabsTrigger
             v-for="accountRoute of accountRoutes[0].children"
             :key="accountRoute.name"

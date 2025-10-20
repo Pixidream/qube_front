@@ -11,6 +11,10 @@ import type {
   SetupTotpResponse,
   VerifyPasswordResponse,
   VerifyRecoveryCodeResponse,
+  UpdateUserBody,
+  UpdateUserResponse,
+  GetUserFileBody,
+  GetUserFileResponse,
 } from '@core/types/auth';
 import type { ApiResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
@@ -61,6 +65,14 @@ export interface AuthService {
   changePassword: (
     changePasswordData: ChangePasswordBody,
   ) => Promise<ApiResponse<BasicResponse>>;
+
+  updateProfile: (
+    profileData: UpdateUserBody,
+  ) => Promise<ApiResponse<UpdateUserResponse>>;
+
+  getUserFile: (
+    fileData: GetUserFileBody,
+  ) => Promise<ApiResponse<GetUserFileResponse>>;
 }
 
 export const createAuthService = (
@@ -85,4 +97,7 @@ export const createAuthService = (
   disableTotp: () => repository.disableTotp(),
   changePassword: (changePasswordData: ChangePasswordBody) =>
     repository.changePassword(changePasswordData),
+  updateProfile: (profileData: UpdateUserBody) =>
+    repository.updateProfile(profileData),
+  getUserFile: (fileData: GetUserFileBody) => repository.getUserFile(fileData),
 });

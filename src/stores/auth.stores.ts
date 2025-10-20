@@ -5,6 +5,7 @@ import type {
   AskForTotpResponse,
   AuthenticationResponse,
   ChangePasswordBody,
+  UpdateUserBody,
 } from '@core/types/auth';
 import { Credentials } from '@core/types/auth';
 import type { SuccessResponse } from '@core/types/response';
@@ -16,6 +17,8 @@ import { createAvatar } from '@dicebear/core';
 import { glass } from '@dicebear/collection';
 import { useTotpConfigurationMachine } from '@/machines/totpConfiguration.machine';
 import { toast } from 'vue-sonner';
+import { platform } from '@tauri-apps/plugin-os';
+import { isTauri } from '@tauri-apps/api/core';
 
 export const useAuthStore = defineStore('auth', () => {
   // ------ Setup ------
@@ -25,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
   const { t } = i18n.global;
 
   // ------ Helpers ------
-  const handleAuthenticationResponse = (res: {
+  const handleAuthenticationResponse = async (res: {
     data: ShallowRef<SuccessResponse<AuthenticationResponse> | null>;
     error: ShallowRef<any>;
   }) => {
@@ -39,6 +42,14 @@ export const useAuthStore = defineStore('auth', () => {
     if (_user === undefined) {
       authError.value = t('auth.networkError');
       return;
+    }
+
+    if (_user.profile_picture) {
+      try {
+        _user.profile_picture = await getUserFile(_user.profile_picture);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     user.value = _user;
@@ -56,9 +67,12 @@ export const useAuthStore = defineStore('auth', () => {
   const totpType = ref<'email' | 'totp' | null>(null);
   const totpRecoveryCodes = ref<string[]>([]);
   const shouldCloseTotpDialog = ref<boolean>(false);
+  const updatingProfile = ref<boolean>(false);
 
   // ------ Getters ------
-  const isAuthenticated = computed(() => user.value !== null);
+  const isAuthenticated = computed(
+    () => user.value !== null && user.value.id && user.value.email_verified,
+  );
   const getAvatar = computed<string>(
     () =>
       user.value?.profile_picture
@@ -91,6 +105,30 @@ export const useAuthStore = defineStore('auth', () => {
   );
 
   // ------ Actions ------
+  const getUserFile = async (filename: string): Promise<string> => {
+    authError.value = null;
+
+    return authService
+      .getUserFile({ filename })
+      .then((res) => {
+        if (res.response.value?.status === 401) {
+          user.value = null;
+          return filename;
+        }
+
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return filename;
+        }
+
+        return res.data.value?.data.url ?? filename;
+      })
+      .catch((err) => {
+        console.error(err);
+        return filename;
+      });
+  };
+
   const login = async (credentials: Credentials): Promise<void> => {
     authError.value = null;
     authMachine.actor.send({ type: 'LOADING' });
@@ -150,7 +188,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     authService
       .verifyRecoveryCode(recoveryCode, shortTTLToken.value || '')
-      .then((res) => {
+      .then(async (res) => {
         if (res.error.value) {
           authError.value = t('auth.networkError');
           return;
@@ -162,6 +200,14 @@ export const useAuthStore = defineStore('auth', () => {
         if (_user === undefined) {
           authError.value = t('auth.networkError');
           return;
+        }
+
+        if (_user.profile_picture) {
+          try {
+            _user.profile_picture = await getUserFile(_user.profile_picture);
+          } catch (err) {
+            console.error(err);
+          }
         }
 
         user.value = _user;
@@ -276,7 +322,22 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error(res.error.value.toString());
       }
 
-      user.value = res.data.value?.data ?? null;
+      const _user = res.data.value?.data ?? null;
+
+      if (!_user) {
+        user.value = null;
+        return;
+      }
+
+      if (_user.profile_picture) {
+        try {
+          _user.profile_picture = await getUserFile(_user.profile_picture);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      user.value = _user;
     } catch (error) {
       authError.value = t('auth.networkError');
       user.value = null;
@@ -501,6 +562,55 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
+  const updateProfile = async (updateProfileData: UpdateUserBody) => {
+    updatingProfile.value = true;
+    authError.value = null;
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    updateProfileData.platform = isTauri() ? platform() : 'web';
+
+    authService
+      .updateProfile(updateProfileData)
+      .then(async (res) => {
+        console.info(
+          'DEBUG TO DELETE',
+          res.response.value,
+          res.data.value,
+          res.error.value,
+        );
+        if (res.response.value?.status === 401) {
+          user.value = null;
+          return;
+        }
+
+        if (res.error.value) {
+          authError.value = t('auth.networkError');
+          return;
+        }
+
+        const _user = res.data.value?.data ?? null;
+
+        if (_user === null || !_user.profile_picture) {
+          user.value = _user;
+          return;
+        }
+
+        try {
+          _user.profile_picture = await getUserFile(_user.profile_picture);
+        } catch (err) {
+          console.error(err);
+          updatingProfile.value = false;
+          return;
+        }
+
+        user.value = _user;
+      })
+      .catch((err) => console.error(err))
+      .finally(() => {
+        updatingProfile.value = false;
+      });
+  };
+
   return {
     // ------ state ------
     user,
@@ -509,6 +619,7 @@ export const useAuthStore = defineStore('auth', () => {
     totpType,
     totpRecoveryCodes,
     shouldCloseTotpDialog,
+    updatingProfile,
     // ------ getters ------
     isAuthenticated,
     getAvatar,
@@ -531,5 +642,7 @@ export const useAuthStore = defineStore('auth', () => {
     regenerateRecoveryCodes,
     disableTotp,
     changePassword,
+    updateProfile,
+    getUserFile,
   };
 });

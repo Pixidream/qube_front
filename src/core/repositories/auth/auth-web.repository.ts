@@ -3,9 +3,13 @@ import {
   AskForTotpResponse,
   ChangePasswordBody,
   DisableTotpResponse,
+  GetUserFileBody,
+  GetUserFileResponse,
   RegenerateRecoveryCodesResponse,
   SetupTotpBody,
   SetupTotpResponse,
+  UpdateUserBody,
+  UpdateUserResponse,
   VerifyRecoveryCodeBody,
   VerifyRecoveryCodeResponse,
   type AuthenticationResponse,
@@ -25,20 +29,59 @@ import type { User } from '@core/types/user';
 import { APP_CONFIG } from '@/config';
 import { v4 } from 'uuid';
 import type { AuthenticationRepository } from './auth.repository';
+import { AllowedContentType } from '@/core/types/request';
+import { toFormData } from '@/utils/formData';
 
 const _postRequest = async <T, Y>(
   path: string,
   body: Y,
+  contentType: AllowedContentType = 'application/json',
 ): Promise<ApiResponse<T>> => {
   const url = `${APP_CONFIG.api.baseUrl}${path}`;
 
   const fetchOptions: RequestInit = {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      ...(contentType === 'application/json' ?
+        { 'Content-Type': 'application/json' }
+      : {}),
       'X-REQUEST-ID': v4(),
     },
-    body: JSON.stringify(body),
+    body:
+      contentType === 'application/json' ?
+        JSON.stringify(body)
+      : toFormData(body as Record<any, unknown>),
+    credentials: 'include',
+  };
+
+  const { execute, data, error, response } = useFetch(url, fetchOptions, {
+    immediate: false,
+  }).json<SuccessResponse<T>>();
+
+  await execute();
+
+  return { data, error, response };
+};
+
+const _patchRequest = async <T, Y>(
+  path: string,
+  body: Y,
+  contentType: AllowedContentType = 'application/json',
+): Promise<ApiResponse<T>> => {
+  const url = `${APP_CONFIG.api.baseUrl}${path}`;
+
+  const fetchOptions: RequestInit = {
+    method: 'PATCH',
+    headers: {
+      ...(contentType === 'application/json' ?
+        { 'Content-Type': 'application/json' }
+      : {}),
+      'X-REQUEST-ID': v4(),
+    },
+    body:
+      contentType === 'application/json' ?
+        JSON.stringify(body)
+      : toFormData(body as Record<any, unknown>),
     credentials: 'include',
   };
 
@@ -163,6 +206,21 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
       return await _postRequest<BasicResponse, ChangePasswordBody>(
         '/auth/change-password',
         changePasswordData,
+      );
+    },
+
+    updateProfile: async (profileData: UpdateUserBody) => {
+      return await _patchRequest<UpdateUserResponse, UpdateUserBody>(
+        '/users',
+        profileData,
+        'multipart/form-data',
+      );
+    },
+
+    getUserFile: async (fileData: GetUserFileBody) => {
+      return await _postRequest<GetUserFileResponse, GetUserFileBody>(
+        '/users/file',
+        fileData,
       );
     },
   };

@@ -15,12 +15,14 @@
           "url": "https://127.0.0.1:3000/*"
         },
         {
-          "url": "https://192.168.1.31:3000/*"
+          "url": "https://192.168.1.47:3000/*"
         }
       ]
     },
     "deep-link:default",
     "os:default",
-    "log:default"
+    "log:default",
+    "dialog:default",
+    "fs:default"
   ]
 }

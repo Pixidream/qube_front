@@ -3,12 +3,14 @@ import { ref, type ShallowRef } from 'vue';
 
 import { APP_CONFIG } from '@/config';
 import { v4 } from 'uuid';
+import { AllowedContentType } from '@/core/types/request';
+import { toFormData } from '@/utils/formData';
 
 const DANGER_CONFIG = {
   // TODO: DANGER !! REMOVE true before production
   acceptInvalidCerts: true,
   // acceptInvalidCerts: import.meta.env.DEV,
-  acceptInvalidHostnames: false,
+  acceptInvalidHostnames: true,
 };
 
 export const useFetchTauri = (endpoint: string) => {
@@ -49,17 +51,25 @@ export const useFetchTauri = (endpoint: string) => {
     },
   });
 
-  const post = (payload: any) => ({
+  const post = (
+    payload: any,
+    contentType: AllowedContentType = 'application/json',
+  ) => ({
     json: <T>() => {
       const execute = async () => {
         try {
           response.value = await fetch(`${APP_CONFIG.api.baseUrl}${endpoint}`, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
+              ...(contentType === 'application/json' ?
+                { 'Content-Type': 'application/json' }
+              : {}),
               'X-REQUEST-ID': v4(),
             },
-            body: JSON.stringify(payload),
+            body:
+              contentType === 'application/json' ?
+                JSON.stringify(payload)
+              : toFormData(payload),
             danger: DANGER_CONFIG,
           });
 
@@ -83,5 +93,47 @@ export const useFetchTauri = (endpoint: string) => {
     },
   });
 
-  return { post, get };
+  const patch = (
+    payload: any,
+    contentType: AllowedContentType = 'application/json',
+  ) => ({
+    json: <T>() => {
+      const execute = async () => {
+        try {
+          response.value = await fetch(`${APP_CONFIG.api.baseUrl}${endpoint}`, {
+            method: 'PATCH',
+            headers: {
+              ...(contentType === 'application/json' ?
+                { 'Content-Type': 'application/json' }
+              : {}),
+              'X-REQUEST-ID': v4(),
+            },
+            body:
+              contentType === 'application/json' ?
+                JSON.stringify(payload)
+              : toFormData(payload),
+            danger: DANGER_CONFIG,
+          });
+
+          if (response.value.status === 401) {
+            throw new Error('Unauthorized');
+          }
+
+          if (!response.value.ok) {
+            throw new Error(`HTTP error! status: ${response.value.status}`);
+          }
+
+          const result = await response.value.json();
+          data.value = result;
+        } catch (err) {
+          error.value = err;
+          console.error('Fetch error:', err);
+        }
+      };
+
+      return { execute, data: data as ShallowRef<T | null>, error, response };
+    },
+  });
+
+  return { post, get, patch };
 };

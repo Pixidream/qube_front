@@ -12,7 +12,7 @@ export default [
         path: 'personal',
         name: 'personal',
         component: () => import('@components/pages/account/PersonalPage.vue'),
-        metal: {
+        meta: {
           requiresAuth: true,
           displayName: 'navigation.personal',
           isAuthFlow: false,

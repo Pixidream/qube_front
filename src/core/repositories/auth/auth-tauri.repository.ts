@@ -3,9 +3,13 @@ import {
   AskForTotpResponse,
   ChangePasswordBody,
   DisableTotpResponse,
+  GetUserFileBody,
+  GetUserFileResponse,
   RegenerateRecoveryCodesResponse,
   SetupTotpBody,
   SetupTotpResponse,
+  UpdateUserBody,
+  UpdateUserResponse,
   VerifyPasswordBody,
   VerifyPasswordResponse,
   VerifyRecoveryCodeBody,
@@ -24,13 +28,29 @@ import type { ApiResponse, SuccessResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
 import { platform } from '@tauri-apps/plugin-os';
 import type { AuthenticationRepository } from './auth.repository';
+import { AllowedContentType } from '@/core/types/request';
 
 const _postRequest = async <T, Y>(
   path: string,
   body: Y,
+  contentType: AllowedContentType = 'application/json',
 ): Promise<ApiResponse<T>> => {
   const { execute, data, error, response } = useFetchTauri(path)
-    .post(body)
+    .post(body, contentType)
+    .json<SuccessResponse<T>>();
+
+  await execute();
+
+  return { data, error, response };
+};
+
+const _patchRequest = async <T, Y>(
+  path: string,
+  body: Y,
+  contentType: AllowedContentType = 'application/json',
+): Promise<ApiResponse<T>> => {
+  const { execute, data, error, response } = useFetchTauri(path)
+    .patch(body, contentType)
     .json<SuccessResponse<T>>();
 
   await execute();
@@ -137,6 +157,21 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
     return await _postRequest<BasicResponse, ChangePasswordBody>(
       '/auth/change-password',
       changePasswordData,
+    );
+  },
+
+  updateProfile: async (profileData: UpdateUserBody) => {
+    return await _patchRequest<UpdateUserResponse, UpdateUserBody>(
+      '/users',
+      profileData,
+      'multipart/form-data',
+    );
+  },
+
+  getUserFile: async (fileData: GetUserFileBody) => {
+    return await _postRequest<GetUserFileResponse, GetUserFileBody>(
+      '/users/file',
+      fileData,
     );
   },
 });

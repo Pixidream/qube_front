@@ -5,9 +5,13 @@ import type {
   ChangePasswordBody,
   Credentials,
   DisableTotpResponse,
+  GetUserFileBody,
+  GetUserFileResponse,
   LoginResponse,
   RegenerateRecoveryCodesResponse,
   SetupTotpResponse,
+  UpdateUserBody,
+  UpdateUserResponse,
   VerifyPasswordResponse,
   VerifyRecoveryCodeResponse,
 } from '@core/types/auth';
@@ -60,4 +64,12 @@ export interface AuthenticationRepository {
   changePassword: (
     changePasswordData: ChangePasswordBody,
   ) => Promise<ApiResponse<BasicResponse>>;
+
+  updateProfile: (
+    profileData: UpdateUserBody,
+  ) => Promise<ApiResponse<UpdateUserResponse>>;
+
+  getUserFile: (
+    fileData: GetUserFileBody,
+  ) => Promise<ApiResponse<GetUserFileResponse>>;
 }

@@ -88,3 +88,18 @@ export interface RegenerateRecoveryCodesResponse {
 export interface DisableTotpResponse {
   message: string;
 }
+
+export interface UpdateUserBody extends Partial<User> {
+  profile_picture?: Blob | File;
+  platform: Platform;
+}
+
+export type UpdateUserResponse = User;
+
+export interface GetUserFileBody {
+  filename: string;
+}
+
+export interface GetUserFileResponse {
+  url: string;
+}
