@@ -130,7 +130,7 @@ const toggleRecoveryMode = () => {
                 :model-value="value"
                 class="flex gap-1 sm:gap-2 items-center mt-1"
                 :otp="!isRecoveryMode"
-                :type="isRecoveryMode ? 'text' : 'number'"
+                :type="'number'"
                 :name="componentField.name"
                 @update:model-value="
                   (arrNumber) => setFieldValue('totp', arrNumber)

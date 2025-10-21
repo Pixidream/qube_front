@@ -63,6 +63,17 @@ export const useAuthStore = defineStore('auth', () => {
       return;
     }
 
+    try {
+      await getCSRFToken();
+    } catch (err) {
+      authLogger.error('Failed to set CSRF token', err as Error, {
+        action: 'get_csrf_token',
+      });
+      user.value = null;
+      authError.value = t('auth.networkError');
+      return;
+    }
+
     if (_user.profile_picture) {
       authLogger.debug('Loading user profile picture', {
         action: 'profile_picture_load',
@@ -106,6 +117,7 @@ export const useAuthStore = defineStore('auth', () => {
   const totpRecoveryCodes = ref<string[]>([]);
   const shouldCloseTotpDialog = ref<boolean>(false);
   const updatingProfile = ref<boolean>(false);
+  const csrfToken = ref<string | null>(null);
 
   // ------ Getters ------
   const isAuthenticated = computed(
@@ -143,6 +155,35 @@ export const useAuthStore = defineStore('auth', () => {
   );
 
   // ------ Actions ------
+  const getCSRFToken = async () => {
+    authLogger.debug('Fetching CSRF token', {
+      action: 'get_csrf_token',
+    });
+
+    authError.value = null;
+
+    return authService.getCSRFToken().then((res) => {
+      if (res.response.value?.status === 401) {
+        authLogger.warn(
+          'User csrf request unauthorized - clearing user session',
+          {
+            action: 'get_csrf_token',
+          },
+        );
+
+        user.value = null;
+        return;
+      }
+
+      if (res.error.value) {
+        authError.value = t('auth.networkError');
+        return;
+      }
+
+      csrfToken.value = res.data.value?.data.token ?? null;
+    });
+  };
+
   const getUserFile = async (filename: string): Promise<string> => {
     authLogger.debug('Fetching user file', {
       action: 'get_user_file',
@@ -275,17 +316,6 @@ export const useAuthStore = defineStore('auth', () => {
           return;
         }
 
-        if (_user.profile_picture) {
-          try {
-            _user.profile_picture = await getUserFile(_user.profile_picture);
-          } catch (err) {
-            console.error(err);
-          }
-        }
-
-        user.value = _user;
-        shortTTLToken.value = null;
-
         // Show toast with remaining recovery codes count
         if (remainingCodes) {
           const count = parseInt(remainingCodes, 10);
@@ -312,6 +342,28 @@ export const useAuthStore = defineStore('auth', () => {
             }
           }
         }
+
+        try {
+          await getCSRFToken();
+        } catch (err) {
+          authLogger.error('Failed to set CSRF token', err as Error, {
+            action: 'get_csrf_token',
+          });
+          user.value = null;
+          authError.value = t('auth.networkError');
+          return;
+        }
+
+        if (_user.profile_picture) {
+          try {
+            _user.profile_picture = await getUserFile(_user.profile_picture);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+
+        user.value = _user;
+        shortTTLToken.value = null;
 
         authMachine.actor.send(sendAuthEvent.authenticated());
       })
@@ -402,6 +454,17 @@ export const useAuthStore = defineStore('auth', () => {
         return;
       }
 
+      try {
+        await getCSRFToken();
+      } catch (err) {
+        authLogger.error('Failed to set CSRF token', err as Error, {
+          action: 'get_csrf_token',
+        });
+        user.value = null;
+        authError.value = t('auth.networkError');
+        return;
+      }
+
       if (_user.profile_picture) {
         try {
           _user.profile_picture = await getUserFile(_user.profile_picture);
@@ -428,6 +491,7 @@ export const useAuthStore = defineStore('auth', () => {
     authService
       .logout()
       .then(() => {
+        csrfToken.value = null;
         user.value = null;
       })
       .catch(() => {
@@ -693,6 +757,7 @@ export const useAuthStore = defineStore('auth', () => {
     totpRecoveryCodes,
     shouldCloseTotpDialog,
     updatingProfile,
+    csrfToken,
     // ------ getters ------
     isAuthenticated,
     getAvatar,
@@ -717,5 +782,6 @@ export const useAuthStore = defineStore('auth', () => {
     changePassword,
     updateProfile,
     getUserFile,
+    getCSRFToken,
   };
 });

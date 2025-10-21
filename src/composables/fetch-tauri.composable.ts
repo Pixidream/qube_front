@@ -6,6 +6,7 @@ import { v4 } from 'uuid';
 import { AllowedContentType } from '@/core/types/request';
 import { toFormData } from '@/utils/formData';
 import { logger } from '@/utils/logger';
+import { useAuthStore } from '@/stores/auth.stores';
 
 const DANGER_CONFIG = {
   // TODO: DANGER !! REMOVE true before production
@@ -114,6 +115,7 @@ export const useFetchTauri = (endpoint: string) => {
       const execute = async () => {
         const requestId = v4();
         const url = `${APP_CONFIG.api.baseUrl}${endpoint}`;
+        const authStore = useAuthStore();
 
         fetchLogger.debug('Starting POST request', {
           action: 'request_start',
@@ -135,6 +137,7 @@ export const useFetchTauri = (endpoint: string) => {
                 { 'Content-Type': 'application/json' }
               : {}),
               'X-REQUEST-ID': requestId,
+              'X-CSRF-TOKEN': authStore.csrfToken ?? '',
             },
             body:
               contentType === 'application/json' ?
@@ -212,6 +215,7 @@ export const useFetchTauri = (endpoint: string) => {
       const execute = async () => {
         const requestId = v4();
         const url = `${APP_CONFIG.api.baseUrl}${endpoint}`;
+        const authStore = useAuthStore();
 
         fetchLogger.debug('Starting PATCH request', {
           action: 'request_start',
@@ -233,6 +237,7 @@ export const useFetchTauri = (endpoint: string) => {
                 { 'Content-Type': 'application/json' }
               : {}),
               'X-REQUEST-ID': requestId,
+              'X-CSRF-TOKEN': authStore.csrfToken ?? '',
             },
             body:
               contentType === 'application/json' ?

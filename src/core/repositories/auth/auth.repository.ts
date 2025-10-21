@@ -5,6 +5,7 @@ import type {
   ChangePasswordBody,
   Credentials,
   DisableTotpResponse,
+  GetCSRFTokenResponse,
   GetUserFileBody,
   GetUserFileResponse,
   LoginResponse,
@@ -72,4 +73,6 @@ export interface AuthenticationRepository {
   getUserFile: (
     fileData: GetUserFileBody,
   ) => Promise<ApiResponse<GetUserFileResponse>>;
+
+  getCSRFToken: () => Promise<ApiResponse<GetCSRFTokenResponse>>;
 }

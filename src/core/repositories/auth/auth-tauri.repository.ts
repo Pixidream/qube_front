@@ -3,6 +3,7 @@ import {
   AskForTotpResponse,
   ChangePasswordBody,
   DisableTotpResponse,
+  GetCSRFTokenResponse,
   GetUserFileBody,
   GetUserFileResponse,
   RegenerateRecoveryCodesResponse,
@@ -216,5 +217,9 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
       '/users/file',
       fileData,
     );
+  },
+
+  getCSRFToken: async () => {
+    return await _getRequest<GetCSRFTokenResponse>('/auth/csrf');
   },
 });

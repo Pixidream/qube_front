@@ -15,6 +15,7 @@ import type {
   UpdateUserResponse,
   GetUserFileBody,
   GetUserFileResponse,
+  GetCSRFTokenResponse,
 } from '@core/types/auth';
 import type { ApiResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
@@ -74,6 +75,8 @@ export interface AuthService {
   getUserFile: (
     fileData: GetUserFileBody,
   ) => Promise<ApiResponse<GetUserFileResponse>>;
+
+  getCSRFToken: () => Promise<ApiResponse<GetCSRFTokenResponse>>;
 }
 
 export const createAuthService = (
@@ -466,6 +469,27 @@ export const createAuthService = (
           filename: fileData.filename,
         });
         throw error;
+      }
+    },
+
+    getCSRFToken: async () => {
+      authServiceLogger.debug('CSRF token fetch started', {
+        action: 'get_csrf_token',
+      });
+
+      try {
+        const result = await repository.getCSRFToken();
+
+        authServiceLogger.debug('CSRF token fetch completed', {
+          action: 'get_csrf_token',
+        });
+
+        return result;
+      } catch (err) {
+        authServiceLogger.error('Failed to fetch CSRF Token', err as Error, {
+          action: 'get_csrf_token',
+        });
+        throw err;
       }
     },
   };

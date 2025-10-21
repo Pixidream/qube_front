@@ -103,3 +103,7 @@ export interface GetUserFileBody {
 export interface GetUserFileResponse {
   url: string;
 }
+
+export interface GetCSRFTokenResponse {
+  token: string;
+}

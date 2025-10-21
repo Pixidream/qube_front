@@ -3,6 +3,7 @@ import {
   AskForTotpResponse,
   ChangePasswordBody,
   DisableTotpResponse,
+  GetCSRFTokenResponse,
   GetUserFileBody,
   GetUserFileResponse,
   RegenerateRecoveryCodesResponse,
@@ -32,6 +33,7 @@ import type { AuthenticationRepository } from './auth.repository';
 import { AllowedContentType } from '@/core/types/request';
 import { toFormData } from '@/utils/formData';
 import { createServiceLogger } from '@/utils/logger';
+import { useAuthStore } from '@/stores/auth.stores';
 
 const webRepoLogger = createServiceLogger('WebAuthRepository');
 
@@ -42,6 +44,7 @@ const _postRequest = async <T, Y>(
 ): Promise<ApiResponse<T>> => {
   const requestId = v4();
   const url = `${APP_CONFIG.api.baseUrl}${path}`;
+  const authStore = useAuthStore();
 
   webRepoLogger.debug('Initiating POST request', {
     action: 'http_request',
@@ -58,6 +61,7 @@ const _postRequest = async <T, Y>(
         { 'Content-Type': 'application/json' }
       : {}),
       'X-REQUEST-ID': requestId,
+      'X-CSRF-TOKEN': authStore.csrfToken ?? '',
     },
     body:
       contentType === 'application/json' ?
@@ -104,6 +108,7 @@ const _patchRequest = async <T, Y>(
 ): Promise<ApiResponse<T>> => {
   const requestId = v4();
   const url = `${APP_CONFIG.api.baseUrl}${path}`;
+  const authStore = useAuthStore();
 
   webRepoLogger.debug('Initiating PATCH request', {
     action: 'http_request',
@@ -120,6 +125,7 @@ const _patchRequest = async <T, Y>(
         { 'Content-Type': 'application/json' }
       : {}),
       'X-REQUEST-ID': requestId,
+      'X-CSRF-TOKEN': authStore.csrfToken ?? '',
     },
     body:
       contentType === 'application/json' ?
@@ -594,6 +600,26 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
         webRepoLogger.debug('User file fetched successfully', {
           action: 'get_user_file_success',
           filename: fileData.filename,
+        });
+      }
+
+      return result;
+    },
+
+    getCSRFToken: async () => {
+      webRepoLogger.debug('Fetching CSRF token', {
+        action: 'get_csrf_token',
+      });
+
+      const result = await _getRequest<GetCSRFTokenResponse>('/auth/csrf');
+
+      if (result.error.value) {
+        webRepoLogger.warn('CSRF token fetch failed', {
+          action: 'get_csrf_token',
+        });
+      } else {
+        webRepoLogger.debug('CSRF token fetched successfully', {
+          action: 'get_csrf_token',
         });
       }
 
