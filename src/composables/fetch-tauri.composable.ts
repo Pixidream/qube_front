@@ -9,9 +9,9 @@ import { logger } from '@/utils/logger';
 
 const DANGER_CONFIG = {
   // TODO: DANGER !! REMOVE true before production
-  acceptInvalidCerts: true,
+  acceptInvalidCerts: import.meta.env.DEV,
   // acceptInvalidCerts: import.meta.env.DEV,
-  acceptInvalidHostnames: true,
+  acceptInvalidHostnames: import.meta.env.DEV,
 };
 
 export const useFetchTauri = (endpoint: string) => {
