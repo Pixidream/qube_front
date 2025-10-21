@@ -3,6 +3,9 @@ import { xstate } from '@core/middlewares/xstate.middleware';
 import { defineStore } from 'pinia';
 import type { Router } from 'vue-router';
 import { assign, createMachine } from 'xstate';
+import { logger } from '@/utils/logger';
+
+const authMachineLogger = logger.child({ machine: 'auth' });
 
 interface AuthContext {
   query: Record<string, any>;
@@ -39,19 +42,43 @@ export const authMachine = createMachine(
       context: {} as AuthContext,
       events: {} as AuthEvent,
     },
+    entry: () => {
+      authMachineLogger.info('Auth machine initialized', {
+        action: 'machine_init',
+      });
+    },
 
     states: {
       flow: {
         initial: 'login',
         states: {
           login: {
-            entry: ['resetAuthError', 'navigateToLogin'],
+            entry: [
+              'resetAuthError',
+              'navigateToLogin',
+              () => {
+                authMachineLogger.info('Entered login state', {
+                  action: 'state_enter',
+                  state: 'login',
+                });
+              },
+            ],
             on: {
-              '2FA_TOTP': '2fa_totp',
-              EMAIL_TOTP: 'email_totp',
+              '2FA_TOTP': {
+                target: 'twoFaTotp',
+                actions: () => {
+                  authMachineLogger.info('Transitioning to 2FA TOTP', {
+                    action: 'state_transition',
+                    from: 'login',
+                    to: 'twoFaTotp',
+                    trigger: '2FA_TOTP',
+                  });
+                },
+              },
+              EMAIL_TOTP: 'emailTotp',
               SIGNUP: 'signup',
               RESET_PASSWORD: {
-                target: 'reset_password',
+                target: 'resetPassword',
                 actions: ['assignQuery'],
               },
               RESTORE_SESSION: {
@@ -59,27 +86,27 @@ export const authMachine = createMachine(
               },
             },
           },
-          '2fa_totp': {
+          twoFaTotp: {
             entry: ['resetAuthError', 'navigateToTotp'],
             on: {
-              RECOVERY_CODE: 'recovery_code',
+              RECOVERY_CODE: 'recoveryCode',
               AUTHENTICATED: {
                 target: 'authenticated',
                 actions: ['assignRedirectPath'],
               },
             },
           },
-          recovery_code: {
+          recoveryCode: {
             entry: ['resetAuthError', 'navigateToTotpRecovery'],
             on: {
-              '2FA_TOTP': '2fa_totp',
+              '2FA_TOTP': 'twoFaTotp',
               AUTHENTICATED: {
                 target: 'authenticated',
                 actions: ['assignRedirectPath'],
               },
             },
           },
-          email_totp: {
+          emailTotp: {
             entry: ['resetAuthError', 'navigateToEmailTotp'],
             on: {
               AUTHENTICATED: {
@@ -89,13 +116,42 @@ export const authMachine = createMachine(
             },
           },
           signup: {
-            entry: ['resetAuthError', 'navigateToSignup'],
+            entry: [
+              'resetAuthError',
+              'navigateToSignup',
+              () => {
+                authMachineLogger.info('Entered signup state', {
+                  action: 'state_enter',
+                  state: 'signup',
+                });
+              },
+            ],
             on: {
-              LOGIN: 'login',
-              VERIFY_EMAIL: 'verify_email',
+              LOGIN: {
+                target: 'login',
+                actions: () => {
+                  authMachineLogger.info('Returning to login from signup', {
+                    action: 'state_transition',
+                    from: 'signup',
+                    to: 'login',
+                    trigger: 'LOGIN',
+                  });
+                },
+              },
+              VERIFY_EMAIL: {
+                target: 'verifyEmail',
+                actions: () => {
+                  authMachineLogger.info('Moving to email verification', {
+                    action: 'state_transition',
+                    from: 'signup',
+                    to: 'verifyEmail',
+                    trigger: 'VERIFY_EMAIL',
+                  });
+                },
+              },
             },
           },
-          verify_email: {
+          verifyEmail: {
             entry: ['resetAuthError', 'navigateToVerifyEmail'],
             on: {
               AUTHENTICATED: {
@@ -104,10 +160,32 @@ export const authMachine = createMachine(
               },
             },
           },
-          reset_password: {
-            entry: ['resetAuthError', 'navigateToResetPassword'],
+          resetPassword: {
+            entry: [
+              'resetAuthError',
+              'navigateToResetPassword',
+              () => {
+                authMachineLogger.info('Entered password reset state', {
+                  action: 'state_enter',
+                  state: 'resetPassword',
+                });
+              },
+            ],
             on: {
-              LOGIN: 'login',
+              LOGIN: {
+                target: 'login',
+                actions: () => {
+                  authMachineLogger.info(
+                    'Returning to login from password reset',
+                    {
+                      action: 'state_transition',
+                      from: 'resetPassword',
+                      to: 'login',
+                      trigger: 'LOGIN',
+                    },
+                  );
+                },
+              },
             },
           },
           authenticated: {
@@ -130,13 +208,43 @@ export const authMachine = createMachine(
         initial: 'idle',
         states: {
           idle: {
+            entry: () => {
+              authMachineLogger.trace('Loading state: idle', {
+                action: 'loading_state',
+                state: 'idle',
+              });
+            },
             on: {
-              LOADING: 'loading',
+              LOADING: {
+                target: 'loading',
+                actions: () => {
+                  authMachineLogger.debug('Starting loading state', {
+                    action: 'loading_transition',
+                    from: 'idle',
+                    to: 'loading',
+                  });
+                },
+              },
             },
           },
           loading: {
+            entry: () => {
+              authMachineLogger.trace('Loading state: loading', {
+                action: 'loading_state',
+                state: 'loading',
+              });
+            },
             on: {
-              IDLE: 'idle',
+              IDLE: {
+                target: 'idle',
+                actions: () => {
+                  authMachineLogger.debug('Stopping loading state', {
+                    action: 'loading_transition',
+                    from: 'loading',
+                    to: 'idle',
+                  });
+                },
+              },
             },
           },
         },

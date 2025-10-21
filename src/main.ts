@@ -10,33 +10,42 @@ import { createAuthTauriRepository } from '@core/repositories/auth/auth-tauri.re
 import { createAuthWebRepository } from '@core/repositories/auth/auth-web.repository';
 import App from './App.vue';
 import { router } from './router';
-import { createLogger } from './utils/logger';
+import { createLogger, logger } from './utils/logger';
 
+// Initialize logging system
 createLogger();
 
-console.info('Welcome to Qube !');
+// Create main app logger
+const mainLogger = logger.child({ component: 'main' });
 
-console.log('Loading zxcvbn ...');
+mainLogger.info('Application starting - Welcome to Qube!');
+
+mainLogger.debug('Loading zxcvbn password strength library');
 createZxcvbn();
 
-console.log('creating pinia ...');
+mainLogger.debug('Creating Pinia state management store');
 const pinia = createPinia();
 
 const { isTauri } = useRuntimeDevice();
-console.log(
-  `creating repository. loading: ${isTauri.value ? 'tauri repository' : 'web repository'}`,
-);
+const repositoryType = isTauri.value ? 'tauri' : 'web';
+mainLogger.info('Initializing authentication repository', {
+  repositoryType,
+  runtime: isTauri.value ? 'desktop' : 'browser',
+});
+
 const authRepository =
   isTauri.value ? createAuthTauriRepository() : createAuthWebRepository();
 
-console.log('creating app ...');
+mainLogger.debug('Creating Vue application instance');
 const app = createApp(App);
 
-console.log('providing repo and loading plugins before mounting...');
+mainLogger.debug('Configuring application plugins and providers');
 app
   .provide('authRepository', authRepository)
   .use(i18n)
   .use(pinia)
   .use(router)
-  .use(autoAnimatePlugin)
-  .mount('#app');
+  .use(autoAnimatePlugin);
+
+mainLogger.info('Application configuration complete - mounting to DOM');
+app.mount('#app');

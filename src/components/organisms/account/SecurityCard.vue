@@ -15,8 +15,20 @@ import { Separator } from '@components/atoms/separator';
 import PasswordResetItem from '@components/molecules/account/PasswordResetItem.vue';
 import TotpConfigurationItem from '@components/molecules/account/TotpConfigurationItem.vue';
 import { useI18n } from 'vue-i18n';
+import { onMounted } from 'vue';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const securityCardLogger = createComponentLogger('SecurityCard');
 
 const { t } = useI18n();
+
+onMounted(() => {
+  securityCardLogger.debug('Security card mounted', {
+    action: 'component_mounted',
+    context: 'account_security',
+  });
+});
 </script>
 <template>
   <Card>

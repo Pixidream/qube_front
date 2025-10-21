@@ -21,6 +21,10 @@ import { useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const totpFormLogger = createComponentLogger('TotpForm');
 
 const authMachine = useAuthMachine();
 const { t } = useI18n();
@@ -49,9 +53,23 @@ const isLoading = computed(() => {
 const handleTotp = handleSubmit(async (values) => {
   const code = values.totp.join('');
 
+  totpFormLogger.info('TOTP form submitted', {
+    action: 'form_submit',
+    isRecoveryMode: isRecoveryMode.value,
+    totpType: authStore.totpType,
+    codeLength: code.length,
+  });
+
   if (isRecoveryMode.value) {
+    totpFormLogger.info('Verifying recovery code', {
+      action: 'verify_recovery_code',
+    });
     await authStore.verifyRecoveryCode(code);
   } else {
+    totpFormLogger.info('Verifying TOTP code', {
+      action: 'verify_totp',
+      totpType: authStore.totpType,
+    });
     await authStore.verifyTotp(code);
   }
 });
@@ -61,13 +79,26 @@ watch(
   () => values.totp,
   (newValue) => {
     if (newValue && newValue.length === TOTP_LENGTH && meta.value.valid) {
+      totpFormLogger.debug('TOTP code complete, auto-submitting', {
+        action: 'auto_submit',
+        isRecoveryMode: isRecoveryMode.value,
+        codeLength: newValue.length,
+      });
       handleTotp();
     }
   },
 );
 
 const toggleRecoveryMode = () => {
+  const previousMode = isRecoveryMode.value;
   isRecoveryMode.value = !isRecoveryMode.value;
+
+  totpFormLogger.info('Toggled TOTP recovery mode', {
+    action: 'toggle_recovery_mode',
+    from: previousMode ? 'recovery' : 'totp',
+    to: isRecoveryMode.value ? 'recovery' : 'totp',
+  });
+
   // Reset form when switching modes
   setFieldValue('totp', []);
 };

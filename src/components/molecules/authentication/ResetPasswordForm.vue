@@ -21,6 +21,10 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { toast } from 'vue-sonner';
 import * as z from 'zod';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const resetPasswordLogger = createComponentLogger('ResetPasswordForm');
 
 const route = useRoute();
 const token = ref<string | null>(null);
@@ -95,12 +99,27 @@ const getStrengthColor = (level: number) => {
 };
 
 const handleSignup = handleSubmit(async (values) => {
+  resetPasswordLogger.info('Password reset form submitted', {
+    action: 'form_submit',
+    hasToken: !!token.value,
+  });
+
   const success = await authStore.resetPassword(
     token.value ?? '',
     values.password,
   );
 
-  if (!success) return;
+  if (!success) {
+    resetPasswordLogger.warn('Password reset failed', {
+      action: 'reset_password_failed',
+      hasToken: !!token.value,
+    });
+    return;
+  }
+
+  resetPasswordLogger.info('Password reset successful', {
+    action: 'reset_password_success',
+  });
 
   toast(t('auth.resetPassword.toast.title'), {
     description: t('auth.resetPassword.toast.description'),
@@ -108,18 +127,42 @@ const handleSignup = handleSubmit(async (values) => {
 });
 
 onMounted(() => {
+  resetPasswordLogger.debug('Reset password form mounted', {
+    action: 'component_mounted',
+    hasQueryToken: !!route.query.token,
+    queryType: route.query.type,
+  });
+
   if (
     (!route.query.type && !route.query.token)
     || route.query.type !== 'password_reset'
   ) {
+    resetPasswordLogger.warn(
+      'Invalid reset password URL, redirecting to login',
+      {
+        action: 'invalid_reset_url',
+        hasToken: !!route.query.token,
+        queryType: route.query.type,
+      },
+    );
+
     handleReset();
     authMachine.actor.send({ type: 'LOGIN' });
+    return;
   }
 
   token.value = (route.query.token as string) || null;
+
+  resetPasswordLogger.info('Reset password form initialized', {
+    action: 'form_initialized',
+    hasToken: !!token.value,
+  });
 });
 
 onUnmounted(() => {
+  resetPasswordLogger.debug('Reset password form unmounted', {
+    action: 'component_unmounted',
+  });
   handleReset();
 });
 </script>

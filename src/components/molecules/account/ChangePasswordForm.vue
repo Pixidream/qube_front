@@ -19,6 +19,10 @@ import { ref, computed } from 'vue';
 import { toast } from 'vue-sonner';
 import { zxcvbn } from '@zxcvbn-ts/core';
 import { useAuthMachine } from '@/machines/auth.machine';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const changePasswordLogger = createComponentLogger('ChangePasswordForm');
 
 const emit = defineEmits<{
   close: [];
@@ -118,6 +122,11 @@ const getStrengthColor = (level: number) => {
 };
 
 const handleChangePassword = handleSubmit(async (values) => {
+  changePasswordLogger.info('Change password form submitted', {
+    action: 'form_submit',
+    passwordStrength: passwordScore.value,
+  });
+
   isLoading.value = true;
 
   const success = await authStore.changePassword({
@@ -126,18 +135,32 @@ const handleChangePassword = handleSubmit(async (values) => {
   });
 
   if (success) {
+    changePasswordLogger.info('Password changed successfully', {
+      action: 'change_password_success',
+      passwordStrength: passwordScore.value,
+    });
+
     toast.success(t('account.security.changePassword.success'));
     handleReset();
     emit('close');
+
     // Inform user about logout for security
     setTimeout(() => {
       toast.info(t('account.security.changePassword.logoutNotice'));
     }, 800);
+
     // Logout user after a delay to let them see the success message
     setTimeout(() => {
+      changePasswordLogger.info('Auto-logout after password change', {
+        action: 'auto_logout',
+        reason: 'security_after_password_change',
+      });
       authMachine.actor.send({ type: 'LOGOUT' });
     }, 2500);
   } else {
+    changePasswordLogger.warn('Password change failed', {
+      action: 'change_password_failed',
+    });
     toast.error(t('account.security.changePassword.error'));
   }
 

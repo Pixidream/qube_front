@@ -4,6 +4,10 @@ import { Icon } from '@iconify/vue';
 import { computed } from 'vue';
 import { useColorMode } from '@vueuse/core';
 import { useI18n } from 'vue-i18n';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const themeToggleLogger = createComponentLogger('ThemeToggle');
 
 const mode = useColorMode({ disableTransition: false });
 const { t } = useI18n();
@@ -22,6 +26,8 @@ const getIconName = computed<string>(() => icons[mode.store.value]);
 const getThemeName = computed<string>(() => themeNames[mode.store.value]());
 
 const toggleTheme = () => {
+  const previousTheme = mode.store.value;
+
   if (mode.store.value === 'light') {
     mode.value = 'dark';
   } else if (mode.store.value === 'dark') {
@@ -29,6 +35,13 @@ const toggleTheme = () => {
   } else {
     mode.value = 'light';
   }
+
+  themeToggleLogger.info('Theme changed by user', {
+    action: 'theme_toggle',
+    from: previousTheme,
+    to: mode.value,
+    source: 'theme_toggle_component',
+  });
 };
 </script>
 <template>

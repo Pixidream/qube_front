@@ -10,36 +10,49 @@ import { useAppMachine } from './machines/app.machine';
 import { useAuthStore } from './stores/auth.stores';
 import AppTemplate from './components/templates/AppTemplate.vue';
 import { useRuntimeDevice } from './composables/device.composable';
+import { createComponentLogger } from './utils/logger';
 
-console.log('[APP] loading appMachine, authStore, router, isTauri.');
+// Create component-specific logger
+const appLogger = createComponentLogger('App');
+
+appLogger.debug('Initializing app components and composables');
 const appMachine = useAppMachine();
 const authStore = useAuthStore();
 const router = useRouter();
 const { isTauri } = useRuntimeDevice();
 
-console.log('[APP] Loading color mode.');
+appLogger.debug('Configuring color mode');
 useColorMode();
 
-console.log('[APP] adding watchter on authStore.user');
+appLogger.debug('Setting up user state watcher');
 watch(
   () => authStore.user,
   (newUser, oldUser) => {
-    console.log(
-      `[APP] authStore.user changed. new: ${newUser} /// old: ${oldUser}`,
-    );
+    appLogger.debug('User state changed', {
+      action: 'user_state_change',
+      hasNewUser: !!newUser,
+      hadOldUser: !!oldUser,
+      appState: appMachine.state.value,
+    });
+
     if (!newUser && oldUser && appMachine.state.matches('loaded')) {
-      console.log(
-        '[APP] new user is null and a user was present. Redirecting to Login page.',
-      );
+      appLogger.info('User logged out - redirecting to login page', {
+        action: 'logout_redirect',
+        fromRoute: router.currentRoute.value.name,
+      });
       router.push({ name: 'login' });
     }
   },
 );
 
 const setupDeeplinks = async () => {
-  console.log('[APP] Setting up deeplinks');
+  appLogger.debug('Initializing deeplinks system', {
+    action: 'deeplinks_init',
+    isTauri: isTauri.value,
+  });
+
   if (!isTauri.value) {
-    console.log('[APP] Not a tauri env, skipping deeplinks');
+    appLogger.debug('Skipping deeplinks - not in Tauri environment');
     return;
   }
 
@@ -47,18 +60,29 @@ const setupDeeplinks = async () => {
     const { getCurrent, onOpenUrl } = await import(
       '@tauri-apps/plugin-deep-link'
     );
+
     const startUrls = await getCurrent();
     if (startUrls) {
-      console.log('[APP] Found startup URLs.');
+      appLogger.info('Processing startup deeplink URLs', {
+        action: 'startup_deeplinks',
+        urlCount: startUrls.length,
+      });
       handleDeeplink(startUrls);
     }
 
     await onOpenUrl((urls) => {
-      console.log('[APP] Received deeplink URLs at runtime.');
+      appLogger.info('Processing runtime deeplink URLs', {
+        action: 'runtime_deeplinks',
+        urlCount: urls.length,
+      });
       handleDeeplink(urls);
     });
+
+    appLogger.info('Deeplinks system initialized successfully');
   } catch (error) {
-    console.error('[APP] Failed to setup deeplinks:', error);
+    appLogger.error('Failed to setup deeplinks system', error as Error, {
+      action: 'deeplinks_error',
+    });
   }
 };
 

@@ -13,18 +13,33 @@ import { Input } from '@components/atoms/input';
 import { toTypedSchema } from '@vee-validate/zod';
 import { zxcvbn } from '@zxcvbn-ts/core';
 import { useForm } from 'vee-validate';
-import { computed } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const signupLogger = createComponentLogger('SignupForm');
 
 const authMachine = useAuthMachine();
 const authStore = useAuthStore();
+
 const useZxcvbn = (password?: string) => {
   if (password == undefined) return 0;
 
-  return zxcvbn(password).score;
+  const result = zxcvbn(password);
+  signupLogger.trace('Password strength calculated', {
+    action: 'password_strength_check',
+    score: result.score,
+    hasPassword: !!password,
+    passwordLength: password?.length || 0,
+  });
+  return result.score;
 };
 const { t } = useI18n();
+
+signupLogger.debug('Initializing signup form schema validation');
+
 const formSchema = toTypedSchema(
   z
     .object({
@@ -47,7 +62,14 @@ const formSchema = toTypedSchema(
         .refine(
           (password) => {
             const score = useZxcvbn(password);
-            return score >= 3;
+            const isValid = score >= 3;
+            signupLogger.debug('Password strength validation', {
+              action: 'password_validation',
+              score,
+              isValid,
+              requiredScore: 3,
+            });
+            return isValid;
           },
           { error: () => t('auth.signup.form.validation.passwordStrength') },
         ),
@@ -62,18 +84,29 @@ const formSchema = toTypedSchema(
     })
     .superRefine(({ confirmPassword, password }, ctx) => {
       if (confirmPassword !== password) {
+        signupLogger.debug('Password confirmation mismatch', {
+          action: 'password_confirm_validation',
+          isMatch: false,
+        });
         ctx.addIssue({
           code: 'custom',
           message: t('auth.signup.form.validation.passwordMatch'),
           path: ['confirmPassword'],
         });
+      } else {
+        signupLogger.trace('Password confirmation validated', {
+          action: 'password_confirm_validation',
+          isMatch: true,
+        });
       }
     }),
 );
-const { handleSubmit, isFieldDirty, values } = useForm({
+const { handleSubmit, isFieldDirty, values, errors } = useForm({
   validationSchema: formSchema,
 });
+
 const passwordScore = computed(() => useZxcvbn(values.password));
+
 const getStrengthColor = (level: number) => {
   const colors = {
     1: 'bg-gradient-to-r from-red-500 to-red-400',
@@ -84,8 +117,74 @@ const getStrengthColor = (level: number) => {
   return colors[level as keyof typeof colors] || 'bg-muted';
 };
 
-const handleSignup = handleSubmit((values) => {
-  console.log('signup form submitted !', values);
+const handleSignup = handleSubmit(async (values) => {
+  signupLogger.info('Signup form submission started', {
+    action: 'form_submit',
+    email: values.email,
+    passwordStrength: useZxcvbn(values.password),
+  });
+
+  try {
+    // Log the attempt before sending to auth machine
+    signupLogger.debug('Sending signup data to auth machine', {
+      action: 'auth_machine_signup',
+      email: values.email,
+    });
+
+    // Here you would typically call your signup logic
+    // For now, we'll just log the successful form submission
+    signupLogger.info('Signup form data validated successfully', {
+      action: 'form_validation_success',
+      email: values.email,
+      hasValidPassword: useZxcvbn(values.password) >= 3,
+    });
+
+    // You can add your actual signup logic here
+    // await authStore.signup(values);
+  } catch (error) {
+    signupLogger.error('Signup form submission failed', error as Error, {
+      action: 'form_submit_error',
+      email: values.email,
+    });
+  }
+});
+
+// Watch for form validation errors
+watch(
+  () => errors.value,
+  (newErrors) => {
+    const errorFields = Object.keys(newErrors);
+    if (errorFields.length > 0) {
+      signupLogger.debug('Form validation errors detected', {
+        action: 'form_validation_errors',
+        errorFields,
+        errorCount: errorFields.length,
+      });
+    }
+  },
+  { deep: true },
+);
+
+// Watch for password strength changes
+watch(
+  () => passwordScore.value,
+  (newScore, oldScore) => {
+    if (newScore !== oldScore && values.password) {
+      signupLogger.debug('Password strength changed', {
+        action: 'password_strength_change',
+        oldScore,
+        newScore,
+        passwordLength: values.password?.length || 0,
+      });
+    }
+  },
+);
+
+// Log component mounting
+onMounted(() => {
+  signupLogger.info('Signup form component mounted', {
+    action: 'component_mounted',
+  });
 });
 </script>
 <template>

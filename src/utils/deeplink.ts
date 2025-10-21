@@ -1,23 +1,35 @@
 import { sendAuthEvent, useAuthMachine } from '@machines/auth.machine';
 import { LocationQueryRaw, useRouter } from 'vue-router';
+import { logger } from './logger';
 
 type QueryValue = string | string[] | boolean | undefined;
 type ParsedQuery = Record<string, QueryValue>;
 
+const deeplinkLogger = logger.child({ utility: 'deeplink' });
+
 export const parseQueryString = (url: string): ParsedQuery => {
-  console.log(`[DEEPLINK] Parsing query for: ${url}`);
+  deeplinkLogger.debug('Parsing query string from URL', {
+    action: 'parse_query_start',
+    url,
+  });
   const result: ParsedQuery = {};
 
   // extract query string
   const queryStart = url.indexOf('?');
   if (queryStart === -1) {
-    console.error("[DEEPLINK] The given url doesn't contains a query.");
+    deeplinkLogger.warn('URL does not contain a query string', {
+      action: 'parse_query_no_query',
+      url,
+    });
     return result;
   }
 
   const queryString = url.slice(queryStart + 1);
   if (!queryString) {
-    console.error('[DEEPLINK] The query string is empty.');
+    deeplinkLogger.warn('Query string is empty', {
+      action: 'parse_query_empty',
+      url,
+    });
     return result;
   }
 
@@ -68,30 +80,57 @@ export const parseQueryString = (url: string): ParsedQuery => {
     }
   }
 
-  console.log(`[DEEPLINK] parsed query: ${result}`);
+  deeplinkLogger.debug('Query string parsing completed', {
+    action: 'parse_query_complete',
+    url,
+    parsedKeys: Object.keys(result),
+    resultCount: Object.keys(result).length,
+  });
   return result;
 };
 
 export const extractPath = (url: string): string => {
-  console.log(`[DEEPLINK] extracting path from url: ${url}`);
+  deeplinkLogger.debug('Extracting path from URL', {
+    action: 'extract_path_start',
+    url,
+  });
   const _url = new URL(url);
-  console.log(`[DEEPLINK] found path: ${_url.pathname}`);
+  deeplinkLogger.debug('Path extraction completed', {
+    action: 'extract_path_complete',
+    url,
+    extractedPath: _url.pathname,
+  });
   return _url.pathname;
 };
 
 export const handleDeeplink = async (deeplinks: string[]) => {
-  console.log(`[DEEPLINK] handling deeplinks: "${deeplinks}"`);
+  deeplinkLogger.info('Processing deeplinks', {
+    action: 'handle_deeplinks_start',
+    deeplinkCount: deeplinks.length,
+    deeplinks,
+  });
   if (!deeplinks.length) {
-    console.error('[DEEPLINK] received an empty list.');
+    deeplinkLogger.error('Received empty deeplinks list', undefined, {
+      action: 'handle_deeplinks_empty',
+    });
     return;
   }
 
-  console.warn(`[DEEPLINK] For now the app only support one deeplink ...`);
+  deeplinkLogger.warn(
+    'Multiple deeplinks received, processing only the last one',
+    {
+      action: 'handle_deeplinks_multiple',
+      totalCount: deeplinks.length,
+    },
+  );
   // for now we handle 1 deeplink only.
   const deeplink = deeplinks.at(-1);
 
   if (deeplink === undefined) {
-    console.error('[DEEPLINK] given deeplink is undefined');
+    deeplinkLogger.error('Selected deeplink is undefined', undefined, {
+      action: 'handle_deeplinks_undefined',
+      deeplinks,
+    });
     return;
   }
 
@@ -101,15 +140,24 @@ export const handleDeeplink = async (deeplinks: string[]) => {
   // deeplink handle for auth routes as it's not going through router
   if (deeplink.includes('reset-password')) {
     // Send event with query data - navigation will be handled by machine entry action
-    console.info(
-      '[DEEPLINK] reiceived deeplink to reset password page. Redirecting ...',
-    );
+    deeplinkLogger.info('Processing password reset deeplink', {
+      action: 'handle_deeplink_reset_password',
+      deeplink,
+      hasQuery: Object.keys(query).length > 0,
+      queryKeys: Object.keys(query),
+    });
     authMachine.actor.send(sendAuthEvent.resetPassword(query));
     return;
   }
 
   const path = extractPath(deeplink);
-  console.info(`[DEEPLINK] received deeplink to: ${path}. Redirecting ...`);
+  deeplinkLogger.info('Processing general deeplink navigation', {
+    action: 'handle_deeplink_navigation',
+    deeplink,
+    extractedPath: path,
+    hasQuery: Object.keys(query).length > 0,
+    queryKeys: Object.keys(query),
+  });
   const router = useRouter();
   router.push({ path, query });
 };

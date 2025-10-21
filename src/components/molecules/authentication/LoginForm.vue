@@ -13,13 +13,19 @@ import { Input } from '@components/atoms/input';
 import { Icon } from '@iconify/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
-import { computed, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const loginLogger = createComponentLogger('LoginForm');
 
 const authMachine = useAuthMachine();
 const authStore = useAuthStore();
 const { t } = useI18n();
+
+loginLogger.debug('Initializing login form component');
 const formSchema = toTypedSchema(
   z.object({
     email: z
@@ -38,19 +44,91 @@ const formSchema = toTypedSchema(
       }),
   }),
 );
-const { handleSubmit, handleReset, isFieldDirty, meta } = useForm({
-  validationSchema: formSchema,
-});
+const { handleSubmit, handleReset, isFieldDirty, meta, errors, values } =
+  useForm({
+    validationSchema: formSchema,
+  });
 
 const handleLogin = handleSubmit(async (values) => {
-  await authStore.login({ email: values.email, password: values.password });
+  loginLogger.info('Login form submission started', {
+    action: 'form_submit',
+    email: values.email,
+    hasPassword: !!values.password,
+    formValid: meta.value.valid,
+  });
+
+  try {
+    await authStore.login({ email: values.email, password: values.password });
+    loginLogger.info('Login form submission completed', {
+      action: 'form_submit_complete',
+      email: values.email,
+    });
+  } catch (error) {
+    loginLogger.error('Login form submission failed', error as Error, {
+      action: 'form_submit_error',
+      email: values.email,
+    });
+  }
 });
 
 const isLoading = computed(() => {
   return authMachine.state.matches('form.loading');
 });
 
+// Watch for form validation errors
+watch(
+  () => errors.value,
+  (newErrors) => {
+    const errorFields = Object.keys(newErrors);
+    if (errorFields.length > 0) {
+      loginLogger.debug('Form validation errors detected', {
+        action: 'form_validation_errors',
+        errorFields,
+        errorCount: errorFields.length,
+      });
+    }
+  },
+  { deep: true },
+);
+
+// Watch for authentication errors
+watch(
+  () => authStore.authError,
+  (newError, oldError) => {
+    if (newError && newError !== oldError) {
+      loginLogger.warn('Authentication error displayed to user', {
+        action: 'auth_error_display',
+        error: newError,
+        email: values.email,
+      });
+    }
+  },
+);
+
+// Watch for loading state changes
+watch(
+  () => isLoading.value,
+  (newLoading, oldLoading) => {
+    if (newLoading !== oldLoading) {
+      loginLogger.debug('Login form loading state changed', {
+        action: 'loading_state_change',
+        isLoading: newLoading,
+        email: values.email,
+      });
+    }
+  },
+);
+
+onMounted(() => {
+  loginLogger.info('Login form component mounted', {
+    action: 'component_mounted',
+  });
+});
+
 onUnmounted(() => {
+  loginLogger.debug('Login form component unmounting', {
+    action: 'component_unmount',
+  });
   handleReset();
 });
 </script>

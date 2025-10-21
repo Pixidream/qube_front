@@ -23,6 +23,10 @@ import { useI18n } from 'vue-i18n';
 import ThemeToggle from '@components/molecules/utils/ThemeToggle.vue';
 import LanguageToggle from '@components/molecules/utils/LanguageToggle.vue';
 import { useRouter } from 'vue-router';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const navUserLogger = createComponentLogger('NavUser');
 
 const authStore = useAuthStore();
 const authMachine = useAuthMachine();
@@ -38,10 +42,20 @@ const closeSidebar = () => (isMobile.value ? setOpenMobile(false) : () => {});
 
 const handleLogout = (event: Event) => {
   event.preventDefault();
+  navUserLogger.info('User logout initiated from navigation', {
+    action: 'logout_initiated',
+    source: 'nav_user_dropdown',
+    userId: authStore.user?.id,
+  });
   authMachine.actor.send({ type: 'LOGOUT' });
 };
 
 const handleProfileClick = () => {
+  navUserLogger.info('User navigating to profile page', {
+    action: 'navigate_to_profile',
+    source: 'nav_user_dropdown',
+    userId: authStore.user?.id,
+  });
   router.push({ name: 'profile' });
   closeSidebar();
 };

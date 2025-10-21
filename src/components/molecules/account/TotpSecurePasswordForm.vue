@@ -17,6 +17,12 @@ import { useForm } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import z from 'zod';
 import { ref } from 'vue';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const totpSecurePasswordLogger = createComponentLogger(
+  'TotpSecurePasswordForm',
+);
 
 const { actor } = useTotpSecureActionMachine();
 const authStore = useAuthStore();
@@ -46,13 +52,35 @@ actor.subscribe((snapshot) => {
 });
 
 const handleVerify = handleSubmit(async (values) => {
+  totpSecurePasswordLogger.info('TOTP secure password verification submitted', {
+    action: 'form_submit',
+    context: 'secure_action',
+    actionType: actor.getSnapshot().context.actionType,
+  });
+
   actor.send({ type: 'LOADING' });
 
   const verified = await authStore.verifyPassword(values.password);
 
   actor.send({ type: 'IDLE' });
 
-  if (!verified) return;
+  if (!verified) {
+    totpSecurePasswordLogger.warn('TOTP secure password verification failed', {
+      action: 'password_verification_failed',
+      context: 'secure_action',
+      actionType: actor.getSnapshot().context.actionType,
+    });
+    return;
+  }
+
+  totpSecurePasswordLogger.info(
+    'TOTP secure password verification successful',
+    {
+      action: 'password_verification_success',
+      context: 'secure_action',
+      actionType: actor.getSnapshot().context.actionType,
+    },
+  );
 
   actor.send({ type: 'PASSWORD_VERIFIED' });
   handleReset();

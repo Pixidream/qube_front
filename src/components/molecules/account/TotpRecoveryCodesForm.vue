@@ -9,6 +9,10 @@ import { useTotpConfigurationMachine } from '@machines/totpConfiguration.machine
 import { useI18n } from 'vue-i18n';
 import { ref, computed } from 'vue';
 import { toast } from 'vue-sonner';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const totpRecoveryCodesLogger = createComponentLogger('TotpRecoveryCodesForm');
 
 const { actor } = useTotpConfigurationMachine();
 const authStore = useAuthStore();
@@ -26,18 +30,42 @@ const recoveryCodesText = computed(() => {
 });
 
 const copyToClipboard = async () => {
+  totpRecoveryCodesLogger.info('Copying TOTP recovery codes to clipboard', {
+    action: 'copy_recovery_codes',
+    context: 'totp_setup',
+    codeCount: authStore.totpRecoveryCodes.length,
+  });
+
   try {
     await navigator.clipboard.writeText(recoveryCodesText.value);
     hasCopied.value = true;
     setTimeout(() => {
       hasCopied.value = false;
     }, 2000);
+
+    totpRecoveryCodesLogger.info('TOTP recovery codes copied successfully', {
+      action: 'copy_recovery_codes_success',
+      context: 'totp_setup',
+    });
   } catch (error) {
-    console.error('Failed to copy to clipboard:', error);
+    totpRecoveryCodesLogger.error(
+      'Failed to copy recovery codes to clipboard',
+      error as Error,
+      {
+        action: 'copy_recovery_codes_failed',
+        context: 'totp_setup',
+      },
+    );
   }
 };
 
 const downloadRecoveryCodes = () => {
+  totpRecoveryCodesLogger.info('Downloading TOTP recovery codes', {
+    action: 'download_recovery_codes',
+    context: 'totp_setup',
+    codeCount: authStore.totpRecoveryCodes.length,
+  });
+
   const downloadPromise = () =>
     new Promise((resolve, reject) => {
       try {
@@ -57,10 +85,24 @@ const downloadRecoveryCodes = () => {
         setTimeout(() => {
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
+          totpRecoveryCodesLogger.info(
+            'TOTP recovery codes downloaded successfully',
+            {
+              action: 'download_recovery_codes_success',
+              context: 'totp_setup',
+            },
+          );
           resolve('Recovery codes downloaded successfully');
         }, 100);
       } catch (error) {
-        console.error('Failed to download recovery codes:', error);
+        totpRecoveryCodesLogger.error(
+          'Failed to download recovery codes',
+          error as Error,
+          {
+            action: 'download_recovery_codes_failed',
+            context: 'totp_setup',
+          },
+        );
         reject(error);
       }
     });
@@ -69,6 +111,13 @@ const downloadRecoveryCodes = () => {
     loading: t('account.security.totpRecovery.downloading'),
     success: t('account.security.totpRecovery.downloadSuccess'),
     error: () => {
+      totpRecoveryCodesLogger.warn(
+        'Download failed, falling back to clipboard copy',
+        {
+          action: 'download_fallback_to_copy',
+          context: 'totp_setup',
+        },
+      );
       // Fallback: copy to clipboard
       copyToClipboard();
       return t('account.security.totpRecovery.downloadError');
@@ -77,15 +126,42 @@ const downloadRecoveryCodes = () => {
 };
 
 const handleComplete = async () => {
+  totpRecoveryCodesLogger.info('TOTP recovery codes setup completed', {
+    action: 'totp_setup_complete',
+    context: 'totp_setup',
+    codeCount: authStore.totpRecoveryCodes.length,
+  });
+
   // Fermer le dialogue immédiatement via le store
   authStore.closeTotpDialog();
 
   // Nettoyage et rafraîchissement en arrière-plan
   setTimeout(async () => {
+    totpRecoveryCodesLogger.debug('Cleaning up TOTP setup state', {
+      action: 'cleanup_totp_setup',
+      context: 'totp_setup',
+    });
+
     authStore.clearTotpRecoveryCodes();
     actor.send({ type: 'RESET' });
+
     // Rafraîchir les données utilisateur pour voir le TOTP activé
-    await authStore.me();
+    try {
+      await authStore.me();
+      totpRecoveryCodesLogger.info('User profile refreshed after TOTP setup', {
+        action: 'profile_refresh_success',
+        context: 'totp_setup',
+      });
+    } catch (error) {
+      totpRecoveryCodesLogger.error(
+        'Failed to refresh user profile after TOTP setup',
+        error as Error,
+        {
+          action: 'profile_refresh_failed',
+          context: 'totp_setup',
+        },
+      );
+    }
   }, 100);
 };
 </script>

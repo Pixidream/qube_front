@@ -8,6 +8,10 @@ import { readFile } from '@tauri-apps/plugin-fs';
 import { useAuthStore } from '@/stores/auth.stores';
 import { platform } from '@tauri-apps/plugin-os';
 import { Skeleton } from '@components/atoms/skeleton';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const avatarEditorLogger = createComponentLogger('AvatarEditor');
 
 const props = defineProps<{
   src: string;
@@ -24,7 +28,21 @@ const authStore = useAuthStore();
 onChange(async (files) => {
   const file = files?.item(0);
 
-  if (!file) return;
+  if (!file) {
+    avatarEditorLogger.warn('No file selected in web file dialog', {
+      action: 'file_selection_cancelled',
+      platform: 'web',
+    });
+    return;
+  }
+
+  avatarEditorLogger.info('Avatar file selected via web dialog', {
+    action: 'avatar_file_selected',
+    platform: 'web',
+    fileName: file.name,
+    fileSize: file.size,
+    fileType: file.type,
+  });
 
   await authStore.updateProfile({
     profile_picture: file,
@@ -34,38 +52,83 @@ onChange(async (files) => {
 });
 
 const handleFileUploadWeb = () => {
+  avatarEditorLogger.debug('Opening web file dialog for avatar upload', {
+    action: 'open_file_dialog',
+    platform: 'web',
+  });
   webOpen();
 };
 
 const handleFileUploadTauri = async () => {
+  avatarEditorLogger.debug('Opening Tauri file dialog for avatar upload', {
+    action: 'open_file_dialog',
+    platform: 'tauri',
+  });
+
   const selection = await tauriOpen({
     multiple: false,
     directory: false,
     filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg'] }],
   });
 
-  if (!selection) return;
+  if (!selection) {
+    avatarEditorLogger.warn('No file selected in Tauri file dialog', {
+      action: 'file_selection_cancelled',
+      platform: 'tauri',
+    });
+    return;
+  }
 
   const filePath = Array.isArray(selection) ? selection[0] : selection;
-  const fileChunks = await readFile(filePath);
 
-  const filename = filePath.split(/[\\/]/).pop() || 'upload';
-  const ext = filename.split('.').pop()?.toLowerCase();
-  const mime =
-    ext === 'png' ? 'image/png'
-    : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
-    : 'application/octet-stream';
-
-  const file = new File([fileChunks], filename, { type: mime });
-
-  await authStore.updateProfile({
-    profile_picture: file,
-    id: authStore.user?.id,
-    platform: platform(),
+  avatarEditorLogger.info('Avatar file selected via Tauri dialog', {
+    action: 'avatar_file_selected',
+    platform: 'tauri',
+    filePath: filePath.split(/[\\/]/).pop(), // Only log filename for privacy
   });
+
+  try {
+    const fileChunks = await readFile(filePath);
+
+    const filename = filePath.split(/[\\/]/).pop() || 'upload';
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const mime =
+      ext === 'png' ? 'image/png'
+      : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
+      : 'application/octet-stream';
+
+    const file = new File([fileChunks], filename, { type: mime });
+
+    avatarEditorLogger.info('Avatar file processed successfully', {
+      action: 'file_processed',
+      platform: 'tauri',
+      fileName: filename,
+      fileSize: file.size,
+      mimeType: mime,
+    });
+
+    await authStore.updateProfile({
+      profile_picture: file,
+      id: authStore.user?.id,
+      platform: platform(),
+    });
+  } catch (error) {
+    avatarEditorLogger.error('Failed to process avatar file', error as Error, {
+      action: 'file_processing_failed',
+      platform: 'tauri',
+      filePath: filePath.split(/[\\/]/).pop(),
+    });
+  }
 };
 
 const handleFileUpload = () => {
+  const platform = isTauri() ? 'tauri' : 'web';
+
+  avatarEditorLogger.info('Avatar upload initiated', {
+    action: 'avatar_upload_start',
+    platform,
+  });
+
   if (!isTauri()) return handleFileUploadWeb();
   handleFileUploadTauri();
 };

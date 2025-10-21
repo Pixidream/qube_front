@@ -6,9 +6,12 @@ import {
   readonly,
   ref,
 } from 'vue';
+import { logger } from '@/utils/logger';
 
 export type DeviceClass = 'phone' | 'tablet' | 'desktop' | 'unknown';
 export type RuntimeEnvironment = 'tauri' | 'web';
+
+const deviceLogger = logger.child({ composable: 'device' });
 
 interface CapabilitySignals {
   anyPointerCoarse: boolean;
@@ -30,6 +33,10 @@ interface CapabilitySignals {
  * Uses feature detection instead of unreliable user-agent parsing
  */
 function readCapabilities(): CapabilitySignals {
+  deviceLogger.trace('Reading device capabilities', {
+    action: 'read_capabilities_start',
+  });
+
   // Helper for media query matching
   const mm = (q: string) => window.matchMedia?.(q).matches ?? false;
 
@@ -83,7 +90,7 @@ function readCapabilities(): CapabilitySignals {
     }
   })();
 
-  return {
+  const capabilities = {
     // Media queries for input capabilities - most reliable indicators
     anyPointerCoarse: mm('(any-pointer: coarse)'), // Touch/stylus primary input
     anyHoverNone: mm('(any-hover: none)'), // Cannot hover over elements
@@ -110,6 +117,25 @@ function readCapabilities(): CapabilitySignals {
     supportsSafeAreaEnv,
     userAgentData,
   };
+
+  deviceLogger.debug('Device capabilities detected', {
+    action: 'read_capabilities_complete',
+    capabilities: {
+      anyPointerCoarse: capabilities.anyPointerCoarse,
+      anyHoverNone: capabilities.anyHoverNone,
+      maxTouchPoints: capabilities.maxTouchPoints,
+      viewportShorterEdge: capabilities.viewportShorterEdge,
+      standaloneDisplayMode: capabilities.standaloneDisplayMode,
+      hasOrientationAPI: capabilities.hasOrientationAPI,
+      hasScreenOrientation: capabilities.hasScreenOrientation,
+      hasVirtualKeyboardAPI: capabilities.hasVirtualKeyboardAPI,
+      hasNetworkInfo: capabilities.hasNetworkInfo,
+      supportsSafeAreaEnv: capabilities.supportsSafeAreaEnv,
+      userAgentData: capabilities.userAgentData,
+    },
+  });
+
+  return capabilities;
 }
 
 /**
@@ -117,6 +143,16 @@ function readCapabilities(): CapabilitySignals {
  * Uses weighted scoring system - higher scores indicate stronger evidence
  */
 function classifyDevice(signals: CapabilitySignals) {
+  deviceLogger.trace('Starting device classification', {
+    action: 'classify_device_start',
+    inputSignals: {
+      anyPointerCoarse: signals.anyPointerCoarse,
+      anyHoverNone: signals.anyHoverNone,
+      maxTouchPoints: signals.maxTouchPoints,
+      viewportShorterEdge: signals.viewportShorterEdge,
+    },
+  });
+
   let scoreMobile = 0;
   let scoreTablet = 0;
   let scoreDesktop = 0;
@@ -213,6 +249,19 @@ function classifyDevice(signals: CapabilitySignals) {
   const totalScore = scoreMobile + scoreTablet + scoreDesktop;
   const confidence = totalScore > 0 ? Math.min(1, maxScore / totalScore) : 0;
 
+  deviceLogger.info('Device classification completed', {
+    action: 'classify_device_complete',
+    result: {
+      device,
+      confidence: Math.round(confidence * 100) / 100,
+      scores: {
+        mobile: Math.round(scoreMobile * 100) / 100,
+        tablet: Math.round(scoreTablet * 100) / 100,
+        desktop: Math.round(scoreDesktop * 100) / 100,
+      },
+    },
+  });
+
   return { device, confidence };
 }
 
@@ -222,6 +271,10 @@ function classifyDevice(signals: CapabilitySignals) {
  */
 
 export function useDeviceDetection() {
+  deviceLogger.debug('Initializing device detection composable', {
+    action: 'device_detection_init',
+  });
+
   // Reactive state for device capabilities - updates automatically
   const signals = ref<CapabilitySignals>(readCapabilities());
   const classification = computed(() => classifyDevice(signals.value));
@@ -252,6 +305,10 @@ export function useDeviceDetection() {
 
   // Re-read capabilities when environment changes
   const updateSignals = () => {
+    deviceLogger.debug('Updating device signals due to environment change', {
+      action: 'update_signals',
+      trigger: 'manual_or_event',
+    });
     signals.value = readCapabilities();
   };
 
@@ -260,6 +317,10 @@ export function useDeviceDetection() {
 
   if (getCurrentInstance()) {
     onMounted(() => {
+      deviceLogger.info('Setting up device detection event listeners', {
+        action: 'event_listeners_setup',
+      });
+
       // Watch for changes in key media queries that affect device classification
       const queries = [
         '(any-pointer: coarse)', // Primary input method changes
@@ -269,18 +330,48 @@ export function useDeviceDetection() {
 
       mediaQueries = queries.map((query) => {
         const mq = window.matchMedia(query);
-        const handler = () => updateSignals();
+        const handler = () => {
+          deviceLogger.debug('Media query changed, updating signals', {
+            action: 'media_query_change',
+            query,
+            matches: mq.matches,
+          });
+          updateSignals();
+        };
 
         mq.addEventListener('change', handler);
         return mq;
       });
 
       // Listen for viewport and orientation changes
-      window.addEventListener('resize', updateSignals);
-      window.addEventListener('orientationchange', updateSignals);
+      const resizeHandler = () => {
+        deviceLogger.debug('Viewport resize detected', {
+          action: 'viewport_resize',
+          newDimensions: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          },
+        });
+        updateSignals();
+      };
+
+      const orientationHandler = () => {
+        deviceLogger.debug('Orientation change detected', {
+          action: 'orientation_change',
+          orientation: (screen as any).orientation?.type || 'unknown',
+        });
+        updateSignals();
+      };
+
+      window.addEventListener('resize', resizeHandler);
+      window.addEventListener('orientationchange', orientationHandler);
     });
 
     onUnmounted(() => {
+      deviceLogger.debug('Cleaning up device detection event listeners', {
+        action: 'event_listeners_cleanup',
+      });
+
       // Clean up all event listeners to prevent memory leaks
       mediaQueries.forEach((mq) => {
         const handler = updateSignals;

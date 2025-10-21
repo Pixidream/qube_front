@@ -7,6 +7,10 @@ import { type SupportedLocale, localeNames, icons, locale } from '@i18n/index';
 import dayjs from '@/plugins/dayjs.plugin';
 import fr from 'dayjs/locale/fr';
 import en from 'dayjs/locale/en';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const languageToggleLogger = createComponentLogger('LanguageToggle');
 
 const { locale: i18nLocale } = useI18n<{ locale: SupportedLocale }>();
 
@@ -15,6 +19,8 @@ const getIconName = computed<string>(
 );
 
 const toggleLanguage = () => {
+  const previousLocale = locale.value;
+
   if (locale.value === 'en') {
     locale.value = 'fr';
     i18nLocale.value = 'fr';
@@ -24,6 +30,13 @@ const toggleLanguage = () => {
     i18nLocale.value = 'en';
     dayjs.locale(en);
   }
+
+  languageToggleLogger.info('Language changed by user', {
+    action: 'language_toggle',
+    from: previousLocale,
+    to: locale.value,
+    source: 'language_toggle_component',
+  });
 };
 </script>
 <template>

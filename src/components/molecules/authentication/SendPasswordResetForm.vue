@@ -17,6 +17,10 @@ import { computed, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { toast } from 'vue-sonner';
 import * as z from 'zod';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const sendPasswordResetLogger = createComponentLogger('SendPasswordResetForm');
 
 const authMachine = useAuthMachine();
 const authStore = useAuthStore();
@@ -38,9 +42,25 @@ const { handleSubmit, handleReset, isFieldDirty, meta } = useForm({
 });
 
 const handleLogin = handleSubmit(async (values) => {
+  sendPasswordResetLogger.info('Password reset email request submitted', {
+    action: 'form_submit',
+    email: values.email,
+  });
+
   const success = await authStore.sendResetPassword(values.email);
 
-  if (!success) return;
+  if (!success) {
+    sendPasswordResetLogger.warn('Password reset email request failed', {
+      action: 'send_reset_failed',
+      email: values.email,
+    });
+    return;
+  }
+
+  sendPasswordResetLogger.info('Password reset email sent successfully', {
+    action: 'send_reset_success',
+    email: values.email,
+  });
 
   toast(t('auth.sendResetPassword.toast.title'), {
     description: t('auth.sendResetPassword.toast.description'),
@@ -52,6 +72,9 @@ const isLoading = computed(() => {
 });
 
 onUnmounted(() => {
+  sendPasswordResetLogger.debug('Send password reset form unmounted', {
+    action: 'component_unmounted',
+  });
   handleReset();
 });
 </script>

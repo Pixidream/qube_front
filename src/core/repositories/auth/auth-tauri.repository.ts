@@ -29,17 +29,34 @@ import type { User } from '@core/types/user';
 import { platform } from '@tauri-apps/plugin-os';
 import type { AuthenticationRepository } from './auth.repository';
 import { AllowedContentType } from '@/core/types/request';
+import { createServiceLogger } from '@/utils/logger';
+
+const tauriRepoLogger = createServiceLogger('TauriAuthRepository');
 
 const _postRequest = async <T, Y>(
   path: string,
   body: Y,
   contentType: AllowedContentType = 'application/json',
 ): Promise<ApiResponse<T>> => {
+  tauriRepoLogger.debug('Executing POST request', {
+    action: 'post_request_start',
+    path,
+    contentType,
+    hasBody: !!body,
+  });
+
   const { execute, data, error, response } = useFetchTauri(path)
     .post(body, contentType)
     .json<SuccessResponse<T>>();
 
   await execute();
+
+  tauriRepoLogger.debug('POST request completed', {
+    action: 'post_request_complete',
+    path,
+    success: !error.value,
+    status: response.value?.status,
+  });
 
   return { data, error, response };
 };
@@ -49,21 +66,47 @@ const _patchRequest = async <T, Y>(
   body: Y,
   contentType: AllowedContentType = 'application/json',
 ): Promise<ApiResponse<T>> => {
+  tauriRepoLogger.debug('Executing PATCH request', {
+    action: 'patch_request_start',
+    path,
+    contentType,
+    hasBody: !!body,
+  });
+
   const { execute, data, error, response } = useFetchTauri(path)
     .patch(body, contentType)
     .json<SuccessResponse<T>>();
 
   await execute();
 
+  tauriRepoLogger.debug('PATCH request completed', {
+    action: 'patch_request_complete',
+    path,
+    success: !error.value,
+    status: response.value?.status,
+  });
+
   return { data, error, response };
 };
 
 const _getRequest = async <T>(path: string): Promise<ApiResponse<T>> => {
+  tauriRepoLogger.debug('Executing GET request', {
+    action: 'get_request_start',
+    path,
+  });
+
   const { execute, data, error, response } = useFetchTauri(path)
     .get()
     .json<SuccessResponse<T>>();
 
   await execute();
+
+  tauriRepoLogger.debug('GET request completed', {
+    action: 'get_request_complete',
+    path,
+    success: !error.value,
+    status: response.value?.status,
+  });
 
   return { data, error, response };
 };

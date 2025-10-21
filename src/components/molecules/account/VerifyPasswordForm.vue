@@ -17,6 +17,10 @@ import { useForm } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import z from 'zod';
 import { ref } from 'vue';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const verifyPasswordLogger = createComponentLogger('VerifyPasswordForm');
 
 const { actor } = useTotpConfigurationMachine();
 const authStore = useAuthStore();
@@ -43,9 +47,25 @@ actor.subscribe((snapshot) => {
 });
 
 const handleVerify = handleSubmit(async (values) => {
+  verifyPasswordLogger.info('Password verification form submitted', {
+    action: 'form_submit',
+    context: 'totp_configuration',
+  });
+
   const verified = await authStore.verifyPassword(values.password);
 
-  if (!verified) return;
+  if (!verified) {
+    verifyPasswordLogger.warn('Password verification failed', {
+      action: 'password_verification_failed',
+      context: 'totp_configuration',
+    });
+    return;
+  }
+
+  verifyPasswordLogger.info('Password verification successful', {
+    action: 'password_verification_success',
+    context: 'totp_configuration',
+  });
 
   actor.send({ type: 'TOTP_CONFIG' });
   handleReset();

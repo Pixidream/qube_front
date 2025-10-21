@@ -25,6 +25,10 @@ import { useI18n } from 'vue-i18n';
 import z from 'zod';
 import { ref } from 'vue';
 import { onMounted, watch } from 'vue';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const totpConfigFormLogger = createComponentLogger('TotpConfigurationForm');
 
 const { actor } = useTotpConfigurationMachine();
 const authStore = useAuthStore();
@@ -58,12 +62,34 @@ actor.subscribe((snapshot) => {
 });
 
 const loadQrCode = async () => {
+  totpConfigFormLogger.info('Loading TOTP QR code', {
+    action: 'load_qr_code',
+    context: 'totp_setup',
+  });
+
   isLoadingQrCode.value = true;
   qrCode.value = null;
 
   try {
     const res = await authStore.askForTotp();
     qrCode.value = res?.qr_code ?? null;
+
+    if (qrCode.value) {
+      totpConfigFormLogger.info('TOTP QR code loaded successfully', {
+        action: 'qr_code_loaded',
+        context: 'totp_setup',
+      });
+    } else {
+      totpConfigFormLogger.warn('No QR code received from server', {
+        action: 'qr_code_missing',
+        context: 'totp_setup',
+      });
+    }
+  } catch (error) {
+    totpConfigFormLogger.error('Failed to load TOTP QR code', error as Error, {
+      action: 'qr_code_load_failed',
+      context: 'totp_setup',
+    });
   } finally {
     isLoadingQrCode.value = false;
   }
@@ -71,9 +97,30 @@ const loadQrCode = async () => {
 
 const handleSetup = handleSubmit(async (values) => {
   const totp = values.totp.join('');
+
+  totpConfigFormLogger.info('TOTP configuration form submitted', {
+    action: 'form_submit',
+    context: 'totp_setup',
+    codeLength: totp.length,
+  });
+
   const success = await authStore.setupTotp(totp);
 
-  if (!success) return;
+  if (!success) {
+    totpConfigFormLogger.warn('TOTP setup failed', {
+      action: 'totp_setup_failed',
+      context: 'totp_setup',
+    });
+    return;
+  }
+
+  totpConfigFormLogger.info(
+    'TOTP setup successful, proceeding to recovery codes',
+    {
+      action: 'totp_setup_success',
+      context: 'totp_setup',
+    },
+  );
 
   actor.send({ type: 'SHOW_RECOVERY_CODES' });
   handleReset();
@@ -84,12 +131,21 @@ watch(
   () => values.totp,
   (newValue) => {
     if (newValue && newValue.length === TOTP_LENGTH && meta.value.valid) {
+      totpConfigFormLogger.debug('TOTP code complete, auto-submitting', {
+        action: 'auto_submit',
+        context: 'totp_setup',
+        codeLength: newValue.length,
+      });
       handleSetup();
     }
   },
 );
 
 onMounted(() => {
+  totpConfigFormLogger.debug('TOTP configuration form mounted', {
+    action: 'component_mounted',
+    context: 'totp_setup',
+  });
   loadQrCode();
 });
 </script>

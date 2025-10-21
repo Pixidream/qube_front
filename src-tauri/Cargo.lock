@@ -3273,6 +3273,7 @@ dependencies = [
 name = "qube"
 version = "0.1.1"
 dependencies = [
+ "log",
  "serde",
  "serde_json",
  "tauri",

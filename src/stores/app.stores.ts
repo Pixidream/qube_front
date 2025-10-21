@@ -3,6 +3,7 @@ import { MIN_EXEC_TIME_MS } from '@/core/constants/auth.constants';
 import { i18n } from '@/i18n';
 import { useAuthMachine } from '@/machines/auth.machine';
 import { useAppRefresh } from '@/utils/refresh.util';
+import { createStoreLogger } from '@/utils/logger';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -15,9 +16,13 @@ export const useAppStore = defineStore('appState', () => {
   // ------ Setup ------
   const { t } = i18n.global;
   const { refresh, isTauriDesktop, isTauri } = useAppRefresh();
+  const appLogger = createStoreLogger('AppStore');
 
   // ------ Helpers ------
   const _resetUpdater = () => {
+    appLogger.debug('Resetting updater state', {
+      action: 'reset_updater',
+    });
     isAppInitialized.value = false;
     checkingUpdate.value = false;
     downloadingUpdate.value = false;
@@ -27,18 +32,35 @@ export const useAppStore = defineStore('appState', () => {
 
   const _runInitUpdater = async (): Promise<boolean> => {
     // if (import.meta.env.DEV) return true;
-    if (!isTauriDesktop) return true; // don't need to check for updated on web
+    if (!isTauriDesktop) {
+      appLogger.debug('Skipping updater - not a Tauri desktop environment', {
+        action: 'skip_updater',
+        environment: 'web',
+      });
+      return true;
+    }
 
     try {
+      appLogger.info('Starting application update check', {
+        action: 'update_check_start',
+      });
       checkingUpdate.value = true;
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const update = await check();
       checkingUpdate.value = false;
 
       if (!update) {
+        appLogger.info('No updates available', {
+          action: 'update_check_complete',
+          hasUpdate: false,
+        });
         return true;
       }
 
+      appLogger.info('Update found - starting download', {
+        action: 'update_download_start',
+        hasUpdate: true,
+      });
       downloadingUpdate.value = true;
 
       await update.downloadAndInstall((event) => {
@@ -46,20 +68,44 @@ export const useAppStore = defineStore('appState', () => {
           case 'Started':
             downloadUpdateData.value.contentLength =
               event.data.contentLength ?? 0;
+            appLogger.debug('Update download started', {
+              action: 'update_download_started',
+              contentLength: event.data.contentLength,
+            });
             break;
-          case 'Progress':
+          case 'Progress': {
             downloadUpdateData.value.downloaded += event.data.chunkLength;
+            const progress =
+              (downloadUpdateData.value.downloaded
+                / downloadUpdateData.value.contentLength)
+              * 100;
+            appLogger.trace('Update download progress', {
+              action: 'update_download_progress',
+              downloaded: downloadUpdateData.value.downloaded,
+              total: downloadUpdateData.value.contentLength,
+              progress: Math.round(progress),
+            });
             break;
+          }
           case 'Finished':
             downloadingUpdate.value = false;
             installingUpdate.value = true;
+            appLogger.info('Update download finished - starting installation', {
+              action: 'update_install_start',
+            });
         }
       });
 
       installingUpdate.value = false;
+      appLogger.info('Update installation complete - relaunching application', {
+        action: 'update_relaunch',
+      });
       await relaunch();
       return true;
-    } catch {
+    } catch (error) {
+      appLogger.error('Update process failed', error as Error, {
+        action: 'update_error',
+      });
       return false;
     } finally {
       _resetUpdater();
@@ -67,12 +113,23 @@ export const useAppStore = defineStore('appState', () => {
   };
 
   const _verifyAuth = async (): Promise<boolean> => {
+    appLogger.debug('Starting authentication verification', {
+      action: 'auth_verify_start',
+    });
+
     try {
       const authStore = useAuthStore();
       await authStore.me();
+      appLogger.info('Authentication verification successful', {
+        action: 'auth_verify_success',
+        hasUser: !!authStore.user,
+      });
       return true;
     } catch (error) {
-      console.error('Auth verification failed:', error);
+      appLogger.warn('Authentication verification failed', {
+        action: 'auth_verify_failed',
+        error: (error as Error).message,
+      });
       return false;
     }
   };
@@ -86,12 +143,32 @@ export const useAppStore = defineStore('appState', () => {
   ): Promise<boolean> => {
     const { maxRetries, retryDelayMs } = APP_CONFIG.initialization;
 
-    for (const step of steps) {
+    appLogger.info('Starting initialization steps execution', {
+      action: 'init_steps_start',
+      stepCount: steps.length,
+      maxRetries,
+    });
+
+    for (let stepIndex = 0; stepIndex < steps.length; stepIndex++) {
+      const step = steps[stepIndex];
       let attempts = 0;
       let success = false;
 
+      appLogger.debug(`Executing initialization step ${stepIndex + 1}`, {
+        action: 'init_step_start',
+        stepIndex: stepIndex + 1,
+        totalSteps: steps.length,
+      });
+
       while (attempts <= maxRetries && !success) {
         if (attempts > 0) {
+          appLogger.warn(`Retrying initialization step ${stepIndex + 1}`, {
+            action: 'init_step_retry',
+            stepIndex: stepIndex + 1,
+            attempt: attempts,
+            maxRetries,
+          });
+
           toast.info(
             t('app.initialization.retryMessage', {
               count: attempts,
@@ -105,14 +182,45 @@ export const useAppStore = defineStore('appState', () => {
         try {
           success = await step();
           attempts++;
+
+          if (success) {
+            appLogger.info(
+              `Initialization step ${stepIndex + 1} completed successfully`,
+              {
+                action: 'init_step_success',
+                stepIndex: stepIndex + 1,
+                attempts,
+              },
+            );
+          }
         } catch (error) {
-          console.error(`Init step failed (attempt ${attempts + 1}):`, error);
+          appLogger.error(
+            `Initialization step ${stepIndex + 1} failed`,
+            error as Error,
+            {
+              action: 'init_step_failed',
+              stepIndex: stepIndex + 1,
+              attempt: attempts + 1,
+              maxRetries,
+            },
+          );
           attempts++;
           success = false;
         }
       }
 
       if (!success) {
+        appLogger.error(
+          `Initialization step ${stepIndex + 1} failed after maximum retries`,
+          undefined,
+          {
+            action: 'init_step_max_retries_exceeded',
+            stepIndex: stepIndex + 1,
+            maxRetries,
+            attempts,
+          },
+        );
+
         const refreshLabel =
           isTauri ?
             t('app.initialization.restartButton')
@@ -134,6 +242,10 @@ export const useAppStore = defineStore('appState', () => {
       }
     }
 
+    appLogger.info('All initialization steps completed successfully', {
+      action: 'init_steps_complete',
+      stepCount: steps.length,
+    });
     return true;
   };
 
@@ -171,24 +283,55 @@ export const useAppStore = defineStore('appState', () => {
 
   // ------ Actions ------
   const initApp = async (): Promise<boolean> => {
+    appLogger.info('Starting application initialization', {
+      action: 'app_init_start',
+      environment: isTauri ? 'tauri' : 'web',
+    });
+
     isAppInitialized.value = false;
 
     try {
       // Execute all initialization steps (in declared order) with retry logic
-      const success = await executeInitSteps(_runInitUpdater, _verifyAuth);
+      const success = await appLogger.measure(
+        'App initialization',
+        async () => executeInitSteps(_runInitUpdater, _verifyAuth),
+        { action: 'app_init_execution' },
+      );
 
       if (success) {
-        if (useAuthStore().user) {
+        const authStore = useAuthStore();
+        if (authStore.user) {
+          appLogger.info('Restoring user session', {
+            action: 'session_restore',
+            userId: authStore.user.id,
+          });
           useAuthMachine().actor.send({ type: 'RESTORE_SESSION' });
         }
+
         // Ensure minimum execution time for UX
+        appLogger.debug('Applying minimum execution time for UX', {
+          action: 'min_exec_time',
+          duration: MIN_EXEC_TIME_MS,
+        });
         await _delay(MIN_EXEC_TIME_MS);
+
         isAppInitialized.value = true;
+        appLogger.info('Application initialization completed successfully', {
+          action: 'app_init_success',
+          hasUser: !!authStore.user,
+        });
       }
 
       return success;
     } catch (error) {
-      console.error('App initialization failed:', error);
+      appLogger.error(
+        'Application initialization failed catastrophically',
+        error as Error,
+        {
+          action: 'app_init_catastrophic_failure',
+        },
+      );
+
       const refreshLabel =
         isTauri ?
           t('app.initialization.restartButton')

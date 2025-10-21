@@ -7,7 +7,11 @@ import { useAuthStore } from '@/stores/auth.stores';
 import { useI18n } from 'vue-i18n';
 import dayjs from '@/plugins/dayjs.plugin';
 import AvatarEditor from '@components/molecules/account/AvatarEditor.vue';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
+import { createComponentLogger } from '@/utils/logger';
+
+// Create component-specific logger
+const profileCardLogger = createComponentLogger('ProfileCard');
 
 const authStore = useAuthStore();
 const { t, locale } = useI18n();
@@ -17,6 +21,15 @@ const getFormatedDate = computed<string>(() => {
   // eslint-disable-next-line
   const _loc = locale.value;
   return dayjs(authStore.user?.email_verified).format('DD MMMM YYYY');
+});
+
+onMounted(() => {
+  profileCardLogger.debug('Profile card mounted', {
+    action: 'component_mounted',
+    hasUser: !!authStore.user,
+    userId: authStore.user?.id,
+    displayName: authStore.getDisplayName,
+  });
 });
 </script>
 <template>

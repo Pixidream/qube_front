@@ -19,6 +19,7 @@ import { useTotpConfigurationMachine } from '@/machines/totpConfiguration.machin
 import { toast } from 'vue-sonner';
 import { platform } from '@tauri-apps/plugin-os';
 import { isTauri } from '@tauri-apps/api/core';
+import { createStoreLogger } from '@/utils/logger';
 
 export const useAuthStore = defineStore('auth', () => {
   // ------ Setup ------
@@ -26,13 +27,27 @@ export const useAuthStore = defineStore('auth', () => {
   const totpConfigurationMachine = useTotpConfigurationMachine();
   const authService = useAuthService();
   const { t } = i18n.global;
+  const authLogger = createStoreLogger('AuthStore');
 
   // ------ Helpers ------
   const handleAuthenticationResponse = async (res: {
     data: ShallowRef<SuccessResponse<AuthenticationResponse> | null>;
     error: ShallowRef<any>;
   }) => {
+    authLogger.debug('Processing authentication response', {
+      action: 'auth_response_process',
+      hasError: !!res.error.value,
+      hasData: !!res.data.value,
+    });
+
     if (res.error.value) {
+      authLogger.error(
+        'Authentication response contains error',
+        res.error.value,
+        {
+          action: 'auth_response_error',
+        },
+      );
       authError.value = t('auth.networkError');
       return;
     }
@@ -40,19 +55,42 @@ export const useAuthStore = defineStore('auth', () => {
     const _user = res.data.value?.data.user;
 
     if (_user === undefined) {
+      authLogger.warn('Authentication response missing user data', {
+        action: 'auth_response_missing_user',
+        hasData: !!res.data.value,
+      });
       authError.value = t('auth.networkError');
       return;
     }
 
     if (_user.profile_picture) {
+      authLogger.debug('Loading user profile picture', {
+        action: 'profile_picture_load',
+        userId: _user.id,
+        filename: _user.profile_picture,
+      });
       try {
         _user.profile_picture = await getUserFile(_user.profile_picture);
+        authLogger.debug('Profile picture loaded successfully', {
+          action: 'profile_picture_loaded',
+          userId: _user.id,
+        });
       } catch (err) {
-        console.error(err);
+        authLogger.error('Failed to load profile picture', err as Error, {
+          action: 'profile_picture_error',
+          userId: _user.id,
+        });
       }
     }
 
     user.value = _user;
+    authLogger.info('User authenticated successfully', {
+      action: 'user_authenticated',
+      userId: _user.id,
+      email: _user.email,
+      hasProfilePicture: !!_user.profile_picture,
+      isEmailVerified: _user.email_verified,
+    });
 
     // Clear shortTTLToken after successful authentication
     shortTTLToken.value = null;
@@ -106,12 +144,23 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ------ Actions ------
   const getUserFile = async (filename: string): Promise<string> => {
+    authLogger.debug('Fetching user file', {
+      action: 'get_user_file',
+      filename,
+    });
     authError.value = null;
 
     return authService
       .getUserFile({ filename })
       .then((res) => {
         if (res.response.value?.status === 401) {
+          authLogger.warn(
+            'User file request unauthorized - clearing user session',
+            {
+              action: 'get_user_file_unauthorized',
+              filename,
+            },
+          );
           user.value = null;
           return filename;
         }
@@ -131,19 +180,43 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (credentials: Credentials): Promise<void> => {
     authError.value = null;
+
+    authLogger.info('Starting user login', {
+      action: 'login_start',
+      email: credentials.email,
+      hasPassword: !!credentials.password,
+    });
+
     authMachine.actor.send({ type: 'LOADING' });
     await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
     authService
       .login(credentials)
       .then((res) => {
         if (res.error.value) {
           if (res.response.value?.status === 401) {
+            authLogger.warn('Login failed - invalid credentials', {
+              action: 'login_invalid_credentials',
+              email: credentials.email,
+              status: 401,
+            });
             authError.value = t('auth.login.form.validation.invalidCreds');
           } else {
+            authLogger.error('Login failed - network error', res.error.value, {
+              action: 'login_network_error',
+              email: credentials.email,
+              status: res.response.value?.status,
+            });
             authError.value = t('auth.networkError');
           }
           return;
         }
+
+        authLogger.debug('Login response received - processing token', {
+          action: 'login_token_received',
+          email: credentials.email,
+          hasToken: !!res.data.value?.data.token,
+        });
 
         shortTTLToken.value = res.data.value?.data.token ?? null;
 
