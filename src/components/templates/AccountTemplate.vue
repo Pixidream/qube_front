@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import ProfileCard from '@components/organisms/account/ProfileCard.vue';
+import ProfileHeaderCard from '@components/organisms/account/ProfileHeaderCard.vue';
 import {
   Tabs,
   TabsContent,
@@ -23,7 +23,7 @@ const handleTrigger = (routeName: RouteRecordNameGeneric) => {
 </script>
 <template>
   <div class="container mx-auto space-y-6 px-4 py-10">
-    <ProfileCard />
+    <ProfileHeaderCard />
     <div>
       <Tabs :model-value="currentTab as string" class="w-full">
         <TabsList class="w-full">

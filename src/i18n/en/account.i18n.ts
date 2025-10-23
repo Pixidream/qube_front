@@ -117,6 +117,10 @@ export default {
         'For security reasons, you will be logged out to use your new password',
     },
   },
+  profile: {
+    title: 'Personal Information',
+    subtitle: 'Update your personal details and profile information.',
+  },
   common: {
     cancel: 'Cancel',
     retry: 'Try Again',

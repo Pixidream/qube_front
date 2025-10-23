@@ -122,6 +122,10 @@ export default {
         'Pour des raisons de sécurité, vous serez déconnecté pour utiliser votre nouveau mot de passe',
     },
   },
+  profile: {
+    title: 'Informations personnelles',
+    subtitle: 'Mettez à jour vos informations personnelles et votre profil.',
+  },
   common: {
     cancel: 'Annuler',
     retry: 'Réessayer',
