@@ -21,7 +21,6 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_os::init());
 
     info!("Initializing Tauri application builder");
@@ -30,10 +29,12 @@ pub fn run() {
     #[cfg(desktop)]
     {
         debug!("Loading desktop-specific plugins: single-instance");
-        builder = builder.plugin(tauri_plugin_single_instance::init(|_app, argv, _cwd| {
-            info!("New app instance detected with arguments: {:?}", argv);
-            warn!("Deep link event was already triggered for this instance");
-        }));
+        builder = builder
+            .plugin(tauri_plugin_single_instance::init(|_app, argv, _cwd| {
+                info!("New app instance detected with arguments: {:?}", argv);
+                warn!("Deep link event was already triggered for this instance");
+            }))
+            .plugin(tauri_plugin_updater::Builder::new().build());
     }
 
     debug!("Loading additional plugins: deep-link, http, opener");
