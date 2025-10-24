@@ -9,6 +9,7 @@ import {
   RegenerateRecoveryCodesResponse,
   SetupTotpBody,
   SetupTotpResponse,
+  SignupResponse,
   UpdateUserBody,
   UpdateUserResponse,
   VerifyRecoveryCodeBody,
@@ -226,7 +227,7 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
     login: async (credentials: Credentials) => {
       webRepoLogger.info('Attempting user login', {
         action: 'login',
-        email: credentials.email, // Email is not sensitive for logging
+        email: credentials.email,
       });
 
       const result = await _postRequest<LoginResponse, Credentials>(
@@ -242,6 +243,32 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
       } else {
         webRepoLogger.info('Login successful', {
           action: 'login_success',
+          email: credentials.email,
+        });
+      }
+
+      return result;
+    },
+
+    signup: async (credentials: Credentials) => {
+      webRepoLogger.info('Attempting user signup', {
+        action: 'signup',
+        email: credentials.email,
+      });
+
+      const result = await _postRequest<SignupResponse, Credentials>(
+        '/auth/signup',
+        credentials,
+      );
+
+      if (result.error.value) {
+        webRepoLogger.warn('Signup attempt failed', {
+          action: 'signup_failed',
+          email: credentials.email,
+        });
+      } else {
+        webRepoLogger.info('Signup successful', {
+          action: 'signup_success',
           email: credentials.email,
         });
       }

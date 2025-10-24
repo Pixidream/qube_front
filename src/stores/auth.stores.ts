@@ -275,6 +275,56 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
+  const signUp = async (credentials: Credentials): Promise<void> => {
+    authError.value = null;
+
+    authLogger.info('Starting user signup', {
+      action: 'signup_start',
+      email: credentials.email,
+      hasPassword: !!credentials.password,
+    });
+
+    authMachine.actor.send({ type: 'LOADING' });
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    authService
+      .signup(credentials)
+      .then((res) => {
+        if (res.error.value) {
+          if (res.response.value?.status === 409) {
+            authLogger.warn('Signup failed - conflicting credentials', {
+              action: 'signup_conflicting_credentials',
+              email: credentials.email,
+              status: 409,
+            });
+            authError.value = t('auth.signup.form.validation.conflictingCreds');
+          } else {
+            authLogger.error('Signup failed - network error', res.error.value, {
+              action: 'signup_network_error',
+              email: credentials.email,
+              status: res.response.value?.status,
+            });
+            authError.value = t('auth.networkError');
+          }
+          return;
+        }
+
+        authLogger.debug('Signup response received', {
+          action: 'signup_response_received',
+          email: credentials.email,
+        });
+
+        authMachine.actor.send({ type: 'VERIFY_EMAIL' });
+      })
+      .catch(() => {
+        authError.value = t('auth.networkError');
+        return;
+      })
+      .finally(() => {
+        authMachine.actor.send({ type: 'IDLE' });
+      });
+  };
+
   const verifyTotp = async (totp: string): Promise<void> => {
     authError.value = null;
     authMachine.actor.send({ type: 'LOADING' });
@@ -765,6 +815,7 @@ export const useAuthStore = defineStore('auth', () => {
     getAvatarFallback,
     // ------ actions ------
     login,
+    signUp,
     verifyTotp,
     verifyRecoveryCode,
     sendResetPassword,

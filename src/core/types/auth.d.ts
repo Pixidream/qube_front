@@ -37,6 +37,10 @@ export interface LoginResponse {
   token: string;
 }
 
+export interface SignupResponse {
+  message: string;
+}
+
 export interface AuthenticationResponse {
   user: User;
   message: string;

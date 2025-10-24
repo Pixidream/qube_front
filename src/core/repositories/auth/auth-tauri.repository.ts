@@ -9,6 +9,7 @@ import {
   RegenerateRecoveryCodesResponse,
   SetupTotpBody,
   SetupTotpResponse,
+  SignupResponse,
   UpdateUserBody,
   UpdateUserResponse,
   VerifyPasswordBody,
@@ -116,6 +117,13 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
   login: async (credentials: Credentials) => {
     return await _postRequest<LoginResponse, Credentials>(
       '/auth/login',
+      credentials,
+    );
+  },
+
+  signup: async (credentials: Credentials) => {
+    return await _postRequest<SignupResponse, Credentials>(
+      '/auth/signup',
       credentials,
     );
   },

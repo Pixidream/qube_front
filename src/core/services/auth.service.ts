@@ -16,6 +16,7 @@ import type {
   GetUserFileBody,
   GetUserFileResponse,
   GetCSRFTokenResponse,
+  SignupResponse,
 } from '@core/types/auth';
 import type { ApiResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
@@ -23,6 +24,8 @@ import { createServiceLogger } from '@/utils/logger';
 
 export interface AuthService {
   login: (credentials: Credentials) => Promise<ApiResponse<LoginResponse>>;
+
+  signup: (credentials: Credentials) => Promise<ApiResponse<SignupResponse>>;
 
   verifyTotp: (
     totp: string,
@@ -109,6 +112,32 @@ export const createAuthService = (
       } catch (error) {
         authServiceLogger.error('Login attempt failed', error as Error, {
           action: 'login_error',
+          email: credentials.email,
+        });
+        throw error;
+      }
+    },
+
+    signup: async (credentials: Credentials) => {
+      authServiceLogger.info('Signup attempt started', {
+        action: 'signup_start',
+        email: credentials.email,
+        hasPassword: !!credentials.password,
+      });
+
+      try {
+        const result = await repository.signup(credentials);
+        authServiceLogger.info('Signup attempt completed', {
+          action: 'signup_complete',
+          email: credentials.email,
+          success: !result.error.value,
+          status: result.response.value?.status,
+        });
+
+        return result;
+      } catch (error) {
+        authServiceLogger.error('Signup attempt failed', error as Error, {
+          action: 'signup_error',
           email: credentials.email,
         });
         throw error;
