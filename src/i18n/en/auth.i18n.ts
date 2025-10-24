@@ -40,6 +40,7 @@ export default {
         passwordMaxLength: 'Password is too long.',
         passwordMatch: 'Passwords are not the same',
         passwordStrength: 'Password is too weak',
+        conflictingCreds: 'An account with this email already exists',
       },
     },
   },
