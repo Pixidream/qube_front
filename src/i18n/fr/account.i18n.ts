@@ -125,6 +125,21 @@ export default {
   profile: {
     title: 'Informations personnelles',
     subtitle: 'Mettez à jour vos informations personnelles et votre profil.',
+    form: {
+      username: "Nom d'affichage",
+      usernamePlaceholder: 'Comment les autres vous verront',
+      firstName: 'Prénom',
+      lastName: 'Nom de famille',
+      phoneNumber: 'Numéro de téléphone',
+      jobTitle: 'Poste / Fonction',
+      validation: {
+        firstName: 'Le prénom doit être valide',
+        lastName: 'Le nom de famille doit être valide',
+        jobTitle: 'Le poste doit être valide',
+        phoneNumber: 'Le numéro de téléphone doit être valide',
+        username: "Le nom d'affichage doit être valide",
+      },
+    },
   },
   common: {
     cancel: 'Annuler',

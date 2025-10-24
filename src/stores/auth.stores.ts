@@ -148,8 +148,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const getDisplayName = computed<string>(
     () =>
-      [user.value?.first_name, user.value?.last_name].join(' ').trim()
-      || user.value?.username
+      user.value?.username
+      || [user.value?.first_name, user.value?.last_name].join(' ').trim()
       || user.value?.email
       || '',
   );

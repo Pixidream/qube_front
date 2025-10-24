@@ -120,6 +120,21 @@ export default {
   profile: {
     title: 'Personal Information',
     subtitle: 'Update your personal details and profile information.',
+    form: {
+      username: 'Display Name',
+      usernamePlaceholder: 'How others will see you',
+      firstName: 'First Name',
+      lastName: 'Last Name',
+      phoneNumber: 'Phone Number',
+      jobTitle: 'Job Title',
+      validation: {
+        firstName: 'First name must be valid',
+        lastName: 'Last name must be valid',
+        jobTitle: 'Job title must be valid',
+        phoneNumber: 'Phone number must be valid',
+        username: 'Display name must be valid',
+      },
+    },
   },
   common: {
     cancel: 'Cancel',
