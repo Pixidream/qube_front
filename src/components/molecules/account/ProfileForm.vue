@@ -224,6 +224,7 @@ onUnmounted(() => {
                 placeholder="john.doe@example.com"
                 v-bind="componentField"
                 :class="{ 'border-foreground': isFieldDirty('email') }"
+                disabled
               />
             </FormControl>
             <FormMessage />
