@@ -31,6 +31,7 @@ export default {
       confirmPasswordLabel: 'Confirmez votre mot de passe',
       signupButton: 'Créer mon compte',
       haveAccountLink: 'Vous avez un compte ? Vous connecter !',
+      accountCreated: 'Compte créé ! Veuillez vérifier vos emails.',
       validation: {
         email: 'Un email valide est requis.',
         emailMinLength: "L'addresse est trop courte",

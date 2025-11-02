@@ -6,6 +6,7 @@ import type {
   AuthenticationResponse,
   ChangePasswordBody,
   UpdateUserBody,
+  VerifyEmailBody,
 } from '@core/types/auth';
 import { Credentials } from '@core/types/auth';
 import type { SuccessResponse } from '@core/types/response';
@@ -314,7 +315,9 @@ export const useAuthStore = defineStore('auth', () => {
           email: credentials.email,
         });
 
-        authMachine.actor.send({ type: 'VERIFY_EMAIL' });
+        toast.info(t('auth.signup.form.accountCreated'), { duration: 10000 });
+
+        authMachine.actor.send({ type: 'LOGIN' });
       })
       .catch(() => {
         authError.value = t('auth.networkError');
@@ -798,6 +801,22 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
+  const verifyEmail = async (token: VerifyEmailBody): Promise<boolean> => {
+    authError.value = null;
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .verifyEmail(token)
+      .then((res) => {
+        if (res.error.value) {
+          return false;
+        }
+
+        return true;
+      })
+      .catch(() => false);
+  };
+
   return {
     // ------ state ------
     user,
@@ -834,5 +853,6 @@ export const useAuthStore = defineStore('auth', () => {
     updateProfile,
     getUserFile,
     getCSRFToken,
+    verifyEmail,
   };
 });

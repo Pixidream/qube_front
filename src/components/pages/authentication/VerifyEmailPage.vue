@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import VerifyEmailBody from '@components/organisms/authentication/VerifyEmailBody.vue';
+</script>
 <template>
-  <div>Verify email</div>
+  <VerifyEmailBody />
 </template>

@@ -150,6 +150,17 @@ export const handleDeeplink = async (deeplinks: string[]) => {
     return;
   }
 
+  if (deeplink.includes('verify-email')) {
+    deeplinkLogger.info('Processing email-verify deeplink', {
+      action: 'handle_deeplink_verify_email',
+      deeplink,
+      hasQuery: Object.keys(query).length > 0,
+      queryKeys: Object.keys(query),
+    });
+    authMachine.actor.send(sendAuthEvent.verifyEmail(query));
+    return;
+  }
+
   const path = extractPath(deeplink);
   deeplinkLogger.info('Processing general deeplink navigation', {
     action: 'handle_deeplink_navigation',

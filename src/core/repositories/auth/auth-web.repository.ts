@@ -9,9 +9,11 @@ import {
   RegenerateRecoveryCodesResponse,
   SetupTotpBody,
   SetupTotpResponse,
+  SignupBody,
   SignupResponse,
   UpdateUserBody,
   UpdateUserResponse,
+  VerifyEmailBody,
   VerifyRecoveryCodeBody,
   VerifyRecoveryCodeResponse,
   type AuthenticationResponse,
@@ -255,10 +257,10 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
         action: 'signup',
         email: credentials.email,
       });
-
-      const result = await _postRequest<SignupResponse, Credentials>(
+      const platform: Platform = 'web';
+      const result = await _postRequest<SignupResponse, SignupBody>(
         '/auth/signup',
-        credentials,
+        { ...credentials, platform },
       );
 
       if (result.error.value) {
@@ -651,6 +653,17 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
       }
 
       return result;
+    },
+
+    verifyEmail: async (body: VerifyEmailBody) => {
+      webRepoLogger.debug('Verifying email', {
+        action: 'verify_email',
+      });
+
+      return await _postRequest<BasicResponse, VerifyEmailBody>(
+        '/auth/verify-email',
+        body,
+      );
     },
   };
 };

@@ -10,10 +10,11 @@ import {
   FormMessage,
 } from '@components/atoms/form';
 import { Input } from '@components/atoms/input';
+import { Icon } from '@iconify/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { zxcvbn } from '@zxcvbn-ts/core';
 import { useForm } from 'vee-validate';
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
 import { createComponentLogger } from '@/utils/logger';
@@ -101,7 +102,7 @@ const formSchema = toTypedSchema(
       }
     }),
 );
-const { handleSubmit, isFieldDirty, values, errors } = useForm({
+const { handleSubmit, isFieldDirty, values, meta } = useForm({
   validationSchema: formSchema,
 });
 
@@ -126,59 +127,37 @@ const handleSignup = handleSubmit(async (values) => {
 
   try {
     // Log the attempt before sending to auth machine
-    signupLogger.debug('Sending signup data to auth machine', {
-      action: 'auth_machine_signup',
+    signupLogger.debug('Signup form submission - start', {
+      action: 'form_submit_start',
       email: values.email,
     });
 
-    // Here you would typically call your signup logic
-    // For now, we'll just log the successful form submission
-    signupLogger.info('Signup form data validated successfully', {
-      action: 'form_validation_success',
-      email: values.email,
-      hasValidPassword: useZxcvbn(values.password) >= 3,
-    });
-
-    // You can add your actual signup logic here
-    // await authStore.signup(values);
+    try {
+      await authStore.signUp({
+        email: values.email,
+        password: values.password,
+      });
+      signupLogger.info('Signup form submission - completed', {
+        action: 'form_submit_complete',
+        email: values.email,
+      });
+    } catch (error) {
+      signupLogger.error('Signup form submission - failed', error as Error, {
+        action: 'form_submit_error',
+        email: values.email,
+      });
+    }
   } catch (error) {
-    signupLogger.error('Signup form submission failed', error as Error, {
+    signupLogger.error('Signup form submission - failed', error as Error, {
       action: 'form_submit_error',
       email: values.email,
     });
   }
 });
 
-// Watch for form validation errors
-watch(
-  () => errors.value,
-  (newErrors) => {
-    const errorFields = Object.keys(newErrors);
-    if (errorFields.length > 0) {
-      signupLogger.debug('Form validation errors detected', {
-        action: 'form_validation_errors',
-        errorFields,
-        errorCount: errorFields.length,
-      });
-    }
-  },
-  { deep: true },
-);
-
-// Watch for password strength changes
-watch(
-  () => passwordScore.value,
-  (newScore, oldScore) => {
-    if (newScore !== oldScore && values.password) {
-      signupLogger.debug('Password strength changed', {
-        action: 'password_strength_change',
-        oldScore,
-        newScore,
-        passwordLength: values.password?.length || 0,
-      });
-    }
-  },
-);
+const isLoading = computed(() => {
+  return authMachine.state.matches('form.loading');
+});
 
 // Log component mounting
 onMounted(() => {
@@ -275,9 +254,10 @@ onMounted(() => {
         class="text-destructive-foreground text-sm"
         >{{ authStore.authError }}</span
       >
-      <Button type="submit" class="w-full">{{
-        t('auth.signup.form.signupButton')
-      }}</Button>
+      <Button type="submit" class="w-full" :disabled="!meta.valid || isLoading">
+        <Icon v-if="isLoading" icon="svg-spinners:ring-resize" />
+        <span v-else>{{ t('auth.signup.form.signupButton') }}</span>
+      </Button>
     </div>
     <a
       class="text-center text-sm hover:underline hover:underline-offset-4"

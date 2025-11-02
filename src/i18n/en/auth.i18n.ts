@@ -31,6 +31,7 @@ export default {
       confirmPasswordLabel: 'Confirm your password',
       signupButton: 'Sign up',
       haveAccountLink: 'Already have an account ? Log in !',
+      accountCreated: 'Account created ! Please verify your emails.',
       validation: {
         email: 'A valid email is required.',
         emailMinLength: 'Email is too short.',

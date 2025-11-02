@@ -46,13 +46,13 @@ watch(
 );
 
 const setupDeeplinks = async () => {
-  appLogger.debug('Initializing deeplinks system', {
+  appLogger.info('Initializing deeplinks system', {
     action: 'deeplinks_init',
     isTauri: isTauri.value,
   });
 
   if (!isTauri.value) {
-    appLogger.debug('Skipping deeplinks - not in Tauri environment');
+    appLogger.info('Skipping deeplinks - not in Tauri environment');
     return;
   }
 

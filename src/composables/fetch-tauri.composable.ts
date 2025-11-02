@@ -10,9 +10,9 @@ import { useAuthStore } from '@/stores/auth.stores';
 
 const DANGER_CONFIG = {
   // TODO: DANGER !! REMOVE true before production
-  acceptInvalidCerts: import.meta.env.DEV,
+  acceptInvalidCerts: import.meta.env.DEV || true,
   // acceptInvalidCerts: import.meta.env.DEV,
-  acceptInvalidHostnames: import.meta.env.DEV,
+  acceptInvalidHostnames: import.meta.env.DEV || true,
 };
 
 export const useFetchTauri = (endpoint: string) => {

@@ -17,6 +17,7 @@ import type {
   GetUserFileResponse,
   GetCSRFTokenResponse,
   SignupResponse,
+  VerifyEmailBody,
 } from '@core/types/auth';
 import type { ApiResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
@@ -80,6 +81,8 @@ export interface AuthService {
   ) => Promise<ApiResponse<GetUserFileResponse>>;
 
   getCSRFToken: () => Promise<ApiResponse<GetCSRFTokenResponse>>;
+
+  verifyEmail: (body: VerifyEmailBody) => Promise<ApiResponse<BasicResponse>>;
 }
 
 export const createAuthService = (
@@ -519,6 +522,27 @@ export const createAuthService = (
           action: 'get_csrf_token',
         });
         throw err;
+      }
+    },
+
+    verifyEmail: async (body: VerifyEmailBody) => {
+      authServiceLogger.debug('Email verification started', {
+        action: 'verify_email',
+      });
+
+      try {
+        const result = await repository.verifyEmail(body);
+
+        authServiceLogger.debug('Email verification completed', {
+          action: 'verify_email',
+        });
+
+        return result;
+      } catch (error) {
+        authServiceLogger.error('Failed to verify email', error as Error, {
+          action: 'verify_email',
+        });
+        throw error;
       }
     },
   };

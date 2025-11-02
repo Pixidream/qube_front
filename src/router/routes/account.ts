@@ -21,7 +21,7 @@ export default [
       {
         path: 'settings',
         name: 'settings',
-        component: () => import('@components/pages/account/settingsPage.vue'),
+        component: () => import('@components/pages/account/SettingsPage.vue'),
         meta: {
           requiresAuth: true,
           displayName: 'navigation.settings',

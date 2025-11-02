@@ -21,7 +21,7 @@ type AuthEvent =
   | { type: 'RECOVERY_CODE' }
   | { type: 'RESTORE_SESSION' }
   | { type: 'AUTHENTICATED'; redirectPath?: string }
-  | { type: 'VERIFY_EMAIL' }
+  | { type: 'VERIFY_EMAIL'; query?: Record<string, any> }
   | { type: 'LOGIN' }
   | { type: 'LOGOUT' }
   | { type: 'LOADING' }
@@ -81,6 +81,10 @@ export const authMachine = createMachine(
                 target: 'resetPassword',
                 actions: ['assignQuery'],
               },
+              VERIFY_EMAIL: {
+                target: 'verifyEmail',
+                actions: ['assignQuery'],
+              },
               RESTORE_SESSION: {
                 target: 'authenticated',
               },
@@ -138,25 +142,24 @@ export const authMachine = createMachine(
                   });
                 },
               },
-              VERIFY_EMAIL: {
-                target: 'verifyEmail',
-                actions: () => {
-                  authMachineLogger.info('Moving to email verification', {
-                    action: 'state_transition',
-                    from: 'signup',
-                    to: 'verifyEmail',
-                    trigger: 'VERIFY_EMAIL',
-                  });
-                },
-              },
             },
           },
           verifyEmail: {
             entry: ['resetAuthError', 'navigateToVerifyEmail'],
             on: {
-              AUTHENTICATED: {
-                target: 'authenticated',
-                actions: ['assignRedirectPath'],
+              LOGIN: {
+                target: 'login',
+                actions: () => {
+                  authMachineLogger.info(
+                    'Returning to login from email verification',
+                    {
+                      action: 'state_transition',
+                      from: 'verifyEmail',
+                      to: 'login',
+                      trigger: 'LOGIN',
+                    },
+                  );
+                },
               },
             },
           },
@@ -255,7 +258,10 @@ export const authMachine = createMachine(
     actions: {
       assignQuery: assign({
         query: ({ event }) => {
-          if (event.type === 'RESET_PASSWORD' && event.query) {
+          if (
+            (event.type === 'RESET_PASSWORD' || event.type === 'VERIFY_EMAIL')
+            && event.query
+          ) {
             return event.query;
           }
           if (event.type === 'SET_QUERY') {
@@ -349,6 +355,12 @@ export const sendAuthEvent = {
   /** Create RESET_PASSWORD event with optional query parameters */
   resetPassword: (query?: Record<string, any>) => ({
     type: 'RESET_PASSWORD' as const,
+    query,
+  }),
+
+  /** create  */
+  verifyEmail: (query?: Record<string, any>) => ({
+    type: 'VERIFY_EMAIL' as const,
     query,
   }),
 

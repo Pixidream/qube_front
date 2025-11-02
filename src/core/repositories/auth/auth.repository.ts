@@ -14,6 +14,7 @@ import type {
   SignupResponse,
   UpdateUserBody,
   UpdateUserResponse,
+  VerifyEmailBody,
   VerifyPasswordResponse,
   VerifyRecoveryCodeResponse,
 } from '@core/types/auth';
@@ -78,4 +79,6 @@ export interface AuthenticationRepository {
   ) => Promise<ApiResponse<GetUserFileResponse>>;
 
   getCSRFToken: () => Promise<ApiResponse<GetCSRFTokenResponse>>;
+
+  verifyEmail: (body: VerifyEmailBody) => Promise<ApiResponse<BasicResponse>>;
 }

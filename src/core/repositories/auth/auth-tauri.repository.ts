@@ -9,9 +9,11 @@ import {
   RegenerateRecoveryCodesResponse,
   SetupTotpBody,
   SetupTotpResponse,
+  SignupBody,
   SignupResponse,
   UpdateUserBody,
   UpdateUserResponse,
+  VerifyEmailBody,
   VerifyPasswordBody,
   VerifyPasswordResponse,
   VerifyRecoveryCodeBody,
@@ -122,10 +124,11 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
   },
 
   signup: async (credentials: Credentials) => {
-    return await _postRequest<SignupResponse, Credentials>(
-      '/auth/signup',
-      credentials,
-    );
+    const _platform: Platform = platform();
+    return await _postRequest<SignupResponse, SignupBody>('/auth/signup', {
+      ...credentials,
+      platform: _platform,
+    });
   },
 
   verifyTotp: async (totp: string, token: string) => {
@@ -229,5 +232,12 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
 
   getCSRFToken: async () => {
     return await _getRequest<GetCSRFTokenResponse>('/auth/csrf');
+  },
+
+  verifyEmail: async (body: VerifyEmailBody) => {
+    return await _postRequest<BasicResponse, VerifyEmailBody>(
+      '/auth/verify-email',
+      body,
+    );
   },
 });

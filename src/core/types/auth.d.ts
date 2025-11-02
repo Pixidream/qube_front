@@ -37,6 +37,10 @@ export interface LoginResponse {
   token: string;
 }
 
+export interface SignupBody extends Credentials {
+  platform: Platform;
+}
+
 export interface SignupResponse {
   message: string;
 }
@@ -109,5 +113,9 @@ export interface GetUserFileResponse {
 }
 
 export interface GetCSRFTokenResponse {
+  token: string;
+}
+
+export interface VerifyEmailBody {
   token: string;
 }
