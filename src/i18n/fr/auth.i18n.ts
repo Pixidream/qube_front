@@ -118,4 +118,17 @@ export default {
     joined: 'À rejoins le {date}',
     edit: 'Éditer mon profile',
   },
+  verifyEmail: {
+    toast: {
+      mailSent: 'Un nouvel email de vérification a été envoyé.',
+      mailError: 'Une erreur est survenu, réessayez dans 1 minute.',
+    },
+    verifyingTitle: 'Verification en cours',
+    verifyingSubtitle: 'Nous vérifions que votre email est valid...',
+    verifiedTitle: 'Email vérifié !',
+    verifiedSubtitle: 'Email vérifié, vous pouvez maintenant vous connecter !',
+    errorTitle: 'Impossible de vérifier votre email.',
+    errorSubtitle: 'Une erreur est arrivé pendant la vérification.',
+    sendNewMail: 'Envoyer un nouveau mail',
+  },
 };

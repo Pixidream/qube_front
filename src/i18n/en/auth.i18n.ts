@@ -116,4 +116,19 @@ export default {
     joined: 'Joined {date}',
     edit: 'Edit profile',
   },
+  verifyEmail: {
+    toast: {
+      mailSent: 'A new verification email has been sent.',
+      mailError:
+        'Failed to send a new verification email. Try again in a minute.',
+    },
+    verifyingTitle: 'Verifying email',
+    verifyingSubtitle:
+      'We are verifying your email, you will be redirected very soon !',
+    verifiedTitle: 'Email verified !',
+    verifiedSubtitle: 'Email verified ! You can now log into your account.',
+    errorTitle: 'Failed to verify email.',
+    errorSubtitle: 'Something wrong happended verifying your email.',
+    sendNewMail: 'Send a new email',
+  },
 };

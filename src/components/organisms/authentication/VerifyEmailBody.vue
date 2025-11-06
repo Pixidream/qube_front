@@ -8,6 +8,7 @@ import { ref, onMounted } from 'vue';
 import { toast } from 'vue-sonner';
 import { useAuthMachine } from '@/machines/auth.machine';
 import { createComponentLogger } from '@/utils/logger';
+import { useI18n } from 'vue-i18n';
 
 const verifyEmailBodyLogger = createComponentLogger('VerifyEmailBody');
 const authStore = useAuthStore();
@@ -15,6 +16,7 @@ const authMachine = useAuthMachine();
 const emailVerified = ref<boolean | null>(null);
 const email = ref<string>('');
 const sendingEmail = ref(false);
+const { t } = useI18n();
 
 const handleResendEmail = async () => {
   verifyEmailBodyLogger.debug('handling resend email');
@@ -23,12 +25,10 @@ const handleResendEmail = async () => {
   const sent = await authStore.resendVerificationEmail(email.value);
 
   if (sent) {
-    toast.info('A new mail has been sent.');
+    toast.info(t('auth.verifyEmail.mailSent'));
     email.value = '';
   } else {
-    toast.error(
-      'Failed to send a new verification email. Try again in a minute',
-    );
+    toast.error(t('auth.verifyEmail.mailError'));
   }
 
   sendingEmail.value = false;
@@ -59,11 +59,13 @@ onMounted(async () => {
       v-if="emailVerified === null"
       class="flex flex-col flex-1 w-full justify-center items-center"
     >
-      <p class="font-bold text-xl md:text-2xl text-center">Verifying email</p>
+      <p class="font-bold text-xl md:text-2xl text-center">
+        {{ t('auth.verifyEmail.verifyingTitle') }}
+      </p>
       <p
         class="font-semibold text-lg md:text-xl text-muted-foreground text-center mt-4"
       >
-        We are verifying your email, you will be redirected very soon !
+        {{ t('auth.verifyEmail.verifyingSubtitle') }}
       </p>
       <Icon class="mt-8 h-12 w-12" icon="svg-spinners:ring-resize" />
     </div>
@@ -73,11 +75,13 @@ onMounted(async () => {
       v-else-if="emailVerified"
       class="flex flex-col flex-1 w-full justify-center items-center"
     >
-      <p class="font-bold text-xl md:text-2xl text-center">Verifying email</p>
+      <p class="font-bold text-xl md:text-2xl text-center">
+        {{ t('auth.verifyEmail.verifiedTitle') }}
+      </p>
       <p
         class="font-semibold text-lg md:text-xl text-muted-foreground text-center mt-4"
       >
-        Email verified ! You can now log into your account.
+        {{ t('auth.verifyEmail.verifiedSubtitle') }}
       </p>
       <Icon
         class="mt-8 h-12 w-12 text-green-500"
@@ -88,12 +92,12 @@ onMounted(async () => {
     <!-- Error -->
     <div v-else class="flex flex-col flex-1 w-full justify-center items-center">
       <p class="font-bold text-xl md:text-2xl text-center">
-        Verification failed
+        {{ t('auth.verifyEmail.errorTitle') }}
       </p>
       <p
         class="font-semibold text-lg md:text-xl text-muted-foreground text-center mt-4"
       >
-        We failed to verify your email.
+        {{ t('auth.verifyEmail.errorSubtitle') }}
       </p>
       <Icon class="mt-8 h-12 w-12 text-destructive" icon="lucide:circle-x" />
       <div class="flex w-full mt-8 justify-center items-center">
@@ -116,7 +120,7 @@ onMounted(async () => {
           >
             <Icon v-if="sendingEmail" icon="svg-spinners:ring-resize" />
             <Icon v-else icon="lucide:send-horizontal" class="mr-2" />
-            <span>Send a new email</span>
+            <span>{{ t('auth.verifyEmail.sendNewMail') }} </span>
           </Button>
         </form>
       </div>
