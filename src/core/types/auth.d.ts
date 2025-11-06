@@ -119,3 +119,8 @@ export interface GetCSRFTokenResponse {
 export interface VerifyEmailBody {
   token: string;
 }
+
+export interface ResendEmailVerificationBody {
+  email: string;
+  platform: string;
+}

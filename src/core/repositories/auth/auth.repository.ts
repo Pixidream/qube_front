@@ -81,4 +81,8 @@ export interface AuthenticationRepository {
   getCSRFToken: () => Promise<ApiResponse<GetCSRFTokenResponse>>;
 
   verifyEmail: (body: VerifyEmailBody) => Promise<ApiResponse<BasicResponse>>;
+
+  resendEmailVerification: (
+    email: string,
+  ) => Promise<ApiResponse<BasicResponse>>;
 }

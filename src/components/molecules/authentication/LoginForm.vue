@@ -13,10 +13,12 @@ import { Input } from '@components/atoms/input';
 import { Icon } from '@iconify/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
-import { computed, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, watch, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
 import { createComponentLogger } from '@/utils/logger';
+import { MIN_EXEC_TIME_MS } from '@/core/constants/auth.constants';
+import { toast } from 'vue-sonner';
 
 // Create component-specific logger
 const loginLogger = createComponentLogger('LoginForm');
@@ -24,6 +26,7 @@ const loginLogger = createComponentLogger('LoginForm');
 const authMachine = useAuthMachine();
 const authStore = useAuthStore();
 const { t } = useI18n();
+const sendingVerifyLink = ref(false);
 
 loginLogger.debug('Initializing login form component');
 const formSchema = toTypedSchema(
@@ -44,10 +47,17 @@ const formSchema = toTypedSchema(
       }),
   }),
 );
-const { handleSubmit, handleReset, isFieldDirty, meta, errors, values } =
-  useForm({
-    validationSchema: formSchema,
-  });
+const {
+  handleSubmit,
+  handleReset,
+  isFieldDirty,
+  meta,
+  errors,
+  values,
+  isFieldValid,
+} = useForm({
+  validationSchema: formSchema,
+});
 
 const handleLogin = handleSubmit(async (values) => {
   loginLogger.info('Login form submission started', {
@@ -70,6 +80,22 @@ const handleLogin = handleSubmit(async (values) => {
     });
   }
 });
+
+const handleResendVerificationLink = async () => {
+  sendingVerifyLink.value = true;
+  await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+  if (!values.email) return;
+  if (!isFieldValid('email')) return;
+
+  try {
+    await authStore.resendVerificationEmail(values.email);
+    authStore.authErrorCode = null;
+  } catch {
+    toast.error('Failed to send a new email. Please try again');
+  } finally {
+    sendingVerifyLink.value = false;
+  }
+};
 
 const isLoading = computed(() => {
   return authMachine.state.matches('form.loading');
@@ -202,6 +228,18 @@ onUnmounted(() => {
         class="text-destructive-foreground text-sm"
         >{{ authStore.authError }}</span
       >
+      <div v-if="authStore.authErrorCode === 422" class="flex flex-col gap-2">
+        <span class="text-sm text-destructive-foreground">{{
+          t('auth.login.emailNotVerified')
+        }}</span>
+        <Icon v-if="sendingVerifyLink" icon="svg-spinners:ring-resize" />
+        <span
+          v-else
+          class="text-sm cursor-pointer underline"
+          @click="handleResendVerificationLink"
+          >{{ t('auth.login.emailNotVerifiedLink') }}</span
+        >
+      </div>
       <Button
         tabindex="3"
         type="submit"

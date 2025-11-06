@@ -83,6 +83,10 @@ export interface AuthService {
   getCSRFToken: () => Promise<ApiResponse<GetCSRFTokenResponse>>;
 
   verifyEmail: (body: VerifyEmailBody) => Promise<ApiResponse<BasicResponse>>;
+
+  resendEmailVerification: (
+    email: string,
+  ) => Promise<ApiResponse<BasicResponse>>;
 }
 
 export const createAuthService = (
@@ -542,6 +546,31 @@ export const createAuthService = (
         authServiceLogger.error('Failed to verify email', error as Error, {
           action: 'verify_email',
         });
+        throw error;
+      }
+    },
+
+    resendEmailVerification: async (email: string) => {
+      authServiceLogger.debug('Resend verification email started', {
+        action: 'resend_email_verification',
+      });
+
+      try {
+        const result = await repository.resendEmailVerification(email);
+
+        authServiceLogger.debug('Email verification completed', {
+          action: 'resend_email_verification',
+        });
+
+        return result;
+      } catch (error) {
+        authServiceLogger.error(
+          'Failed to resend a verification email',
+          error as Error,
+          {
+            action: 'resend_email_verification',
+          },
+        );
         throw error;
       }
     },

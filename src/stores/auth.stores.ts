@@ -114,6 +114,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const shortTTLToken = ref<string | null>(null);
   const authError = ref<string | null>(null);
+  const authErrorCode = ref<number | null>(null);
   const totpType = ref<'email' | 'totp' | null>(null);
   const totpRecoveryCodes = ref<string[]>([]);
   const shouldCloseTotpDialog = ref<boolean>(false);
@@ -243,6 +244,18 @@ export const useAuthStore = defineStore('auth', () => {
               status: 401,
             });
             authError.value = t('auth.login.form.validation.invalidCreds');
+          } else if (res.response.value?.status === 422) {
+            authLogger.error(
+              'Login failed - email not verified',
+              res.error.value,
+              {
+                action: 'login_email_unverified',
+                email: credentials.email,
+                status: res.response.value?.status,
+              },
+            );
+            authErrorCode.value = 422;
+            return;
           } else {
             authLogger.error('Login failed - network error', res.error.value, {
               action: 'login_network_error',
@@ -817,6 +830,22 @@ export const useAuthStore = defineStore('auth', () => {
       .catch(() => false);
   };
 
+  const resendVerificationEmail = async (email: string): Promise<boolean> => {
+    authError.value = null;
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .resendEmailVerification(email)
+      .then((res) => {
+        if (res.error.value) {
+          return false;
+        }
+
+        return true;
+      })
+      .catch(() => false);
+  };
+
   return {
     // ------ state ------
     user,
@@ -827,6 +856,7 @@ export const useAuthStore = defineStore('auth', () => {
     shouldCloseTotpDialog,
     updatingProfile,
     csrfToken,
+    authErrorCode,
     // ------ getters ------
     isAuthenticated,
     getAvatar,
@@ -854,5 +884,6 @@ export const useAuthStore = defineStore('auth', () => {
     getUserFile,
     getCSRFToken,
     verifyEmail,
+    resendVerificationEmail,
   };
 });

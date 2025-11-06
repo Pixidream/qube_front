@@ -7,6 +7,7 @@ import {
   GetUserFileBody,
   GetUserFileResponse,
   RegenerateRecoveryCodesResponse,
+  ResendEmailVerificationBody,
   SetupTotpBody,
   SetupTotpResponse,
   SignupBody,
@@ -663,6 +664,20 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
       return await _postRequest<BasicResponse, VerifyEmailBody>(
         '/auth/verify-email',
         body,
+      );
+    },
+
+    resendEmailVerification: async (email: string) => {
+      webRepoLogger.debug('Resending verification email', {
+        action: 'resend_email_verification',
+      });
+
+      return await _postRequest<BasicResponse, ResendEmailVerificationBody>(
+        '/auth/resend-email-verification',
+        {
+          platform: 'web',
+          email,
+        },
       );
     },
   };

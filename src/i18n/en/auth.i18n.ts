@@ -3,6 +3,8 @@ import { TOTP_LENGTH } from '@/core/constants/auth.constants';
 export default {
   networkError: 'Something wrong happend',
   login: {
+    emailNotVerified: 'Please verify your email address to proceed.',
+    emailNotVerifiedLink: 'Resend the verification link.',
     form: {
       title: 'Login to your account',
       subtitle: 'Connect to your workspace',

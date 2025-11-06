@@ -3,6 +3,8 @@ import { TOTP_LENGTH } from '@core/constants/auth.constants';
 export default {
   networkError: 'Une erreur est survenue',
   login: {
+    emailNotVerified: 'Vérifiez votre email avant de continuer.',
+    emailNotVerifiedLink: 'Renvoyer le liens de vérification',
     form: {
       title: 'Connectez-vous à votre compte',
       subtitle: 'Connectez-vous à votre espace',

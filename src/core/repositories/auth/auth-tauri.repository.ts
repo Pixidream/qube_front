@@ -7,6 +7,7 @@ import {
   GetUserFileBody,
   GetUserFileResponse,
   RegenerateRecoveryCodesResponse,
+  ResendEmailVerificationBody,
   SetupTotpBody,
   SetupTotpResponse,
   SignupBody,
@@ -238,6 +239,17 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
     return await _postRequest<BasicResponse, VerifyEmailBody>(
       '/auth/verify-email',
       body,
+    );
+  },
+
+  resendEmailVerification: async (email: string) => {
+    const _platform = platform();
+    return await _postRequest<BasicResponse, ResendEmailVerificationBody>(
+      '/auth/resend-email-verification',
+      {
+        platform: _platform,
+        email,
+      },
     );
   },
 });
