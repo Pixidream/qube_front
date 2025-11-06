@@ -88,10 +88,22 @@ const handleResendVerificationLink = async () => {
   if (!isFieldValid('email')) return;
 
   try {
-    await authStore.resendVerificationEmail(values.email);
+    const success = await authStore.resendVerificationEmail(values.email);
+
+    if (!success) {
+      if (authStore.authErrorCode === 429) {
+        toast.error(t('auth.rateLimited'));
+        sendingVerifyLink.value = false;
+        return;
+      }
+      sendingVerifyLink.value = false;
+      toast.error(t('auth.verifyemail.newmailfailed'));
+      return;
+    }
+
     authStore.authErrorCode = null;
   } catch {
-    toast.error('Failed to send a new email. Please try again');
+    toast.error(t('auth.verifyemail.newmailfailed'));
   } finally {
     sendingVerifyLink.value = false;
   }

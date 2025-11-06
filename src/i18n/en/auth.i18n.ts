@@ -2,6 +2,8 @@ import { TOTP_LENGTH } from '@/core/constants/auth.constants';
 
 export default {
   networkError: 'Something wrong happend',
+  rateLimited:
+    'You have been rate limited. Please wait a minute before trying again.',
   login: {
     emailNotVerified: 'Please verify your email address to proceed.',
     emailNotVerifiedLink: 'Resend the verification link.',
@@ -130,5 +132,6 @@ export default {
     errorTitle: 'Failed to verify email.',
     errorSubtitle: 'Something wrong happended verifying your email.',
     sendNewMail: 'Send a new email',
+    newMailFailed: 'Failed to send a new email. Please try again.',
   },
 };

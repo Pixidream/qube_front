@@ -2,6 +2,8 @@ import { TOTP_LENGTH } from '@core/constants/auth.constants';
 
 export default {
   networkError: 'Une erreur est survenue',
+  rateLimited:
+    'Vous avez fait trop de requêtes, attendez une minute avant de recommencer',
   login: {
     emailNotVerified: 'Vérifiez votre email avant de continuer.',
     emailNotVerifiedLink: 'Renvoyer le liens de vérification',
@@ -130,5 +132,6 @@ export default {
     errorTitle: 'Impossible de vérifier votre email.',
     errorSubtitle: 'Une erreur est arrivé pendant la vérification.',
     sendNewMail: 'Envoyer un nouveau mail',
+    newMailFailed: 'Une erreur est survenue. Essayez encore.',
   },
 };

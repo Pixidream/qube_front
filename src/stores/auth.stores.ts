@@ -836,7 +836,11 @@ export const useAuthStore = defineStore('auth', () => {
 
     return authService
       .resendEmailVerification(email)
-      .then((res) => {
+      .then(async (res) => {
+        if (res.response.value?.status === 429) {
+          authErrorCode.value = 429;
+          return false;
+        }
         if (res.error.value) {
           return false;
         }
