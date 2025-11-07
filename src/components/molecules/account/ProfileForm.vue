@@ -22,10 +22,12 @@ import {
   isPossiblePhoneNumber,
 } from 'libphonenumber-js';
 import { UpdateUserBody } from '@/core/types/auth';
+import { useRouter } from 'vue-router';
 
 // Create component-specific logger
 const profileFormLogger = createComponentLogger('LoginForm');
 
+const router = useRouter();
 const authStore = useAuthStore();
 const { t } = useI18n();
 let formatTimeout: NodeJS.Timeout | null = null;
@@ -213,8 +215,11 @@ onUnmounted(() => {
           <FormItem v-auto-animate>
             <FormLabel>
               {{ t('auth.login.form.emailLabel') }}
-              <span class="text-muted-foreground">
-                - You will need to validate it again !</span
+              <span class="text-muted-foreground mx-4">-</span>
+              <Button
+                class="h-4 cursor-pointer rounded-sm"
+                @click="router.push({ name: 'security' })"
+                >{{ t('account.profile.form.emailSubtitle') }}</Button
               >
             </FormLabel>
             <FormControl>

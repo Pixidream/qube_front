@@ -127,6 +127,7 @@ export default {
       lastName: 'Last Name',
       phoneNumber: 'Phone Number',
       jobTitle: 'Job Title',
+      emailSubtitle: 'Update',
       validation: {
         firstName: 'First name must be valid',
         lastName: 'Last name must be valid',

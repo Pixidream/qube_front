@@ -132,6 +132,7 @@ export default {
       lastName: 'Nom de famille',
       phoneNumber: 'Numéro de téléphone',
       jobTitle: 'Poste / Fonction',
+      emailSubtitle: 'Mettre à jour',
       validation: {
         firstName: 'Le prénom doit être valide',
         lastName: 'Le nom de famille doit être valide',
