@@ -3,6 +3,10 @@ export default {
     title: 'Paramètres de Sécurité',
     subtitle:
       "Gérez les paramètres de sécurité et d'authentification de votre compte.",
+    email: 'Email',
+    emailSubtitle:
+      'Vous allez être déconnecté et devrez vérifier votre nouvelle adresse',
+    changeEmailButton: 'Change Email',
     password: 'Mot de passe',
     lastChanged: 'Changé {timeSince}',
     neverChanged: 'Jamais mis à jour',
@@ -110,6 +114,15 @@ export default {
           "Échec de la désactivation de l'authentification à double facteur",
       },
     },
+    changeEmail: {
+      title: 'Changer votre Email',
+      subtitle: "Mettez à jour l'email de votre compte",
+      passwordVerify: {
+        title: 'Confirmation de sécurité requise',
+        description:
+          'Veuillez vérifier votre mot de passe pour modifier votre email. Ceci est une opération de sécurité sensible.',
+      },
+    },
     changePassword: {
       title: 'Changer le mot de passe',
       subtitle: 'Mettre à jour le mot de passe de votre compte',
@@ -126,8 +139,8 @@ export default {
     title: 'Informations personnelles',
     subtitle: 'Mettez à jour vos informations personnelles et votre profil.',
     form: {
-      username: "Nom d'affichage",
-      usernamePlaceholder: 'Comment les autres vous verront',
+      displayName: "Nom d'affichage",
+      displayNamePlaceholder: 'Comment les autres vous verront',
       firstName: 'Prénom',
       lastName: 'Nom de famille',
       phoneNumber: 'Numéro de téléphone',

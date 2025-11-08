@@ -124,7 +124,7 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
     );
   },
 
-  signup: async (credentials: Credentials) => {
+  signup: async (credentials: SignupBody) => {
     const _platform: Platform = platform();
     return await _postRequest<SignupResponse, SignupBody>('/auth/signup', {
       ...credentials,

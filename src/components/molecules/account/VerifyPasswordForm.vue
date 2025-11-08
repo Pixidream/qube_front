@@ -11,18 +11,21 @@ import {
   FormLabel,
   FormMessage,
 } from '@components/atoms/form';
-import { useTotpConfigurationMachine } from '@machines/totpConfiguration.machine';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
 import { useI18n } from 'vue-i18n';
 import z from 'zod';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { createComponentLogger } from '@/utils/logger';
+import { AnyActorRef, Subscription } from 'xstate';
 
-// Create component-specific logger
 const verifyPasswordLogger = createComponentLogger('VerifyPasswordForm');
 
-const { actor } = useTotpConfigurationMachine();
+const props = defineProps<{
+  actor: AnyActorRef;
+  transition: 'EMAIL_UPDATE' | 'TOTP_CONFIG';
+}>();
+
 const authStore = useAuthStore();
 const { t } = useI18n();
 const formSchema = toTypedSchema(
@@ -41,10 +44,7 @@ const { handleSubmit, handleReset, isFieldDirty, meta } = useForm({
   validationSchema: formSchema,
 });
 const isLoading = ref<boolean>(false);
-
-actor.subscribe((snapshot) => {
-  isLoading.value = snapshot.matches('form.loading');
-});
+let unsubscribe: Subscription | undefined;
 
 const handleVerify = handleSubmit(async (values) => {
   verifyPasswordLogger.info('Password verification form submitted', {
@@ -52,7 +52,7 @@ const handleVerify = handleSubmit(async (values) => {
     context: 'totp_configuration',
   });
 
-  const verified = await authStore.verifyPassword(values.password);
+  const verified = await authStore.verifyPassword(values.password, props.actor);
 
   if (!verified) {
     verifyPasswordLogger.warn('Password verification failed', {
@@ -62,13 +62,27 @@ const handleVerify = handleSubmit(async (values) => {
     return;
   }
 
-  verifyPasswordLogger.info('Password verification successful', {
-    action: 'password_verification_success',
-    context: 'totp_configuration',
-  });
+  verifyPasswordLogger.info(
+    'Password verification successful, sending transition.',
+    {
+      action: 'password_verification_success',
+      context: 'totp_configuration',
+      transition: props.transition,
+    },
+  );
 
-  actor.send({ type: 'TOTP_CONFIG' });
+  props.actor.send({ type: props.transition });
   handleReset();
+});
+
+onMounted(() => {
+  unsubscribe = props.actor.subscribe((snapshot) => {
+    isLoading.value = snapshot.matches('form.loading');
+  });
+});
+
+onUnmounted(() => {
+  if (unsubscribe) unsubscribe.unsubscribe();
 });
 </script>
 <template>

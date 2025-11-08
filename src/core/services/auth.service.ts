@@ -18,6 +18,7 @@ import type {
   GetCSRFTokenResponse,
   SignupResponse,
   VerifyEmailBody,
+  SignupBody,
 } from '@core/types/auth';
 import type { ApiResponse } from '@core/types/response';
 import type { User } from '@core/types/user';
@@ -26,7 +27,7 @@ import { createServiceLogger } from '@/utils/logger';
 export interface AuthService {
   login: (credentials: Credentials) => Promise<ApiResponse<LoginResponse>>;
 
-  signup: (credentials: Credentials) => Promise<ApiResponse<SignupResponse>>;
+  signup: (credentials: SignupBody) => Promise<ApiResponse<SignupResponse>>;
 
   verifyTotp: (
     totp: string,
@@ -125,10 +126,11 @@ export const createAuthService = (
       }
     },
 
-    signup: async (credentials: Credentials) => {
+    signup: async (credentials: SignupBody) => {
       authServiceLogger.info('Signup attempt started', {
         action: 'signup_start',
         email: credentials.email,
+        username: credentials.username,
         hasPassword: !!credentials.password,
       });
 

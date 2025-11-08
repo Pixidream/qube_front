@@ -6,6 +6,10 @@ export interface Credentials {
   password: string;
 }
 
+export interface SignupBody extends Credentials {
+  username: string;
+}
+
 export interface VerifyTotpBody {
   totp: string;
   token: string;

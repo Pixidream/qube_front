@@ -253,7 +253,7 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
       return result;
     },
 
-    signup: async (credentials: Credentials) => {
+    signup: async (credentials: SignupBody) => {
       webRepoLogger.info('Attempting user signup', {
         action: 'signup',
         email: credentials.email,

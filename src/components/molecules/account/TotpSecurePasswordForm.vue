@@ -60,7 +60,7 @@ const handleVerify = handleSubmit(async (values) => {
 
   actor.send({ type: 'LOADING' });
 
-  const verified = await authStore.verifyPassword(values.password);
+  const verified = await authStore.verifyPassword(values.password, actor);
 
   actor.send({ type: 'IDLE' });
 

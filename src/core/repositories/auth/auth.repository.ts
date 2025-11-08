@@ -11,6 +11,7 @@ import type {
   LoginResponse,
   RegenerateRecoveryCodesResponse,
   SetupTotpResponse,
+  SignupBody,
   SignupResponse,
   UpdateUserBody,
   UpdateUserResponse,
@@ -24,7 +25,7 @@ import type { User } from '@core/types/user';
 export interface AuthenticationRepository {
   login: (credentials: Credentials) => Promise<ApiResponse<LoginResponse>>;
 
-  signup: (credentials: Credentials) => Promise<ApiResponse<SignupResponse>>;
+  signup: (credentials: SignupBody) => Promise<ApiResponse<SignupResponse>>;
 
   verifyTotp: (
     totp: string,

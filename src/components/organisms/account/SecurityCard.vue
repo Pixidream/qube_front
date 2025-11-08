@@ -14,14 +14,21 @@ import {
 import { Separator } from '@components/atoms/separator';
 import PasswordResetItem from '@components/molecules/account/PasswordResetItem.vue';
 import TotpConfigurationItem from '@components/molecules/account/TotpConfigurationItem.vue';
+import EmailUpdateDialog from '@components/molecules/account/EmailUpdateDialog.vue';
+import EmailUpdateItem from '@components/molecules/account/EmailUpdateItem.vue';
+import ChangeEmailForm from '@components/molecules/account/EmailUpdateForm.vue';
 import { useI18n } from 'vue-i18n';
 import { onMounted } from 'vue';
 import { createComponentLogger } from '@/utils/logger';
+import { useUpdateEmailMachine } from '@/machines/emailUpdate.machine';
+import { useTotpConfigurationMachine } from '@/machines/totpConfiguration.machine';
 
 // Create component-specific logger
 const securityCardLogger = createComponentLogger('SecurityCard');
 
 const { t } = useI18n();
+const { actor: totpConfigurationActor } = useTotpConfigurationMachine();
+const { actor: updateEmailActor } = useUpdateEmailMachine();
 
 onMounted(() => {
   securityCardLogger.debug('Security card mounted', {
@@ -40,6 +47,21 @@ onMounted(() => {
     </CardHeader>
     <CardContent>
       <div class="space-y-4">
+        <EmailUpdateItem>
+          <EmailUpdateDialog>
+            <template #password>
+              <VerifyPasswordForm
+                key="1"
+                :actor="updateEmailActor"
+                transition="EMAIL_UPDATE"
+              />
+            </template>
+            <template #changeEmail>
+              <ChangeEmailForm />
+            </template>
+          </EmailUpdateDialog>
+        </EmailUpdateItem>
+        <Separator class="w-full" />
         <PasswordResetItem>
           <PasswordResetDialog />
         </PasswordResetItem>
@@ -47,7 +69,11 @@ onMounted(() => {
         <TotpConfigurationItem>
           <TotpConfigurationDialog>
             <template #password>
-              <VerifyPasswordForm />
+              <VerifyPasswordForm
+                key="2"
+                :actor="totpConfigurationActor"
+                transition="TOTP_CONFIG"
+              />
             </template>
             <template #totp>
               <TotpConfigurationForm />

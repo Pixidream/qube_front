@@ -18,6 +18,7 @@ import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as z from 'zod';
 import { createComponentLogger } from '@/utils/logger';
+import { SignupBody } from '@/core/types/auth';
 
 // Create component-specific logger
 const signupLogger = createComponentLogger('SignupForm');
@@ -52,6 +53,14 @@ const formSchema = toTypedSchema(
         .max(250, {
           error: () => t('auth.signup.form.validation.emailMaxLength'),
         }),
+      username: z
+        .string()
+        .min(3, 'Username must be at least 3 characters')
+        .max(30, 'Username must be at most 30 characters')
+        .regex(
+          /^[a-zA-Z0-9_-]+$/,
+          'Username can only contain letters, numbers, underscores and hyphens',
+        ),
       password: z
         .string({ error: () => t('auth.signup.form.validation.password') })
         .min(6, {
@@ -135,8 +144,9 @@ const handleSignup = handleSubmit(async (values) => {
     try {
       await authStore.signUp({
         email: values.email,
+        username: values.username,
         password: values.password,
-      });
+      } as SignupBody);
       signupLogger.info('Signup form submission - completed', {
         action: 'form_submit_complete',
         email: values.email,
@@ -189,6 +199,27 @@ onMounted(() => {
               <Input
                 type="email"
                 placeholder="john.doe@example.com"
+                v-bind="componentField"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+      </div>
+      <div class="grid gap-3">
+        <FormField
+          v-slot="{ componentField }"
+          name="username"
+          :validate-on-blur="!isFieldDirty"
+        >
+          <FormItem v-auto-animate>
+            <FormLabel>
+              {{ t('auth.signup.form.usernameLabel') }}
+            </FormLabel>
+            <FormControl>
+              <Input
+                type="text"
+                placeholder="john.doe"
                 v-bind="componentField"
               />
             </FormControl>

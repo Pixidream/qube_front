@@ -15,8 +15,10 @@ import { ScrollArea } from '@components/atoms/scroll-area';
 import { useTotpSecureActionMachine } from '@machines/totpSecureAction.machine';
 import TotpSecurePasswordForm from './TotpSecurePasswordForm.vue';
 import { useI18n } from 'vue-i18n';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { toast } from 'vue-sonner';
+import { Subscription } from 'xstate';
+import { onUnmounted } from 'vue';
 
 const authStore = useAuthStore();
 const { t } = useI18n();
@@ -31,32 +33,10 @@ const isActionStep = ref<boolean>(false);
 const isResultStep = ref<boolean>(false);
 const isErrorStep = ref<boolean>(false);
 const errorMessage = ref<string>('');
+let unsubscribe: Subscription | null;
 
 const recoveryCodesText = computed(() => {
   return authStore.totpRecoveryCodes.join('\n');
-});
-
-// Subscribe to state machine changes
-actor.subscribe((snapshot) => {
-  isLoading.value = snapshot.context.isLoading;
-  isPasswordVerifyStep.value = snapshot.matches('flow.password_verify');
-  isConfirmStep.value = snapshot.matches('flow.confirm');
-  isActionStep.value = snapshot.matches('flow.action');
-  isResultStep.value = snapshot.matches('flow.result');
-  isErrorStep.value = snapshot.matches('flow.error');
-  errorMessage.value = snapshot.context.error || '';
-
-  // Handle state transitions
-  if (snapshot.matches('flow.result')) {
-    toast.success(t('account.security.totpRegenerate.success'));
-  } else if (snapshot.matches('flow.completed')) {
-    isDialogOpen.value = false;
-  } else if (snapshot.matches('flow.error')) {
-    toast.error(
-      snapshot.context.error
-        || t('account.security.totpRegenerate.error.description'),
-    );
-  }
 });
 
 const handleRegenerateAction = async () => {
@@ -156,6 +136,34 @@ watch(isDialogOpen, (newValue) => {
     authStore.clearTotpRecoveryCodes();
     actor.send({ type: 'RESET' });
   }
+});
+
+onMounted(() => {
+  unsubscribe = actor.subscribe((snapshot) => {
+    isLoading.value = snapshot.context.isLoading;
+    isPasswordVerifyStep.value = snapshot.matches('flow.password_verify');
+    isConfirmStep.value = snapshot.matches('flow.confirm');
+    isActionStep.value = snapshot.matches('flow.action');
+    isResultStep.value = snapshot.matches('flow.result');
+    isErrorStep.value = snapshot.matches('flow.error');
+    errorMessage.value = snapshot.context.error || '';
+
+    // Handle state transitions
+    if (snapshot.matches('flow.result')) {
+      toast.success(t('account.security.totpRegenerate.success'));
+    } else if (snapshot.matches('flow.completed')) {
+      isDialogOpen.value = false;
+    } else if (snapshot.matches('flow.error')) {
+      toast.error(
+        snapshot.context.error
+          || t('account.security.totpRegenerate.error.description'),
+      );
+    }
+  });
+});
+
+onUnmounted(() => {
+  if (unsubscribe) unsubscribe.unsubscribe();
 });
 </script>
 

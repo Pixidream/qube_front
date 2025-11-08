@@ -2,6 +2,9 @@ export default {
   security: {
     title: 'Security Settings',
     subtitle: 'Manage your account security and authentication.',
+    email: 'Email',
+    emailSubtitle: 'You will be log out and asked to verify your new address',
+    changeEmailButton: 'Change Email',
     password: 'Password',
     lastChanged: 'Last changed {timeSince}',
     neverChanged: 'Never updated',
@@ -105,6 +108,15 @@ export default {
         description: 'Failed to disable two-factor authentication',
       },
     },
+    changeEmail: {
+      title: 'Change Email',
+      subtitle: 'Update your account email',
+      passwordVerify: {
+        title: 'Security Confirmation Required',
+        description:
+          'Please verify your password to update your email. This is a sensitive security operation.',
+      },
+    },
     changePassword: {
       title: 'Change Password',
       subtitle: 'Update your account password',
@@ -121,8 +133,8 @@ export default {
     title: 'Personal Information',
     subtitle: 'Update your personal details and profile information.',
     form: {
-      username: 'Display Name',
-      usernamePlaceholder: 'How others will see you',
+      displayName: 'Display Name',
+      displayNamePlaceholder: 'How others will see you',
       firstName: 'First Name',
       lastName: 'Last Name',
       phoneNumber: 'Phone Number',

@@ -5,6 +5,7 @@ import type {
   AskForTotpResponse,
   AuthenticationResponse,
   ChangePasswordBody,
+  SignupBody,
   UpdateUserBody,
   VerifyEmailBody,
 } from '@core/types/auth';
@@ -150,7 +151,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const getDisplayName = computed<string>(
     () =>
-      user.value?.username
+      user.value?.display_name
       || [user.value?.first_name, user.value?.last_name].join(' ').trim()
       || user.value?.email
       || '',
@@ -289,7 +290,7 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
-  const signUp = async (credentials: Credentials): Promise<void> => {
+  const signUp = async (credentials: SignupBody): Promise<void> => {
     authError.value = null;
 
     authLogger.info('Starting user signup', {
@@ -568,9 +569,12 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
-  const verifyPassword = async (password: string): Promise<boolean> => {
+  const verifyPassword = async (
+    password: string,
+    actor: any,
+  ): Promise<boolean> => {
     authError.value = null;
-    totpConfigurationMachine.actor.send({ type: 'LOADING' });
+    actor.send({ type: 'LOADING' });
     await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
 
     return authService
@@ -599,7 +603,7 @@ export const useAuthStore = defineStore('auth', () => {
         return false;
       })
       .finally(() => {
-        totpConfigurationMachine.actor.send({ type: 'IDLE' });
+        actor.send({ type: 'IDLE' });
       });
   };
 

@@ -25,14 +25,14 @@ import { UpdateUserBody } from '@/core/types/auth';
 import { useRouter } from 'vue-router';
 
 // Create component-specific logger
-const profileFormLogger = createComponentLogger('LoginForm');
+const profileFormLogger = createComponentLogger('ProfileForm');
 
 const router = useRouter();
 const authStore = useAuthStore();
 const { t } = useI18n();
 let formatTimeout: NodeJS.Timeout | null = null;
 const initialValues = {
-  username: authStore.user?.username,
+  display_name: authStore.user?.display_name,
   first_name: authStore.user?.first_name,
   last_name: authStore.user?.last_name,
   job_title: authStore.user?.job_title,
@@ -70,9 +70,9 @@ const formSchema = toTypedSchema(
           : true,
         { error: () => t('account.profile.form.validation.phoneNumber') },
       ),
-    username: z
+    display_name: z
       .string({
-        error: () => t('account.profile.form.validation.username'),
+        error: () => t('account.profile.form.validation.displayName'),
       })
       .optional()
       .nullable(),
@@ -180,24 +180,24 @@ onUnmounted(() => {
 <template>
   <form class="flex flex-col gap-6" @submit="handleProfileUpdate">
     <div class="grid gap-6 grid-cols-1 md:grid-cols-2">
-      <!-- Username -->
+      <!-- Display Name -->
       <div class="space-y-2">
         <FormField
           v-slot="{ componentField }"
-          name="username"
+          name="display_name"
           :validate-on-blur="!isFieldDirty"
         >
           <FormItem v-auto-animate>
             <FormLabel>
-              {{ t('account.profile.form.username') }}
+              {{ t('account.profile.form.displayName') }}
             </FormLabel>
             <FormControl>
               <Input
                 tabindex="1"
                 type="text"
-                :placeholder="t('account.profile.form.usernamePlaceholder')"
+                :placeholder="t('account.profile.form.displayNamePlaceholder')"
                 v-bind="componentField"
-                :class="{ 'border-foreground': isFieldDirty('username') }"
+                :class="{ 'border-foreground': isFieldDirty('display_name') }"
               />
             </FormControl>
             <FormMessage />
@@ -215,7 +215,7 @@ onUnmounted(() => {
           <FormItem v-auto-animate>
             <FormLabel>
               {{ t('auth.login.form.emailLabel') }}
-              <span class="text-muted-foreground mx-4">-</span>
+              <span class="text-muted-foreground mx-1">-</span>
               <Button
                 class="h-4 cursor-pointer rounded-sm"
                 @click="router.push({ name: 'security' })"

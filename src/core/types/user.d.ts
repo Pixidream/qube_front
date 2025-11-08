@@ -2,7 +2,8 @@ export interface User {
   id: string;
   email: string;
   profile_picture?: string;
-  username?: string;
+  username: string;
+  display_name?: string;
   first_name?: string;
   last_name?: string;
   job_title?: string;
