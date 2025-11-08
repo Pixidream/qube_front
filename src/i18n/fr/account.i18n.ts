@@ -158,5 +158,9 @@ export default {
   common: {
     cancel: 'Annuler',
     retry: 'Réessayer',
+    saveChanges: 'Enregistrer les modifications',
+  },
+  accountType: {
+    enterprise: 'Entreprise',
   },
 };

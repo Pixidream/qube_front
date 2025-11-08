@@ -132,7 +132,7 @@ const handleProfileClick = () => {
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Icon icon="lucide:bell" />
-              Notifications
+              {{ t('navbar.navuser.notifications') }}
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

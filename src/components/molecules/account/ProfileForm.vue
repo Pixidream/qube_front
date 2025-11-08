@@ -342,7 +342,7 @@ onUnmounted(() => {
         v-if="authStore.updatingProfile || saving"
         icon="svg-spinners:ring-resize"
       />
-      <span v-else>Save Changes</span>
+      <span v-else>{{ t('account.common.saveChanges') }}</span>
     </Button>
   </form>
 </template>

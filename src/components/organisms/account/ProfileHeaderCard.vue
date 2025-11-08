@@ -45,7 +45,7 @@ onMounted(() => {
         <div class="flex-1 space-y-2">
           <div class="flex flex-col gap-2 md:flex-row md:items-center">
             <h1 class="text-2xl font-bold">{{ authStore.getDisplayName }}</h1>
-            <Badge>Entreprise</Badge>
+            <Badge>{{ t('account.accountType.enterprise') }}</Badge>
           </div>
           <p class="text-muted-foreground">{{ authStore.user?.job_title }}</p>
           <div class="text-muted-foreground flex flex-wrap gap-4 text-sm">

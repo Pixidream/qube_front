@@ -99,7 +99,7 @@ onUnmounted(() => {
     }}</span>
     <Button :disabled="saveDisabled" type="submit">
       <Icon v-if="isLoading" icon="svg-spinners:ring-resize" />
-      <span v-else>Save Changes</span>
+      <span v-else>{{ t('account.common.saveChanges') }}</span>
     </Button>
   </form>
 </template>

@@ -31,6 +31,7 @@ export default {
       title: 'Créez votre compte',
       subtitle: 'Prenez le contrôle de votre inventaire en quelques minutes',
       emailLabel: 'Email',
+      usernameLabel: "Nom d'utilisateur",
       passwordLabel: 'Mot de passe',
       confirmPasswordLabel: 'Confirmez votre mot de passe',
       signupButton: 'Créer mon compte',
@@ -40,6 +41,13 @@ export default {
         email: 'Un email valide est requis.',
         emailMinLength: "L'addresse est trop courte",
         emailMaxLength: "L'addresse est trop longue.",
+        username: "Un nom d'utilisateur valide est requis.",
+        usernameMinLength:
+          "Le nom d'utilisateur doit contenir au moins 3 caractères.",
+        usernameMaxLength:
+          "Le nom d'utilisateur doit contenir au maximum 30 caractères.",
+        usernamePattern:
+          "Le nom d'utilisateur ne peut contenir que des lettres, chiffres, tirets bas et tirets.",
         password: 'Un mot de passe valide est requis.',
         passwordMinLength: 'Le mot de passe est trop court',
         passwordMaxLength: 'Le mot de passe est trop long.',

@@ -3,5 +3,6 @@ export default {
     logout: 'Log out',
     disconnecting: 'Disconnecting',
     account: 'Account',
+    notifications: 'Notifications',
   },
 };

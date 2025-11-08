@@ -152,5 +152,9 @@ export default {
   common: {
     cancel: 'Cancel',
     retry: 'Try Again',
+    saveChanges: 'Save Changes',
+  },
+  accountType: {
+    enterprise: 'Enterprise',
   },
 };

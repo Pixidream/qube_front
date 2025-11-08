@@ -54,13 +54,16 @@ const formSchema = toTypedSchema(
           error: () => t('auth.signup.form.validation.emailMaxLength'),
         }),
       username: z
-        .string()
-        .min(3, 'Username must be at least 3 characters')
-        .max(30, 'Username must be at most 30 characters')
-        .regex(
-          /^[a-zA-Z0-9_-]+$/,
-          'Username can only contain letters, numbers, underscores and hyphens',
-        ),
+        .string({ error: () => t('auth.signup.form.validation.username') })
+        .min(3, {
+          error: () => t('auth.signup.form.validation.usernameMinLength'),
+        })
+        .max(30, {
+          error: () => t('auth.signup.form.validation.usernameMaxLength'),
+        })
+        .regex(/^[a-zA-Z0-9_-]+$/, {
+          error: () => t('auth.signup.form.validation.usernamePattern'),
+        }),
       password: z
         .string({ error: () => t('auth.signup.form.validation.password') })
         .min(6, {
