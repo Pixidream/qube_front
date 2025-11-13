@@ -53,15 +53,12 @@ export const accountDeletionMachine = createMachine({
                   error: null,
                 }),
                 () => {
-                  accountDeletionLogger.info(
-                    'Starting account deletion flow',
-                    {
-                      action: 'transition',
-                      from: 'idle',
-                      to: 'password_verify',
-                      event: 'START_DELETION',
-                    },
-                  );
+                  accountDeletionLogger.info('Starting account deletion flow', {
+                    action: 'transition',
+                    from: 'idle',
+                    to: 'password_verify',
+                    event: 'START_DELETION',
+                  });
                 },
               ],
             },
