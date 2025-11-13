@@ -157,4 +157,55 @@ export default {
   accountType: {
     enterprise: 'Enterprise',
   },
+  settings: {
+    title: 'Account Settings',
+    subtitle: 'Manage your account preferences.',
+    status: {
+      title: 'Account Status',
+      activeSubtitle: 'Your account is currently active',
+      disabledSubtitle: 'Your account is currently deactivated',
+      active: 'Active',
+      disabled: 'Deactivated',
+    },
+  },
+  dangerZone: {
+    title: 'Danger Zone',
+    subtitle: 'Irreversible and destructive actions',
+    deleteAccount: {
+      label: 'Delete Account',
+      description:
+        'Permanently delete your account and all associated data. This action cannot be undone.',
+      button: 'Delete Account',
+      title: 'Delete Your Account',
+      subtitle: 'Permanently remove your account and all data',
+      success: 'Your account has been scheduled for deletion',
+      processing: 'Deleting your account...',
+      confirm: 'Delete My Account',
+      passwordVerify: {
+        title: 'Security Confirmation Required',
+        description:
+          'Please verify your password to delete your account. This is a highly sensitive security operation.',
+      },
+      warning: {
+        title: 'Warning: This Action Cannot Be Undone!',
+        description:
+          'You are about to permanently delete your account. All your data will be lost.',
+      },
+      consequences: {
+        title: 'This will:',
+        item1: 'Permanently delete all your personal data',
+        item2: 'Remove all your projects and files',
+        item3: 'Cancel any active subscriptions',
+      },
+      delay: {
+        title: 'Deletion Process',
+        description:
+          'Your account will be marked for deletion and permanently removed after 30 days. During this period, you can contact us at support@example.com to cancel the deletion. A confirmation email will be sent to you.',
+      },
+      error: {
+        title: 'Error',
+        description: 'Failed to delete your account',
+      },
+    },
+  },
 };

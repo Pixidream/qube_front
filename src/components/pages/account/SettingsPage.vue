@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-
-const { t } = useI18n();
+import SettingsCard from '@components/organisms/account/SettingsCard.vue';
 </script>
 <template>
-  <div>
-    <h1 class="text-2xl font-bold">{{ t('pages.settings.title') }}</h1>
-    <p class="text-muted-foreground mt-2">{{ t('pages.settings.subtitle') }}</p>
-  </div>
+  <SettingsCard />
 </template>

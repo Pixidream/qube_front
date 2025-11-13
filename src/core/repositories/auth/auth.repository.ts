@@ -86,4 +86,6 @@ export interface AuthenticationRepository {
   resendEmailVerification: (
     email: string,
   ) => Promise<ApiResponse<BasicResponse>>;
+
+  deleteAccount: () => Promise<ApiResponse<BasicResponse>>;
 }

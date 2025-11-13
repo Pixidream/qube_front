@@ -163,4 +163,55 @@ export default {
   accountType: {
     enterprise: 'Entreprise',
   },
+  settings: {
+    title: 'Paramètres du Compte',
+    subtitle: 'Gérez les préférences de votre compte.',
+    status: {
+      title: 'Status du compte',
+      activeSubtitle: 'Votre compte est actif',
+      disabledSubtitle: 'Votre compte est innactif',
+      active: 'Actif',
+      disabled: 'Inactif',
+    },
+  },
+  dangerZone: {
+    title: 'Zone Dangereuse',
+    subtitle: 'Actions irréversibles et destructrices',
+    deleteAccount: {
+      label: 'Supprimer le Compte',
+      description:
+        'Supprimez définitivement votre compte et toutes les données associées. Cette action ne peut pas être annulée.',
+      button: 'Supprimer le Compte',
+      title: 'Supprimer Votre Compte',
+      subtitle: 'Supprimer définitivement votre compte et toutes les données',
+      success: 'Votre compte a été programmé pour la suppression',
+      processing: 'Suppression de votre compte...',
+      confirm: 'Supprimer Mon Compte',
+      passwordVerify: {
+        title: 'Confirmation de Sécurité Requise',
+        description:
+          'Veuillez vérifier votre mot de passe pour supprimer votre compte. Ceci est une opération de sécurité hautement sensible.',
+      },
+      warning: {
+        title: 'Attention : Cette Action Ne Peut Pas Être Annulée !',
+        description:
+          'Vous êtes sur le point de supprimer définitivement votre compte. Toutes vos données seront perdues.',
+      },
+      consequences: {
+        title: 'Cela va :',
+        item1: 'Supprimer définitivement toutes vos données personnelles',
+        item2: 'Supprimer tous vos projets et fichiers',
+        item3: 'Annuler tous vos abonnements actifs',
+      },
+      delay: {
+        title: 'Processus de Suppression',
+        description:
+          'Votre compte sera marqué pour suppression et définitivement supprimé après 30 jours. Durant cette période, vous pouvez nous contacter à support@example.com pour annuler la suppression. Un email de confirmation vous sera envoyé.',
+      },
+      error: {
+        title: 'Erreur',
+        description: 'Échec de la suppression de votre compte',
+      },
+    },
+  },
 };

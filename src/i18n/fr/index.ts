@@ -6,4 +6,12 @@ import navigation from './navigation.i18n';
 import account from './account.i18n';
 import pages from './pages.i18n';
 
-export default { app, auth, utils, navbar, navigation, account, pages };
+export default {
+  app,
+  auth,
+  utils,
+  navbar,
+  navigation,
+  account,
+  pages,
+};

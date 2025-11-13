@@ -88,6 +88,8 @@ export interface AuthService {
   resendEmailVerification: (
     email: string,
   ) => Promise<ApiResponse<BasicResponse>>;
+
+  deleteAccount: () => Promise<ApiResponse<BasicResponse>>;
 }
 
 export const createAuthService = (
@@ -573,6 +575,29 @@ export const createAuthService = (
             action: 'resend_email_verification',
           },
         );
+        throw error;
+      }
+    },
+
+    deleteAccount: async () => {
+      authServiceLogger.info('Account deletion started', {
+        action: 'delete_account',
+      });
+
+      try {
+        const result = await repository.deleteAccount();
+
+        authServiceLogger.info('Account deletion completed successfully', {
+          action: 'delete_account',
+          success: !!result.data.value,
+          status: result.response.value?.status,
+        });
+
+        return result;
+      } catch (error) {
+        authServiceLogger.error('Failed to delete account', error as Error, {
+          action: 'delete_account',
+        });
         throw error;
       }
     },

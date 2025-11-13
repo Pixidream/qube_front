@@ -854,6 +854,44 @@ export const useAuthStore = defineStore('auth', () => {
       .catch(() => false);
   };
 
+  const deleteAccount = async (): Promise<boolean> => {
+    authLogger.info('Starting account deletion', {
+      action: 'delete_account',
+    });
+
+    authError.value = null;
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .deleteAccount()
+      .then((res) => {
+        if (res.error.value) {
+          authLogger.error('Account deletion failed', res.error.value, {
+            action: 'delete_account',
+          });
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        authLogger.info('Account deletion successful, clearing user session', {
+          action: 'delete_account',
+        });
+
+        // Clear user session after successful deletion
+        user.value = null;
+        csrfToken.value = null;
+
+        return true;
+      })
+      .catch((error) => {
+        authLogger.error('Account deletion error', error as Error, {
+          action: 'delete_account',
+        });
+        authError.value = t('auth.networkError');
+        return false;
+      });
+  };
+
   return {
     // ------ state ------
     user,
@@ -893,5 +931,6 @@ export const useAuthStore = defineStore('auth', () => {
     getCSRFToken,
     verifyEmail,
     resendVerificationEmail,
+    deleteAccount,
   };
 });

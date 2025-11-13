@@ -9,5 +9,5 @@ export default {
   profile: 'Profile',
   security: 'Security',
   account: 'Account',
-  settings: 'Settings',
+  settings: 'Account Settings',
 };
