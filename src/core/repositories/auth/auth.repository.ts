@@ -88,4 +88,6 @@ export interface AuthenticationRepository {
   ) => Promise<ApiResponse<BasicResponse>>;
 
   deleteAccount: () => Promise<ApiResponse<BasicResponse>>;
+
+  deactivateAccount: () => Promise<ApiResponse<BasicResponse>>;
 }

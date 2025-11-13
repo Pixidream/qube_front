@@ -691,5 +691,16 @@ export const createAuthWebRepository = (): AuthenticationRepository => {
         {},
       );
     },
+
+    deactivateAccount: async () => {
+      webRepoLogger.info('Deactivating user account', {
+        action: 'deactivate_account',
+      });
+
+      return await _postRequest<BasicResponse, Record<string, never>>(
+        '/auth/deactivate-account',
+        {},
+      );
+    },
   };
 };

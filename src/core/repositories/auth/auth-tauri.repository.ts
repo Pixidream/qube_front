@@ -263,4 +263,15 @@ export const createAuthTauriRepository = (): AuthenticationRepository => ({
       {},
     );
   },
+
+  deactivateAccount: async () => {
+    tauriRepoLogger.info('Deactivating user account', {
+      action: 'deactivate_account',
+    });
+
+    return await _postRequest<BasicResponse, Record<string, never>>(
+      '/auth/deactivate-account',
+      {},
+    );
+  },
 });

@@ -892,6 +892,47 @@ export const useAuthStore = defineStore('auth', () => {
       });
   };
 
+  const deactivateAccount = async (): Promise<boolean> => {
+    authLogger.info('Starting account deactivation', {
+      action: 'deactivate_account',
+    });
+
+    authError.value = null;
+    await new Promise((resolve) => setTimeout(resolve, MIN_EXEC_TIME_MS));
+
+    return authService
+      .deactivateAccount()
+      .then((res) => {
+        if (res.error.value) {
+          authLogger.error('Account deactivation failed', res.error.value, {
+            action: 'deactivate_account',
+          });
+          authError.value = t('auth.networkError');
+          return false;
+        }
+
+        authLogger.info(
+          'Account deactivation successful, clearing user session',
+          {
+            action: 'deactivate_account',
+          },
+        );
+
+        // Clear user session after successful deactivation
+        user.value = null;
+        csrfToken.value = null;
+
+        return true;
+      })
+      .catch((error) => {
+        authLogger.error('Account deactivation error', error as Error, {
+          action: 'deactivate_account',
+        });
+        authError.value = t('auth.networkError');
+        return false;
+      });
+  };
+
   return {
     // ------ state ------
     user,
@@ -932,5 +973,6 @@ export const useAuthStore = defineStore('auth', () => {
     verifyEmail,
     resendVerificationEmail,
     deleteAccount,
+    deactivateAccount,
   };
 });

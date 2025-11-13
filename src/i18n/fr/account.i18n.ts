@@ -172,6 +172,24 @@ export default {
       disabledSubtitle: 'Votre compte est innactif',
       active: 'Actif',
       disabled: 'Inactif',
+      deactivate: {
+        title: 'Désactiver le Compte',
+        subtitle: 'Désactiver temporairement votre compte',
+        success: 'Votre compte a été désactivé avec succès',
+        error: 'Échec de la désactivation de votre compte',
+        confirm: 'Désactiver le Compte',
+        info: {
+          title: 'Action Réversible',
+          description:
+            'Vous pouvez réactiver votre compte à tout moment en vous reconnectant. Vos données seront conservées.',
+        },
+        consequences: {
+          title: 'Ce qui se passe quand vous désactivez :',
+          item1: 'Votre compte sera temporairement désactivé',
+          item2: 'Vous serez déconnecté immédiatement',
+          item3: 'Reconnectez-vous simplement pour réactiver',
+        },
+      },
     },
   },
   dangerZone: {

@@ -166,6 +166,24 @@ export default {
       disabledSubtitle: 'Your account is currently deactivated',
       active: 'Active',
       disabled: 'Deactivated',
+      deactivate: {
+        title: 'Deactivate Account',
+        subtitle: 'Temporarily disable your account',
+        success: 'Your account has been deactivated successfully',
+        error: 'Failed to deactivate your account',
+        confirm: 'Deactivate Account',
+        info: {
+          title: 'Reversible Action',
+          description:
+            'You can reactivate your account at any time by simply logging back in. Your data will be preserved.',
+        },
+        consequences: {
+          title: 'What happens when you deactivate:',
+          item1: 'Your account will be temporarily disabled',
+          item2: 'You will be logged out immediately',
+          item3: 'Simply log in again to reactivate',
+        },
+      },
     },
   },
   dangerZone: {

@@ -90,6 +90,8 @@ export interface AuthService {
   ) => Promise<ApiResponse<BasicResponse>>;
 
   deleteAccount: () => Promise<ApiResponse<BasicResponse>>;
+
+  deactivateAccount: () => Promise<ApiResponse<BasicResponse>>;
 }
 
 export const createAuthService = (
@@ -598,6 +600,33 @@ export const createAuthService = (
         authServiceLogger.error('Failed to delete account', error as Error, {
           action: 'delete_account',
         });
+        throw error;
+      }
+    },
+
+    deactivateAccount: async () => {
+      authServiceLogger.info('Account deactivation started', {
+        action: 'deactivate_account',
+      });
+
+      try {
+        const result = await repository.deactivateAccount();
+
+        authServiceLogger.info('Account deactivation completed successfully', {
+          action: 'deactivate_account',
+          success: !!result.data.value,
+          status: result.response.value?.status,
+        });
+
+        return result;
+      } catch (error) {
+        authServiceLogger.error(
+          'Failed to deactivate account',
+          error as Error,
+          {
+            action: 'deactivate_account',
+          },
+        );
         throw error;
       }
     },
