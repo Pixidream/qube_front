@@ -21,7 +21,7 @@ const authStore = useAuthStore();
         {{ t('account.security.totpSubtitle') }}
       </p>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-start gap-2 flex-col md:flex-row md:items-center">
       <Badge
         :variant="authStore.user?.totp_enabled ? 'default' : 'destructive'"
         >{{
